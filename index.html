@@ -59,6 +59,87 @@
         letter-spacing: 3px;
         text-shadow: 0 0 20px rgba(201, 168, 76, 0.4);
       }
+      #header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+      #menu-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid #4a3010;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--gold-lt);
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+      }
+      #menu-btn:active {
+        transform: scale(0.97);
+      }
+      #menu-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 280;
+        display: none;
+      }
+      #menu-backdrop.show {
+        display: block;
+      }
+      #hamburger-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: min(85vw, 320px);
+        background: linear-gradient(to bottom, #261506, #160c04);
+        border-right: 1px solid #5a3a13;
+        box-shadow: 0 0 26px rgba(0, 0, 0, 0.7);
+        transform: translateX(-102%);
+        transition: transform 0.22s ease;
+        z-index: 290;
+        padding: 16px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      #hamburger-menu.show {
+        transform: translateX(0);
+      }
+      .menu-title {
+        font-family: "Cinzel", serif;
+        color: var(--gold);
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+      }
+      .menu-item {
+        display: block;
+        width: 100%;
+        text-align: left;
+        font-family: "Crimson Text", serif;
+        font-size: 18px;
+        color: var(--parch);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(201, 168, 76, 0.2);
+        border-radius: 8px;
+        padding: 10px 12px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .menu-item:active {
+        transform: scale(0.99);
+      }
+      .menu-separator {
+        border-top: 1px solid rgba(201, 168, 76, 0.35);
+        margin: 6px 0;
+      }
+      .menu-item.reset {
+        color: #ffd3a8;
+        border-color: rgba(255, 150, 90, 0.3);
+      }
       .stat-row {
         display: flex;
         gap: 12px;
@@ -198,6 +279,217 @@
       #player-setup.hidden {
         display: none;
       }
+      #mode-setup {
+        display: flex;
+        position: absolute;
+        inset: 0;
+        background: rgba(10, 6, 2, 0.96);
+        align-items: center;
+        justify-content: center;
+        z-index: 220;
+        backdrop-filter: blur(8px);
+      }
+      #mode-setup.hidden {
+        display: none;
+      }
+      #scorecard-page {
+        display: flex;
+        position: absolute;
+        inset: 0;
+        background: rgba(10, 6, 2, 0.96);
+        align-items: center;
+        justify-content: center;
+        z-index: 210;
+        backdrop-filter: blur(8px);
+      }
+      #scorecard-page.hidden {
+        display: none;
+      }
+      .scorecard-wrap {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        padding: 10px 10px 14px;
+      }
+      .scorecard-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+      }
+      .scorecard-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1.5px solid rgba(201, 168, 76, 0.35);
+        border-radius: 10px;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition:
+          background 0.15s,
+          border-color 0.15s;
+      }
+      .scorecard-btn svg {
+        width: 22px;
+        height: 22px;
+        stroke: rgba(240, 208, 128, 0.92);
+        fill: none;
+        stroke-width: 1.7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: stroke 0.15s;
+      }
+      .scorecard-btn.active {
+        background: rgba(201, 168, 76, 0.92);
+        border-color: rgba(201, 168, 76, 0.9);
+      }
+      .scorecard-btn.active svg {
+        stroke: #1a1008;
+      }
+      .scorecard-btn:disabled {
+        opacity: 0.32;
+        cursor: default;
+      }
+      .scorecard-select {
+        font-family: "Cinzel", serif;
+        font-size: 12px;
+        color: var(--parch);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(201, 168, 76, 0.35);
+        border-radius: 8px;
+        padding: 8px 10px;
+        min-width: 110px;
+      }
+      .scorecard-viewport-wrapper {
+        width: 100%;
+        flex: 1;
+        min-height: 0;
+        position: relative;
+      }
+      .scorecard-pan-viewport {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        touch-action: none;
+      }
+      .scorecard-pan-arrow {
+        display: none;
+      }
+      .scorecard-stage {
+        position: relative;
+        height: min(100%, calc((100vw - 48px) / 0.70710678));
+        width: calc(min(100%, calc((100vw - 48px) / 0.70710678)) * 0.70710678);
+        max-width: calc(100vw - 48px);
+        max-height: 100%;
+        border: 1px solid rgba(201, 168, 76, 0.5);
+        border-radius: 8px;
+        box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+        background-image: url("cr_scoring_a4.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+      #scorecard-draw-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+        cursor: crosshair;
+      }
+      .scorecard-hint {
+        font-size: 12px;
+        color: rgba(240, 208, 128, 0.95);
+        text-align: center;
+      }
+      @media (max-width: 900px) {
+        .scorecard-wrap {
+          gap: 6px;
+          padding: 8px 0 10px;
+        }
+        .scorecard-viewport-wrapper {
+          width: 100vw;
+        }
+        .scorecard-stage {
+          height: 100%;
+          width: auto;
+          aspect-ratio: 2374 / 1632;
+          flex-shrink: 0;
+          max-width: none;
+          max-height: none;
+          background-size: 100% 100%;
+        }
+        .scorecard-pan-arrow {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 36px;
+          height: 80px;
+          background: rgba(10, 6, 2, 0.6);
+          border: 1px solid rgba(201, 168, 76, 0.55);
+          border-radius: 6px;
+          color: rgba(201, 168, 76, 0.95);
+          font-size: 20px;
+          z-index: 10;
+          cursor: pointer;
+          pointer-events: auto;
+        }
+        .scorecard-pan-arrow-left {
+          left: 4px;
+        }
+        .scorecard-pan-arrow-right {
+          right: 4px;
+        }
+        .scorecard-pan-arrow:disabled {
+          opacity: 0.15;
+          pointer-events: none;
+        }
+        .scorecard-scrollbar {
+          display: block;
+          width: calc(100% - 24px);
+          margin: 2px 12px 0;
+          height: 22px;
+          cursor: pointer;
+          accent-color: rgba(201, 168, 76, 0.9);
+          opacity: 0;
+          pointer-events: none;
+        }
+        .scorecard-scrollbar[data-hidden="false"] {
+          opacity: 0.85;
+          pointer-events: auto;
+        }
+        .scorecard-scrollbar::-webkit-slider-runnable-track {
+          background: rgba(255, 255, 255, 0.12);
+          border-radius: 4px;
+          height: 4px;
+        }
+        .scorecard-scrollbar::-webkit-slider-thumb {
+          width: 32px;
+          height: 14px;
+          border-radius: 4px;
+          background: rgba(201, 168, 76, 0.85);
+          margin-top: -5px;
+        }
+        .scorecard-hint {
+          padding: 0 10px;
+          font-size: 11px;
+        }
+      }
       .setup-card {
         background: linear-gradient(to bottom, #2a1808, #1a1008);
         border: 1px solid var(--gold);
@@ -239,6 +531,21 @@
       }
       .player-btn:hover {
         background: rgba(201, 168, 76, 0.3);
+      }
+      .mode-btn {
+        min-width: 120px;
+      }
+      #mode-setup .player-btns {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+      #mode-setup .mode-btn {
+        width: 190px;
+        height: 56px;
+      }
+      .placeholder-text {
+        margin-bottom: 12px;
       }
       #scoreboard {
         display: none;
@@ -385,6 +692,205 @@
       .market-skip-card button:active {
         transform: scale(0.97);
       }
+      .generic-modal {
+        display: none;
+        position: absolute;
+        inset: 0;
+        background: rgba(10, 6, 2, 0.92);
+        align-items: center;
+        justify-content: center;
+        z-index: 320;
+        backdrop-filter: blur(6px);
+      }
+      .generic-modal.show {
+        display: flex;
+      }
+      .generic-modal-card {
+        background: linear-gradient(to bottom, #2a1808, #1a1008);
+        border: 1px solid var(--gold);
+        border-radius: 12px;
+        padding: 24px 18px;
+        width: min(94vw, 520px);
+      }
+      .instructions-card {
+        width: min(96vw, 920px);
+        max-height: 88vh;
+        overflow-y: auto;
+      }
+      .pdf-preview-card {
+        width: min(96vw, 860px);
+        max-height: 92vh;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .pdf-preview-frame-wrap {
+        flex: 1;
+        min-height: 0;
+        border: 1px solid rgba(201, 168, 76, 0.3);
+        border-radius: 6px;
+        overflow: hidden;
+        background: #fff;
+      }
+      .pdf-preview-iframe {
+        width: 100%;
+        height: min(68vh, 600px);
+        border: none;
+        display: block;
+      }
+      .pdf-preview-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .pdf-preview-actions a {
+        font-family: "Cinzel", serif;
+        font-size: 12px;
+        color: var(--parch);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(201, 168, 76, 0.35);
+        border-radius: 8px;
+        padding: 8px 14px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .generic-modal-card h2 {
+        font-family: "Cinzel", serif;
+        font-size: 20px;
+        color: var(--gold);
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+      }
+      .instructions-content {
+        color: var(--parch);
+      }
+      .instructions-search-wrap {
+        margin-bottom: 12px;
+      }
+      .instructions-search {
+        width: 100%;
+        font-family: "Crimson Text", serif;
+        font-size: 16px;
+        color: var(--cream);
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(201, 168, 76, 0.35);
+        border-radius: 8px;
+        padding: 10px 12px;
+        outline: none;
+      }
+      .instructions-search:focus {
+        border-color: var(--gold-lt);
+      }
+      #instructions-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .instructions-item {
+        border: 1px solid rgba(201, 168, 76, 0.3);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        overflow: hidden;
+      }
+      .instructions-item summary {
+        list-style: none;
+        cursor: pointer;
+        font-family: "Cinzel", serif;
+        font-size: 16px;
+        color: var(--gold-lt);
+        letter-spacing: 0.3px;
+        padding: 10px 12px;
+        user-select: none;
+      }
+      .instructions-item summary::-webkit-details-marker {
+        display: none;
+      }
+      .instructions-item summary::after {
+        content: "+";
+        float: right;
+        color: var(--gold);
+      }
+      .instructions-item[open] summary::after {
+        content: "−";
+      }
+      .instructions-body {
+        padding: 0 12px 12px;
+      }
+      .instructions-content p {
+        margin-bottom: 10px;
+        line-height: 1.55;
+      }
+      .instructions-content ul,
+      .instructions-content ol {
+        margin: 8px 0 14px 22px;
+      }
+      .instructions-content li {
+        margin: 4px 0;
+        line-height: 1.45;
+      }
+      .instructions-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 16px;
+      }
+      .instructions-no-results {
+        display: none;
+        margin-top: 10px;
+        font-size: 15px;
+        color: #f0b98b;
+      }
+      .generic-modal-card p {
+        font-size: 16px;
+        color: var(--parch);
+        margin-bottom: 16px;
+        line-height: 1.45;
+      }
+      .generic-modal-card button {
+        font-family: "Cinzel", serif;
+        font-size: 14px;
+        color: var(--dark);
+        background: linear-gradient(to bottom, var(--gold-lt), var(--gold));
+        border: none;
+        border-radius: 8px;
+        padding: 10px 24px;
+        cursor: pointer;
+      }
+      .sheet-preview-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0 16px;
+      }
+      .sheet-preview-table th,
+      .sheet-preview-table td {
+        border: 1px solid rgba(201, 168, 76, 0.35);
+        padding: 6px;
+        text-align: center;
+        color: var(--parch);
+        font-size: 13px;
+      }
+      .sheet-preview-table th {
+        color: var(--gold-lt);
+      }
+      .sheet-preview-card {
+        width: min(96vw, 920px);
+        max-height: 88vh;
+        overflow-y: auto;
+      }
+      .sheet-preview-status {
+        font-size: 14px;
+        color: var(--gold-lt);
+        margin-bottom: 10px;
+      }
+      #sheet-preview-container {
+        overflow-x: auto;
+      }
+      .sheet-preview-empty {
+        font-size: 15px;
+        color: var(--parch);
+        margin: 12px 0 16px;
+      }
 
       /* ---- DICE TRAY LABEL ---- */
       #tray-label {
@@ -402,15 +908,205 @@
     </style>
   </head>
   <body>
+    <div id="menu-backdrop" onclick="closeHamburgerMenu()"></div>
+    <nav id="hamburger-menu" aria-label="Menu principale">
+      <h3 class="menu-title">Menu</h3>
+      <button class="menu-item" onclick="openInstructionsModal()">
+        Istruzioni
+      </button>
+      <button class="menu-item" onclick="openPdfPreviewModal()">
+        PDF Segnapunti
+      </button>
+      <button class="menu-item" onclick="openScoreSheetModal()">
+        Visualizza Resoconto Dadi Raccolti
+      </button>
+      <div class="menu-separator"></div>
+      <button class="menu-item reset" onclick="resetFromMenu()">RESET</button>
+    </nav>
+
     <!-- HEADER -->
     <div id="header">
-      <h1>CORINTH</h1>
+      <div id="header-left">
+        <button
+          id="menu-btn"
+          onclick="toggleHamburgerMenu()"
+          aria-label="Apri menu"
+        >
+          ☰
+        </button>
+        <h1>CORINTH</h1>
+      </div>
       <div id="turn-info"></div>
     </div>
 
     <!-- 3D VIEW -->
     <div id="canvas-wrap">
       <canvas id="three-canvas"></canvas>
+
+      <div id="mode-setup">
+        <div class="setup-card">
+          <h2>CORINTH</h2>
+          <p>Scegli la modalità</p>
+          <div class="player-btns">
+            <button
+              class="player-btn mode-btn"
+              onclick="chooseMainMode('board')"
+            >
+              PLANCIA
+            </button>
+            <button
+              class="player-btn mode-btn"
+              onclick="chooseMainMode('scorecard')"
+            >
+              SEGNAPUNTI
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="scorecard-page" class="hidden">
+        <div class="scorecard-wrap">
+          <div class="scorecard-toolbar">
+            <button
+              id="scorecard-tool-pen"
+              class="scorecard-btn"
+              onclick="setScorecardTool('pen')"
+              aria-label="Penna"
+              title="Penna"
+            >
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                />
+              </svg>
+            </button>
+            <button
+              id="scorecard-tool-eraser"
+              class="scorecard-btn"
+              onclick="setScorecardTool('eraser')"
+              aria-label="Gomma"
+              title="Gomma"
+            >
+              <svg viewBox="0 0 24 24">
+                <path d="M20 20H7L3 16l9-9 8 8-2.5 2.5" />
+                <path d="M6.5 17.5l4-4" />
+              </svg>
+            </button>
+            <button
+              id="scorecard-tool-circle"
+              class="scorecard-btn active"
+              onclick="setScorecardTool('circle')"
+              aria-label="Cerchio"
+              title="Cerchio"
+            >
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /></svg>
+            </button>
+            <button
+              id="scorecard-tool-x"
+              class="scorecard-btn"
+              onclick="setScorecardTool('x')"
+              aria-label="X"
+              title="X"
+            >
+              <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6l-12 12" /></svg>
+            </button>
+            <!-- <select
+              id="scorecard-stroke-size"
+              class="scorecard-select"
+              onchange="setScorecardStrokeWidth(this.value)"
+              aria-label="Spessore linea"
+            >
+              <option value="2">Sottile</option>
+              <option value="4">Medio</option>
+              <option value="6">Spesso</option>
+            </select> -->
+            <button
+              id="scorecard-undo-btn"
+              class="scorecard-btn"
+              onclick="undoScorecardCanvas()"
+              aria-label="Undo"
+              title="Undo"
+              disabled
+            >
+              <svg viewBox="0 0 24 24">
+                <path d="M3 10h10a5 5 0 0 1 0 10H9" />
+                <polyline points="3 6 3 10 7 10" />
+              </svg>
+            </button>
+            <button
+              id="scorecard-redo-btn"
+              class="scorecard-btn"
+              onclick="redoScorecardCanvas()"
+              aria-label="Redo"
+              title="Redo"
+              disabled
+            >
+              <svg viewBox="0 0 24 24">
+                <path d="M21 10H11a5 5 0 0 0 0 10h4" />
+                <polyline points="21 6 21 10 17 10" />
+              </svg>
+            </button>
+            <button
+              class="scorecard-btn"
+              onclick="requestClearScorecardCanvas()"
+              aria-label="Cancella tutto"
+              title="Cancella tutto"
+            >
+              <svg viewBox="0 0 24 24">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14H6L5 6" />
+                <path d="M10 11v6M14 11v6" />
+                <path d="M9 6V4h6v2" />
+              </svg>
+            </button>
+            <button
+              class="scorecard-btn"
+              onclick="chooseMainMode('board')"
+              style="display: none"
+            >
+              Vai a PLANCIA
+            </button>
+          </div>
+
+          <div class="scorecard-viewport-wrapper">
+            <div class="scorecard-pan-viewport" id="scorecard-pan-viewport">
+              <div class="scorecard-stage" id="scorecard-stage">
+                <canvas id="scorecard-draw-canvas"></canvas>
+              </div>
+            </div>
+            <button
+              id="scorecard-pan-left-btn"
+              class="scorecard-pan-arrow scorecard-pan-arrow-left"
+              onclick="scorecardPanStep(1)"
+              aria-label="Scorri a sinistra"
+            >
+              &#9664;
+            </button>
+            <button
+              id="scorecard-pan-right-btn"
+              class="scorecard-pan-arrow scorecard-pan-arrow-right"
+              onclick="scorecardPanStep(-1)"
+              aria-label="Scorri a destra"
+            >
+              &#9654;
+            </button>
+          </div>
+
+          <input
+            type="range"
+            id="scorecard-scrollbar"
+            class="scorecard-scrollbar"
+            min="0"
+            max="1000"
+            value="500"
+            aria-label="Scorri la scheda"
+            oninput="onScorecardScrollbarInput(this.value)"
+          />
+
+          <p class="scorecard-hint">Disegna con dito o mouse sulla scheda.</p>
+        </div>
+      </div>
+
       <div id="scoreboard">
         <div class="score-card">
           <h2>PARTITA FINITA</h2>
@@ -428,8 +1124,385 @@
         </div>
       </div>
 
+      <div id="instructions-modal" class="generic-modal">
+        <div class="generic-modal-card instructions-card">
+          <h2>Manuale di Istruzioni: Corinth</h2>
+          <div class="instructions-content">
+            <div class="instructions-search-wrap">
+              <input
+                id="instructions-search"
+                class="instructions-search"
+                type="search"
+                placeholder="Cerca titolo sezione..."
+                oninput="filterInstructionSections(this.value)"
+              />
+            </div>
+
+            <div id="instructions-sections">
+              <details
+                class="instructions-item"
+                data-title="Introduzione e Scopo del Gioco"
+              >
+                <summary>Introduzione e Scopo del Gioco</summary>
+                <div class="instructions-body">
+                  <p>
+                    Benvenuti a Corinto. In questo gioco vestirete i panni di
+                    intraprendenti mercanti del mondo antico, intenti a
+                    consegnare merci e bestiame per accrescere la vostra fama
+                    nel porto più prestigioso dell'epoca. Il vostro obiettivo è
+                    accumulare il maggior numero di punti vittoria per essere
+                    ricordati come i commercianti più illustri della città.
+                  </p>
+                  <p>
+                    La partita si sviluppa lungo un numero preciso di turni,
+                    monitorati sul Tracciato dei Turni (Turn Track):
+                  </p>
+                  <ul>
+                    <li>Partite a 2 o 3 giocatori: 18 turni.</li>
+                    <li>Partite a 4 giocatori: 16 turni.</li>
+                  </ul>
+                </div>
+              </details>
+
+              <details
+                class="instructions-item"
+                data-title="Struttura del Round e Approvvigionamento del Porto"
+              >
+                <summary>
+                  Struttura del Round e Approvvigionamento del Porto
+                </summary>
+                <div class="instructions-body">
+                  <p>
+                    All'inizio di ogni round, il primo giocatore gestisce le
+                    operazioni portuali:
+                  </p>
+                  <ol>
+                    <li>
+                      Segnare il turno: Barra la casella disponibile più a
+                      sinistra sul proprio Tracciato dei Turni.
+                    </li>
+                    <li>
+                      Acquisto dadi gialli (Opzionale): Può acquistare fino a 3
+                      dadi gialli al costo di 1 Oro ciascuno (per pagare,
+                      barrare un simbolo Oro precedentemente cerchiato).
+                    </li>
+                    <li>
+                      Lancio dei dadi: Lancia i 9 dadi bianchi insieme agli
+                      eventuali dadi gialli acquistati.
+                    </li>
+                    <li>
+                      Smistamento sul Tabellone: I dadi vengono raggruppati per
+                      valore e posizionati come segue:
+                      <ul>
+                        <li>
+                          I dadi con il valore più alto vanno nel Distretto
+                          dell'Oro.
+                        </li>
+                        <li>
+                          Gli altri dadi vanno posizionati in ordine crescente
+                          di valore, dal basso verso l'alto, partendo dal
+                          Distretto delle Capre e proseguendo nei Distretti dei
+                          Negozi intermedi.
+                        </li>
+                      </ul>
+                    </li>
+                  </ol>
+                </div>
+              </details>
+
+              <details
+                class="instructions-item"
+                data-title="Svolgimento del Turno e Azioni"
+              >
+                <summary>Svolgimento del Turno e Azioni</summary>
+                <div class="instructions-body">
+                  <p>
+                    Il round procede in senso orario. Ogni giocatore sceglie un
+                    gruppo di dadi, esegue l'azione e può poi costruire edifici.
+                  </p>
+                </div>
+              </details>
+
+              <details
+                class="instructions-item"
+                data-title="La Regola d'Oro di Corinth"
+              >
+                <summary>La Regola d'Oro di Corinth</summary>
+                <div class="instructions-body">
+                  <ul>
+                    <li>
+                      Numero di dadi nel gruppo = Quantità (Merci consegnate,
+                      Oro o Capre ottenuti).
+                    </li>
+                    <li>
+                      Valore dei dadi nel gruppo = Distanza (Passi
+                      dell'Intendente nel Mercato).
+                    </li>
+                  </ul>
+                </div>
+              </details>
+
+              <details
+                class="instructions-item"
+                data-title="Gestione dadi gialli"
+              >
+                <summary>Gestione dadi gialli</summary>
+                <div class="instructions-body">
+                  <p>
+                    I dadi gialli sono un vantaggio esclusivo del primo
+                    giocatore. Dopo che questi ha concluso il suo turno, tutti i
+                    dadi gialli rimasti sul tabellone vengono rimossi. Gli altri
+                    giocatori utilizzeranno solo i dadi bianchi.
+                  </p>
+                </div>
+              </details>
+
+              <details
+                class="instructions-item"
+                data-title="Azioni Principali: Ottenere Oro o Capre"
+              >
+                <summary>Azioni Principali: Ottenere Oro o Capre</summary>
+                <div class="instructions-body">
+                  <p>
+                    Scegliendo dadi dai distretti corrispondenti, cerchiate
+                    sulla scheda tanti simboli (Oro o Capre) quanti sono i dadi
+                    nel gruppo.
+                  </p>
+                </div>
+              </details>
+
+              <details
+                class="instructions-item"
+                data-title="Azioni Principali: Consegnare Merci"
+              >
+                <summary>Azioni Principali: Consegnare Merci</summary>
+                <div class="instructions-body">
+                  <p>
+                    Scegliendo un gruppo dai Distretti dei Negozi (intermedi):
+                  </p>
+                  <ul>
+                    <li>
+                      Barrate tanti simboli merce quanti sono i dadi scelti.
+                    </li>
+                    <li>
+                      Flessibilità e Vincoli: Potete barrare i simboli in
+                      qualsiasi ordine all'interno di un distretto; tuttavia, è
+                      obbligatorio completare interamente un negozio prima di
+                      poterne iniziare un altro nello stesso distretto.
+                    </li>
+                    <li>
+                      Bonus di Distretto: Il primo che completa tutti i negozi
+                      di un distretto (eccetto l'arancione) cerchia il bonus in
+                      alto a sinistra. Gli altri devono barrare quel bonus: non
+                      sarà più ottenibile per loro.
+                    </li>
+                  </ul>
+                </div>
+              </details>
+
+              <details
+                class="instructions-item"
+                data-title="Muovere l'Intendente (Steward)"
+              >
+                <summary>Muovere l'Intendente (Steward)</summary>
+                <div class="instructions-body">
+                  <p>
+                    In alternativa all'azione del distretto, potete usare il
+                    gruppo di dadi per muovervi nel Mercato:
+                  </p>
+                  <ul>
+                    <li>
+                      Movimento: Vi muovete di tanti passi quanto è il valore
+                      dei dadi. Il primo movimento parte dal centro.
+                    </li>
+                    <li>
+                      Modificatori: Spendete 1 Oro per aumentare o diminuire il
+                      movimento di 1 passo.
+                    </li>
+                    <li>
+                      Vincoli: Tracciate una linea continua; non si può
+                      ripassare o fermarsi su caselle già utilizzate.
+                    </li>
+                    <li>
+                      Punteggio (Diamanti): Quando raggiungete una casella
+                      "Diamante", registrate i punti: 1 punto per ogni simbolo
+                      mercato cerchiato + 1 punto per ogni casella "+1"
+                      cerchiata. I diamanti successivi sono cumulativi: sommate
+                      il nuovo punteggio ai punti già registrati nei diamanti
+                      precedenti.
+                    </li>
+                  </ul>
+                </div>
+              </details>
+
+              <details
+                class="instructions-item"
+                data-title="Azione di Compensazione"
+              >
+                <summary>Azione di Compensazione</summary>
+                <div class="instructions-body">
+                  <p>
+                    Se un giocatore non può effettuare alcuna azione legale con
+                    i dadi rimasti, o se il lancio ha generato meno gruppi di
+                    dadi rispetto al numero di giocatori, i giocatori esclusi
+                    possono muovere l'Intendente di 1 passo come compensazione.
+                  </p>
+                </div>
+              </details>
+
+              <details
+                class="instructions-item"
+                data-title="Costruzione degli Edifici"
+              >
+                <summary>Costruzione degli Edifici</summary>
+                <div class="instructions-body">
+                  <p>
+                    Al termine del turno, potete spendere risorse (barrando i
+                    simboli Oro/Capra cerchiati) per costruire edifici. Il costo
+                    è indicato dalle icone sopra ogni edificio sulla scheda.
+                  </p>
+                  <table class="sheet-preview-table">
+                    <thead>
+                      <tr>
+                        <th>Edificio</th>
+                        <th>Beneficio Permanente</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Tempio</td>
+                        <td>
+                          A fine partita, ricevi 3 punti per ogni edificio
+                          costruito (incluso il Tempio).
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Magazzino</td>
+                        <td>
+                          Ogni volta che esegui l'azione "Consegnare Merci",
+                          barra 1 simbolo extra.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Stalla</td>
+                        <td>
+                          Ogni volta che muovi l'Intendente, puoi variare il
+                          movimento di 1 o 2 passi gratis.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Bottega</td>
+                        <td>
+                          Ogni volta che esegui l'azione "Ottenere Oro", ricevi
+                          2 monete d'oro extra.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+
+              <details
+                class="instructions-item"
+                data-title="Fine Partita e Calcolo del Punteggio"
+              >
+                <summary>Fine Partita e Calcolo del Punteggio</summary>
+                <div class="instructions-body">
+                  <p>
+                    La partita termina quando tutti i giocatori completano il
+                    Tracciato dei Turni. Il punteggio finale è la somma di:
+                  </p>
+                  <ol>
+                    <li>Punti dei negozi completati.</li>
+                    <li>Bonus dei distretti completati.</li>
+                    <li>
+                      Punti dell'Intendente (totale dell'ultimo diamante
+                      compilato).
+                    </li>
+                    <li>Bonus del Tempio.</li>
+                    <li>
+                      1 punto ogni 2 Monete d'Oro rimanenti e 1 punto ogni 2
+                      Capre rimanenti.
+                    </li>
+                  </ol>
+                  <p>
+                    In caso di pareggio, vince chi possiede più Monete d'Oro. In
+                    caso di ulteriore parità, la vittoria è condivisa.
+                  </p>
+                </div>
+              </details>
+
+              <details
+                class="instructions-item"
+                data-title="Variante per 2 Giocatori"
+              >
+                <summary>Variante per 2 Giocatori</summary>
+                <div class="instructions-body">
+                  <p>
+                    Nelle partite a due, la struttura del round segue questa
+                    sequenza specifica:
+                  </p>
+                  <ol>
+                    <li>
+                      Primo Giocatore: Approvvigionamento del Porto e primo
+                      turno.
+                    </li>
+                    <li>
+                      Rimozione Gialli: Tutti i dadi gialli vengono rimossi dal
+                      tabellone.
+                    </li>
+                    <li>Secondo Giocatore: Svolge il suo unico turno.</li>
+                    <li>
+                      Primo Giocatore: Svolge un secondo turno utilizzando i
+                      dadi bianchi rimasti.
+                    </li>
+                    <li>
+                      Il round termina e il ruolo di primo giocatore passa
+                      all'avversario.
+                    </li>
+                  </ol>
+                </div>
+              </details>
+            </div>
+
+            <p id="instructions-no-results" class="instructions-no-results">
+              Nessuna sezione trovata con questo titolo.
+            </p>
+          </div>
+          <div class="instructions-actions">
+            <button onclick="closeInstructionsModal()">Chiudi</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="sheet-preview-modal" class="generic-modal">
+        <div class="generic-modal-card sheet-preview-card">
+          <h2>Resoconto raccolta dadi</h2>
+          <p id="sheet-preview-status" class="sheet-preview-status"></p>
+          <div id="sheet-preview-container"></div>
+          <button onclick="closeScoreSheetModal()">Chiudi</button>
+        </div>
+      </div>
+
+      <div id="pdf-preview-modal" class="generic-modal">
+        <div class="generic-modal-card pdf-preview-card">
+          <h2>PDF Segnapunti</h2>
+          <div class="pdf-preview-frame-wrap">
+            <iframe
+              id="pdf-preview-iframe"
+              class="pdf-preview-iframe"
+              title="Anteprima PDF segnapunti"
+            ></iframe>
+          </div>
+          <div class="pdf-preview-actions">
+            <a href="cr_scoring_a4.pdf" download>Scarica PDF</a>
+            <button onclick="closePdfPreviewModal()">Chiudi</button>
+          </div>
+        </div>
+      </div>
+
       <!-- PLAYER SETUP -->
-      <div id="player-setup">
+      <div id="player-setup" class="hidden">
         <div class="setup-card">
           <h2>CORINTH</h2>
           <p>Quanti giocatori?</p>
@@ -834,6 +1907,770 @@
       let gameLog = []; // gameLog[turnIdx][playerNum] = [{district, cnt}, ...]
 
       window.startGame = startGame;
+      window.chooseMainMode = chooseMainMode;
+      window.toggleHamburgerMenu = toggleHamburgerMenu;
+      window.closeHamburgerMenu = closeHamburgerMenu;
+      window.openInstructionsModal = openInstructionsModal;
+      window.closeInstructionsModal = closeInstructionsModal;
+      window.filterInstructionSections = filterInstructionSections;
+      window.openScoreSheetModal = openScoreSheetModal;
+      window.closeScoreSheetModal = closeScoreSheetModal;
+      window.openPdfPreviewModal = openPdfPreviewModal;
+      window.closePdfPreviewModal = closePdfPreviewModal;
+      window.resetFromMenu = resetFromMenu;
+      window.setScorecardTool = setScorecardTool;
+      window.setScorecardStrokeWidth = setScorecardStrokeWidth;
+      window.undoScorecardCanvas = undoScorecardCanvas;
+      window.redoScorecardCanvas = redoScorecardCanvas;
+      window.requestClearScorecardCanvas = requestClearScorecardCanvas;
+      window.clearScorecardCanvas = clearScorecardCanvas;
+      window.scorecardPanStep = scorecardPanStep;
+
+      let scorecardCanvas = null;
+      let scorecardCtx = null;
+      let scorecardStage = null;
+      let scorecardPanViewport = null;
+      let scorecardDrawing = false;
+      let scorecardTool = "pen";
+      let scorecardLastPoint = null;
+      let scorecardStartPoint = null;
+      let scorecardStrokeWidth = 4;
+      let scorecardStateBooting = false;
+      let scorecardPanOffsetX = 0;
+      let scorecardPanBaseOffsetX = 0;
+      let scorecardPanBaseMidX = 0;
+      let scorecardIsPanning = false;
+      let scorecardRestoredFromStorage = false;
+      const scorecardActivePointers = new Map();
+      let scorecardHistory = [];
+      let scorecardHistoryIndex = -1;
+      const SCORECARD_HISTORY_LIMIT = 80;
+      const SCORECARD_STORAGE_KEY = "corinth-scorecard-v2";
+
+      function getScorecardCircleRadius() {
+        if (!scorecardCanvas) return 12;
+        const w = scorecardCanvas.clientWidth || 0;
+        const h = scorecardCanvas.clientHeight || 0;
+        const minSide = Math.max(1, Math.min(w, h));
+        return Math.max(6, Math.min(16, Math.round(minSide * 0.022)));
+      }
+
+      function getScorecardPanBounds() {
+        if (!scorecardPanViewport || !scorecardStage) {
+          return { min: 0, max: 0 };
+        }
+        const viewportW = scorecardPanViewport.clientWidth || 0;
+        const stageW = scorecardStage.offsetWidth || 0;
+        if (stageW <= viewportW) {
+          return { min: 0, max: 0 };
+        }
+        const half = Math.floor((stageW - viewportW) / 2);
+        return { min: -half, max: half };
+      }
+
+      function applyScorecardPanOffset() {
+        if (!scorecardStage) return;
+        const bounds = getScorecardPanBounds();
+        if (bounds.min === 0 && bounds.max === 0) {
+          scorecardPanOffsetX = 0;
+        } else {
+          scorecardPanOffsetX = Math.max(
+            bounds.min,
+            Math.min(bounds.max, scorecardPanOffsetX),
+          );
+        }
+        scorecardStage.style.transform = `translateX(${Math.round(scorecardPanOffsetX)}px)`;
+        updateScorecardPanArrows();
+      }
+
+      function centerScorecardPanOffset() {
+        const bounds = getScorecardPanBounds();
+        if (bounds.min === 0 && bounds.max === 0) {
+          scorecardPanOffsetX = 0;
+        } else {
+          scorecardPanOffsetX = Math.round((bounds.min + bounds.max) / 2);
+        }
+        applyScorecardPanOffset();
+      }
+
+      function getActivePointerMidX() {
+        const points = Array.from(scorecardActivePointers.values());
+        if (points.length < 2) return null;
+        return (points[0].x + points[1].x) / 2;
+      }
+
+      function updateScorecardPanArrows() {
+        const leftBtn = document.getElementById("scorecard-pan-left-btn");
+        const rightBtn = document.getElementById("scorecard-pan-right-btn");
+        if (!leftBtn || !rightBtn) return;
+        const bounds = getScorecardPanBounds();
+        leftBtn.disabled = scorecardPanOffsetX >= bounds.max;
+        rightBtn.disabled = scorecardPanOffsetX <= bounds.min;
+        updateScorecardScrollbar();
+      }
+
+      function updateScorecardScrollbar() {
+        const bar = document.getElementById("scorecard-scrollbar");
+        if (!bar) return;
+        const bounds = getScorecardPanBounds();
+        const totalTravel = bounds.max - bounds.min;
+        if (totalTravel <= 0) {
+          bar.dataset.hidden = "true";
+          return;
+        }
+        bar.dataset.hidden = "false";
+        const viewLeft = bounds.max - scorecardPanOffsetX;
+        bar.min = 0;
+        bar.max = totalTravel;
+        bar.value = viewLeft;
+      }
+
+      function onScorecardScrollbarInput(val) {
+        const bounds = getScorecardPanBounds();
+        scorecardPanOffsetX = bounds.max - Number(val);
+        applyScorecardPanOffset();
+      }
+      window.onScorecardScrollbarInput = onScorecardScrollbarInput;
+
+      function scorecardPanStep(dir) {
+        const bounds = getScorecardPanBounds();
+        scorecardPanOffsetX = dir > 0 ? bounds.max : bounds.min;
+        applyScorecardPanOffset();
+      }
+
+      function updateScorecardUndoRedoButtons() {
+        const undoBtn = document.getElementById("scorecard-undo-btn");
+        const redoBtn = document.getElementById("scorecard-redo-btn");
+        if (undoBtn) undoBtn.disabled = scorecardHistoryIndex <= 0;
+        if (redoBtn)
+          redoBtn.disabled =
+            scorecardHistoryIndex < 0 ||
+            scorecardHistoryIndex >= scorecardHistory.length - 1;
+      }
+
+      function pushScorecardHistorySnapshot() {
+        if (!scorecardCanvas) return;
+        const snapshot = scorecardCanvas.toDataURL("image/png");
+
+        if (
+          scorecardHistoryIndex >= 0 &&
+          scorecardHistory[scorecardHistoryIndex] === snapshot
+        ) {
+          updateScorecardUndoRedoButtons();
+          return;
+        }
+
+        if (scorecardHistoryIndex < scorecardHistory.length - 1) {
+          scorecardHistory = scorecardHistory.slice(
+            0,
+            scorecardHistoryIndex + 1,
+          );
+        }
+
+        scorecardHistory.push(snapshot);
+        if (scorecardHistory.length > SCORECARD_HISTORY_LIMIT) {
+          scorecardHistory.shift();
+          scorecardHistoryIndex = scorecardHistory.length - 1;
+        } else {
+          scorecardHistoryIndex = scorecardHistory.length - 1;
+        }
+
+        updateScorecardUndoRedoButtons();
+      }
+
+      function loadScorecardImage(
+        imageDataUrl,
+        saveAfterLoad = false,
+        onLoaded = null,
+      ) {
+        if (!scorecardCtx || !scorecardCanvas) return;
+        const img = new Image();
+        img.onload = () => {
+          if (!scorecardCtx || !scorecardCanvas) return;
+          scorecardCtx.clearRect(
+            0,
+            0,
+            scorecardCanvas.width,
+            scorecardCanvas.height,
+          );
+          scorecardCtx.drawImage(
+            img,
+            0,
+            0,
+            img.width,
+            img.height,
+            0,
+            0,
+            scorecardCanvas.clientWidth,
+            scorecardCanvas.clientHeight,
+          );
+          if (saveAfterLoad) saveScorecardState();
+          if (typeof onLoaded === "function") onLoaded();
+        };
+        img.src = imageDataUrl;
+      }
+
+      function resetScorecardHistory() {
+        scorecardHistory = [];
+        scorecardHistoryIndex = -1;
+        pushScorecardHistorySnapshot();
+        updateScorecardUndoRedoButtons();
+      }
+
+      function commitScorecardChange() {
+        saveScorecardState();
+        pushScorecardHistorySnapshot();
+      }
+
+      function undoScorecardCanvas() {
+        if (scorecardHistoryIndex <= 0) return;
+        scorecardHistoryIndex -= 1;
+        const snapshot = scorecardHistory[scorecardHistoryIndex];
+        if (snapshot) {
+          loadScorecardImage(snapshot, true);
+        }
+        updateScorecardUndoRedoButtons();
+      }
+
+      function redoScorecardCanvas() {
+        if (scorecardHistoryIndex >= scorecardHistory.length - 1) return;
+        scorecardHistoryIndex += 1;
+        const snapshot = scorecardHistory[scorecardHistoryIndex];
+        if (snapshot) {
+          loadScorecardImage(snapshot, true);
+        }
+        updateScorecardUndoRedoButtons();
+      }
+
+      function saveScorecardState() {
+        if (!scorecardCanvas) return;
+        try {
+          localStorage.setItem(
+            SCORECARD_STORAGE_KEY,
+            JSON.stringify({
+              image: scorecardCanvas.toDataURL("image/png"),
+              tool: scorecardTool,
+              strokeWidth: scorecardStrokeWidth,
+            }),
+          );
+        } catch (_err) {
+          // no-op: localStorage may be unavailable in private mode
+        }
+      }
+
+      function restoreScorecardState() {
+        if (!scorecardCtx || !scorecardCanvas) return;
+        scorecardRestoredFromStorage = false;
+
+        let raw = null;
+        try {
+          raw = localStorage.getItem(SCORECARD_STORAGE_KEY);
+        } catch (_err) {
+          return;
+        }
+        if (!raw) return;
+
+        let parsed = null;
+        try {
+          parsed = JSON.parse(raw);
+        } catch (_err) {
+          return;
+        }
+
+        if (parsed && typeof parsed.strokeWidth === "number") {
+          setScorecardStrokeWidth(parsed.strokeWidth);
+        }
+        if (parsed && typeof parsed.tool === "string") {
+          setScorecardTool(parsed.tool);
+        }
+
+        if (
+          parsed &&
+          typeof parsed.image === "string" &&
+          parsed.image.startsWith("data:image/")
+        ) {
+          scorecardRestoredFromStorage = true;
+          loadScorecardImage(parsed.image, false, () => {
+            resetScorecardHistory();
+          });
+        }
+      }
+
+      function setScorecardStrokeWidth(value) {
+        const parsed = Number(value);
+        if (!Number.isFinite(parsed) || parsed < 1) return;
+        scorecardStrokeWidth = parsed;
+        const sizeSelect = document.getElementById("scorecard-stroke-size");
+        if (sizeSelect && String(sizeSelect.value) !== String(parsed)) {
+          sizeSelect.value = String(parsed);
+        }
+        if (!scorecardStateBooting) saveScorecardState();
+      }
+
+      function setScorecardTool(tool) {
+        if (["pen", "eraser", "circle", "x"].includes(tool)) {
+          scorecardTool = tool;
+        } else {
+          scorecardTool = "pen";
+        }
+        const penBtn = document.getElementById("scorecard-tool-pen");
+        const eraserBtn = document.getElementById("scorecard-tool-eraser");
+        const circleBtn = document.getElementById("scorecard-tool-circle");
+        const xBtn = document.getElementById("scorecard-tool-x");
+        if (penBtn) penBtn.classList.toggle("active", scorecardTool === "pen");
+        if (eraserBtn)
+          eraserBtn.classList.toggle("active", scorecardTool === "eraser");
+        if (circleBtn)
+          circleBtn.classList.toggle("active", scorecardTool === "circle");
+        if (xBtn) xBtn.classList.toggle("active", scorecardTool === "x");
+
+        if (scorecardCanvas) {
+          scorecardCanvas.style.cursor =
+            scorecardTool === "eraser" ? "cell" : "crosshair";
+        }
+        if (!scorecardStateBooting) saveScorecardState();
+      }
+
+      function getScorecardPoint(evt) {
+        if (!scorecardCanvas) return { x: 0, y: 0 };
+        const rect = scorecardCanvas.getBoundingClientRect();
+        return {
+          x: evt.clientX - rect.left,
+          y: evt.clientY - rect.top,
+        };
+      }
+
+      function drawScorecardStroke(from, to) {
+        if (!scorecardCtx) return;
+        scorecardCtx.save();
+        if (scorecardTool === "eraser") {
+          scorecardCtx.globalCompositeOperation = "destination-out";
+          scorecardCtx.lineWidth = Math.max(12, scorecardStrokeWidth * 5);
+        } else {
+          scorecardCtx.globalCompositeOperation = "source-over";
+          scorecardCtx.strokeStyle = "rgba(22, 14, 6, 0.95)";
+          scorecardCtx.lineWidth = scorecardStrokeWidth;
+        }
+        scorecardCtx.lineCap = "round";
+        scorecardCtx.lineJoin = "round";
+        scorecardCtx.beginPath();
+        scorecardCtx.moveTo(from.x, from.y);
+        scorecardCtx.lineTo(to.x, to.y);
+        scorecardCtx.stroke();
+        scorecardCtx.restore();
+      }
+
+      function drawScorecardCircle(center) {
+        if (!scorecardCtx) return;
+        const radius = getScorecardCircleRadius();
+        scorecardCtx.save();
+        scorecardCtx.globalCompositeOperation = "source-over";
+        scorecardCtx.strokeStyle = "rgba(22, 14, 6, 0.95)";
+        scorecardCtx.lineWidth = scorecardStrokeWidth;
+        scorecardCtx.lineCap = "round";
+        scorecardCtx.lineJoin = "round";
+        scorecardCtx.beginPath();
+        scorecardCtx.arc(center.x, center.y, radius, 0, Math.PI * 2);
+        scorecardCtx.stroke();
+        scorecardCtx.restore();
+      }
+
+      function drawScorecardX(start, end) {
+        if (!scorecardCtx) return;
+        let minX = Math.min(start.x, end.x);
+        let maxX = Math.max(start.x, end.x);
+        let minY = Math.min(start.y, end.y);
+        let maxY = Math.max(start.y, end.y);
+
+        if (Math.abs(maxX - minX) < 8 && Math.abs(maxY - minY) < 8) {
+          minX = start.x - 10;
+          maxX = start.x + 10;
+          minY = start.y - 10;
+          maxY = start.y + 10;
+        }
+
+        scorecardCtx.save();
+        scorecardCtx.globalCompositeOperation = "source-over";
+        scorecardCtx.strokeStyle = "rgba(22, 14, 6, 0.95)";
+        scorecardCtx.lineWidth = scorecardStrokeWidth;
+        scorecardCtx.lineCap = "round";
+        scorecardCtx.lineJoin = "round";
+        scorecardCtx.beginPath();
+        scorecardCtx.moveTo(minX, minY);
+        scorecardCtx.lineTo(maxX, maxY);
+        scorecardCtx.moveTo(maxX, minY);
+        scorecardCtx.lineTo(minX, maxY);
+        scorecardCtx.stroke();
+        scorecardCtx.restore();
+      }
+
+      function requestClearScorecardCanvas() {
+        const shouldClear = window.confirm(
+          "Vuoi davvero cancellare tutti i segni dalla scheda?",
+        );
+        if (!shouldClear) return;
+        clearScorecardCanvas();
+      }
+
+      function clearScorecardCanvas() {
+        if (!scorecardCanvas || !scorecardCtx) return;
+        scorecardCtx.clearRect(
+          0,
+          0,
+          scorecardCanvas.width,
+          scorecardCanvas.height,
+        );
+        commitScorecardChange();
+      }
+
+      function resizeScorecardCanvas(preserveDrawing = true) {
+        if (!scorecardCanvas) return;
+        const rect = scorecardCanvas.getBoundingClientRect();
+        if (rect.width < 2 || rect.height < 2) return;
+
+        let snapshot = null;
+        if (
+          preserveDrawing &&
+          scorecardCanvas.width > 0 &&
+          scorecardCanvas.height > 0
+        ) {
+          snapshot = document.createElement("canvas");
+          snapshot.width = scorecardCanvas.width;
+          snapshot.height = scorecardCanvas.height;
+          const snapCtx = snapshot.getContext("2d");
+          if (snapCtx) snapCtx.drawImage(scorecardCanvas, 0, 0);
+        }
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        scorecardCanvas.width = Math.round(rect.width * dpr);
+        scorecardCanvas.height = Math.round(rect.height * dpr);
+        scorecardCtx = scorecardCanvas.getContext("2d");
+        if (!scorecardCtx) return;
+
+        if (snapshot) {
+          scorecardCtx.drawImage(
+            snapshot,
+            0,
+            0,
+            snapshot.width,
+            snapshot.height,
+            0,
+            0,
+            scorecardCanvas.width,
+            scorecardCanvas.height,
+          );
+        }
+
+        scorecardCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        applyScorecardPanOffset();
+      }
+
+      function initScorecardDrawing() {
+        scorecardCanvas = document.getElementById("scorecard-draw-canvas");
+        scorecardStage = document.getElementById("scorecard-stage");
+        scorecardPanViewport = document.getElementById(
+          "scorecard-pan-viewport",
+        );
+        if (!scorecardCanvas || !scorecardStage || !scorecardPanViewport)
+          return;
+
+        scorecardStateBooting = true;
+        setScorecardTool("circle");
+        setScorecardStrokeWidth(2);
+        resizeScorecardCanvas(false);
+        restoreScorecardState();
+        // Keep startup defaults stable even when previous tool/width were saved.
+        setScorecardTool("circle");
+        setScorecardStrokeWidth(2);
+        scorecardStateBooting = false;
+
+        centerScorecardPanOffset();
+
+        if (!scorecardRestoredFromStorage) {
+          resetScorecardHistory();
+        }
+
+        scorecardCanvas.addEventListener("pointerdown", (evt) => {
+          scorecardActivePointers.set(evt.pointerId, {
+            x: evt.clientX,
+            y: evt.clientY,
+          });
+
+          if (scorecardCanvas.setPointerCapture) {
+            try {
+              scorecardCanvas.setPointerCapture(evt.pointerId);
+            } catch (_err) {
+              // no-op: capture may fail on some browsers/pointer types
+            }
+          }
+
+          evt.preventDefault();
+          const touchPoint = getScorecardPoint(evt);
+
+          if (scorecardTool === "circle") {
+            drawScorecardCircle(touchPoint);
+            commitScorecardChange();
+            return;
+          }
+
+          scorecardDrawing = true;
+          scorecardStartPoint = touchPoint;
+          scorecardLastPoint = touchPoint;
+          if (scorecardTool === "pen" || scorecardTool === "eraser") {
+            drawScorecardStroke(scorecardLastPoint, scorecardLastPoint);
+          }
+        });
+
+        scorecardCanvas.addEventListener("pointermove", (evt) => {
+          if (scorecardActivePointers.has(evt.pointerId)) {
+            scorecardActivePointers.set(evt.pointerId, {
+              x: evt.clientX,
+              y: evt.clientY,
+            });
+          }
+
+          if (!scorecardDrawing) return;
+          evt.preventDefault();
+          const nextPoint = getScorecardPoint(evt);
+          if (scorecardTool === "pen" || scorecardTool === "eraser") {
+            drawScorecardStroke(scorecardLastPoint, nextPoint);
+          }
+          scorecardLastPoint = nextPoint;
+        });
+
+        const stopDrawing = (evt) => {
+          scorecardActivePointers.delete(evt.pointerId);
+
+          if (!scorecardDrawing) return;
+          evt.preventDefault();
+
+          const endPoint = getScorecardPoint(evt);
+          if (scorecardTool === "x" && scorecardStartPoint) {
+            drawScorecardX(scorecardStartPoint, endPoint);
+          }
+
+          scorecardDrawing = false;
+          scorecardLastPoint = null;
+          scorecardStartPoint = null;
+          commitScorecardChange();
+          if (scorecardCanvas.releasePointerCapture) {
+            try {
+              scorecardCanvas.releasePointerCapture(evt.pointerId);
+            } catch (_err) {
+              // no-op: pointer already released
+            }
+          }
+        };
+
+        scorecardCanvas.addEventListener("pointerup", stopDrawing);
+        scorecardCanvas.addEventListener("pointercancel", stopDrawing);
+        scorecardCanvas.addEventListener("pointerleave", stopDrawing);
+      }
+
+      function setBottomControlsVisible(visible) {
+        const controls = document.getElementById("bottom-controls");
+        if (!controls) return;
+        controls.style.display = visible ? "flex" : "none";
+      }
+
+      function toggleHamburgerMenu() {
+        const menu = document.getElementById("hamburger-menu");
+        const backdrop = document.getElementById("menu-backdrop");
+        const willOpen = !menu.classList.contains("show");
+        menu.classList.toggle("show", willOpen);
+        backdrop.classList.toggle("show", willOpen);
+      }
+
+      function closeHamburgerMenu() {
+        document.getElementById("hamburger-menu").classList.remove("show");
+        document.getElementById("menu-backdrop").classList.remove("show");
+      }
+
+      function openInstructionsModal() {
+        closeHamburgerMenu();
+        const searchEl = document.getElementById("instructions-search");
+        if (searchEl) searchEl.value = "";
+        filterInstructionSections("");
+        document
+          .querySelectorAll("#instructions-sections .instructions-item")
+          .forEach((item) => {
+            item.open = false;
+          });
+        document.getElementById("instructions-modal").classList.add("show");
+      }
+
+      function closeInstructionsModal() {
+        document.getElementById("instructions-modal").classList.remove("show");
+      }
+
+      function filterInstructionSections(query) {
+        const normalizeSearchText = (text) =>
+          (text || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
+
+        const normalized = normalizeSearchText(query);
+        const items = Array.from(
+          document.querySelectorAll(
+            "#instructions-sections .instructions-item",
+          ),
+        );
+        let visibleCount = 0;
+
+        items.forEach((item) => {
+          const title = normalizeSearchText(item.dataset.title || "");
+          const content = normalizeSearchText(
+            item.querySelector(".instructions-body")?.textContent || "",
+          );
+          const match =
+            normalized === "" ||
+            title.includes(normalized) ||
+            content.includes(normalized);
+          item.style.display = match ? "block" : "none";
+          if (!match) item.open = false;
+          if (match) visibleCount++;
+        });
+
+        const noResults = document.getElementById("instructions-no-results");
+        if (noResults) {
+          noResults.style.display = visibleCount === 0 ? "block" : "none";
+        }
+      }
+
+      function buildGameLogTableHtml() {
+        if (!numPlayers || maxGameTurns <= 0) {
+          return '<p class="sheet-preview-empty">Nessuna partita in corso.</p>';
+        }
+
+        let html = `<table class="game-log-table"><thead><tr><th></th>`;
+        for (let t = 1; t <= maxGameTurns; t++) {
+          html += `<th>T${t}</th>`;
+        }
+        html += `</tr></thead><tbody>`;
+
+        for (let p = 1; p <= numPlayers; p++) {
+          html += `<tr><td class="player-col">G${p}</td>`;
+          for (let t = 0; t < maxGameTurns; t++) {
+            const picks = (gameLog[t] && gameLog[t][p]) || [];
+            if (picks.length === 0) {
+              html += `<td>—</td>`;
+            } else {
+              const cells = picks
+                .map(({ district, cnt, mix, face }) => {
+                  const bracket = mix || face || cnt;
+                  return `${cnt} dadi [${bracket}] ${DISTRICT_NAMES_IT[district] || district}`;
+                })
+                .join("<br>");
+              html += `<td>${cells}</td>`;
+            }
+          }
+          html += `</tr>`;
+        }
+
+        html += `</tbody></table>`;
+        return html;
+      }
+
+      function getDiceColorMixLabelForDistrict(key) {
+        const diceForDistrict = diceObjects.filter(
+          (d) => d.districtKey === key && d.mesh.visible !== false,
+        );
+        if (diceForDistrict.length === 0) {
+          const fallbackCnt = currentGroups[key]
+            ? currentGroups[key].length
+            : 0;
+          return String(fallbackCnt);
+        }
+
+        const yellowCount = diceForDistrict.filter((d) => d.isYellow).length;
+        const whiteCount = diceForDistrict.length - yellowCount;
+
+        if (yellowCount === 0) return String(whiteCount);
+        if (whiteCount === 0) return `0+${yellowCount}`;
+        return `${whiteCount}+${yellowCount}`;
+      }
+
+      function updateLiveScoreSheet() {
+        const container = document.getElementById("sheet-preview-container");
+        if (container) container.innerHTML = buildGameLogTableHtml();
+
+        const status = document.getElementById("sheet-preview-status");
+        if (!status) return;
+
+        if (!numPlayers) {
+          status.textContent = "Nessuna partita avviata.";
+          return;
+        }
+
+        const shownTurn = Math.min(currentGameTurn, maxGameTurns);
+        status.textContent = `Aggiornata al turno ${shownTurn} di ${maxGameTurns}`;
+      }
+
+      function openScoreSheetModal() {
+        closeHamburgerMenu();
+        updateLiveScoreSheet();
+        document.getElementById("sheet-preview-modal").classList.add("show");
+      }
+
+      function closeScoreSheetModal() {
+        document.getElementById("sheet-preview-modal").classList.remove("show");
+      }
+
+      function openPdfPreviewModal() {
+        closeHamburgerMenu();
+        const iframe = document.getElementById("pdf-preview-iframe");
+        if (iframe && !iframe.src) {
+          iframe.src = "cr_scoring_a4.pdf";
+        }
+        document.getElementById("pdf-preview-modal").classList.add("show");
+      }
+
+      function closePdfPreviewModal() {
+        document.getElementById("pdf-preview-modal").classList.remove("show");
+      }
+
+      function chooseMainMode(mode) {
+        closeHamburgerMenu();
+        document.getElementById("mode-setup").classList.add("hidden");
+        document.getElementById("scoreboard").classList.remove("show");
+        document.getElementById("market-skip-modal").classList.remove("show");
+
+        if (mode === "board") {
+          document.getElementById("scorecard-page").classList.add("hidden");
+          document.getElementById("player-setup").classList.remove("hidden");
+          document.getElementById("turn-info").textContent = "";
+        } else {
+          document.getElementById("player-setup").classList.add("hidden");
+          document.getElementById("scorecard-page").classList.remove("hidden");
+          document.getElementById("turn-info").textContent = "Segnapunti";
+          requestAnimationFrame(() => {
+            resizeScorecardCanvas(true);
+            centerScorecardPanOffset();
+          });
+        }
+
+        setBottomControlsVisible(false);
+      }
+
+      function showMainModeSetup() {
+        document.getElementById("mode-setup").classList.remove("hidden");
+        document.getElementById("player-setup").classList.add("hidden");
+        document.getElementById("scorecard-page").classList.add("hidden");
+        document.getElementById("scoreboard").classList.remove("show");
+        document.getElementById("market-skip-modal").classList.remove("show");
+        closeInstructionsModal();
+        closeScoreSheetModal();
+        closeHamburgerMenu();
+        document.getElementById("turn-info").textContent = "";
+        setBottomControlsVisible(false);
+      }
+
+      function resetFromMenu() {
+        restartGame();
+      }
 
       function computePickSequence(gameTurn) {
         if (numPlayers === 4) return [1, 2, 3, 4];
@@ -943,10 +2780,13 @@
           if (zoneOverlays[k]) zoneOverlays[k].visible = false;
         });
         document.getElementById("player-setup").classList.add("hidden");
+        document.getElementById("mode-setup").classList.add("hidden");
+        document.getElementById("scorecard-page").classList.add("hidden");
         document.getElementById("roll-btn").disabled = false;
         document.getElementById("end-btn").disabled = true;
         document.getElementById("end-btn").classList.remove("active");
         document.getElementById("yellow-dice").value = "0";
+        setBottomControlsVisible(true);
         updateTurnInfo();
         refreshHUD();
         setStatus();
@@ -1325,6 +3165,7 @@
         hasPicked = true;
 
         const cnt = currentGroups[key].length;
+        const diceMixLabel = getDiceColorMixLabelForDistrict(key);
 
         switch (key) {
           case "Gold":
@@ -1377,7 +3218,7 @@
         gameLog[_lt][_lp].push({
           district: key,
           cnt,
-          face: currentGroups[key][0],
+          mix: diceMixLabel,
         });
 
         // Gestione multi-giocatore: avanza al prossimo giocatore
@@ -1463,33 +3304,8 @@
       }
 
       function endGame() {
-        // Header turni
-        let html = `<table class="game-log-table"><thead><tr><th></th>`;
-        for (let t = 1; t <= maxGameTurns; t++) {
-          html += `<th>T${t}</th>`;
-        }
-        html += `</tr></thead><tbody>`;
-        // Righe per giocatore
-        for (let p = 1; p <= numPlayers; p++) {
-          html += `<tr><td class="player-col">G${p}</td>`;
-          for (let t = 0; t < maxGameTurns; t++) {
-            const picks = (gameLog[t] && gameLog[t][p]) || [];
-            if (picks.length === 0) {
-              html += `<td>—</td>`;
-            } else {
-              const cells = picks
-                .map(
-                  ({ district, cnt, face }) =>
-                    `${cnt} dadi [${face}] ${DISTRICT_NAMES_IT[district] || district}`,
-                )
-                .join("<br>");
-              html += `<td>${cells}</td>`;
-            }
-          }
-          html += `</tr>`;
-        }
-        html += `</tbody></table>`;
-        document.getElementById("game-log-container").innerHTML = html;
+        document.getElementById("game-log-container").innerHTML =
+          buildGameLogTableHtml();
         document.getElementById("scoreboard").classList.add("show");
       }
 
@@ -1529,8 +3345,8 @@
         document.getElementById("end-btn").classList.remove("active");
         document.getElementById("scoreboard").classList.remove("show");
         document.getElementById("market-skip-modal").classList.remove("show");
-        document.getElementById("turn-info").textContent = "";
-        document.getElementById("player-setup").classList.remove("hidden");
+        clearScorecardCanvas();
+        showMainModeSetup();
         setStatus();
         refreshHUD();
       }
@@ -1586,6 +3402,7 @@
         camera.top = halfH;
         camera.bottom = -halfH;
         camera.updateProjectionMatrix();
+        resizeScorecardCanvas(true);
       }
       window.addEventListener("resize", onResize);
       onResize();
@@ -1637,6 +3454,8 @@
       }
       animate();
       refreshHUD();
+      initScorecardDrawing();
+      showMainModeSetup();
 
       let lightTunerOverlay = null;
       let lightTunerRefreshToggleText = () => {};
@@ -1645,108 +3464,108 @@
         if (lightTunerOverlay) return lightTunerOverlay;
         const style = document.createElement("style");
         style.textContent = `
-    #light-tuner {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 260px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: rgba(8, 8, 8, 0.85);
-      border: 1px solid rgba(255, 215, 0, 0.4);
-      color: #f5ead2;
-      font-family: "Crimson Text", serif;
-      font-size: 13px;
-      z-index: 210;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.65);
-    }
-    #light-tuner.hidden {
-      display: none;
-    }
-    #light-tuner h3 {
-      font-size: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    #light-tuner .row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 6px;
-      gap: 6px;
-    }
-    #light-tuner input[type="range"] {
-      width: 110px;
-    }
-    #light-tuner input[type="color"] {
-      border: none;
-      width: 30px;
-      height: 30px;
-      padding: 0;
-      background: transparent;
-    }
-    #light-tuner button {
-      border: none;
-      background: var(--gold);
-      color: var(--dark);
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-family: "Cinzel", serif;
-      cursor: pointer;
-      margin-top: 6px;
-      width: 100%;
-      font-size: 12px;
-      letter-spacing: 1px;
-    }
-    #light-tuner p {
-      font-size: 11px;
-      margin: 4px 0;
-      word-break: break-word;
-    }
-  `;
+        #light-tuner {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          width: 260px;
+          padding: 10px 12px;
+          border-radius: 12px;
+          background: rgba(8, 8, 8, 0.85);
+          border: 1px solid rgba(255, 215, 0, 0.4);
+          color: #f5ead2;
+          font-family: "Crimson Text", serif;
+          font-size: 13px;
+          z-index: 210;
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.65);
+        }
+        #light-tuner.hidden {
+          display: none;
+        }
+        #light-tuner h3 {
+          font-size: 12px;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          margin-bottom: 6px;
+        }
+        #light-tuner .row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 6px;
+          gap: 6px;
+        }
+        #light-tuner input[type="range"] {
+          width: 110px;
+        }
+        #light-tuner input[type="color"] {
+          border: none;
+          width: 30px;
+          height: 30px;
+          padding: 0;
+          background: transparent;
+        }
+        #light-tuner button {
+          border: none;
+          background: var(--gold);
+          color: var(--dark);
+          padding: 6px 10px;
+          border-radius: 8px;
+          font-family: "Cinzel", serif;
+          cursor: pointer;
+          margin-top: 6px;
+          width: 100%;
+          font-size: 12px;
+          letter-spacing: 1px;
+        }
+        #light-tuner p {
+          font-size: 11px;
+          margin: 4px 0;
+          word-break: break-word;
+        }
+      `;
         document.head.appendChild(style);
 
         const overlay = document.createElement("div");
         overlay.id = "light-tuner";
         overlay.innerHTML = `
-    <h3>Light tuner</h3>
-    <div class="row"><span>Stato</span><span id="light-tuner-state">standby</span></div>
-    <div class="row">
-      <label>Ambient</label>
-      <input type="range" id="ambient-range" min="0" max="1" step="0.01" value="${ambient.intensity}">
-    </div>
-    <div class="row">
-      <label>Sun</label>
-      <input type="range" id="sun-range" min="0" max="1.5" step="0.01" value="${sun.intensity}">
-    </div>
-    <div class="row">
-      <label>Pos X</label>
-      <input type="range" id="sun-pos-x" min="-6" max="6" step="0.1" value="${sun.position.x}">
-    </div>
-    <div class="row">
-      <label>Pos Y</label>
-      <input type="range" id="sun-pos-y" min="5" max="25" step="0.1" value="${sun.position.y}">
-    </div>
-    <div class="row">
-      <label>Pos Z</label>
-      <input type="range" id="sun-pos-z" min="-6" max="6" step="0.1" value="${sun.position.z}">
-    </div>
-    <div class="row">
-      <label>Colore amb.</label>
-      <input type="color" id="ambient-color" value="#fff5e0">
-    </div>
-    <div class="row">
-      <label>Colore sun</label>
-      <input type="color" id="sun-color" value="#fff0d0">
-    </div>
-    <div id="light-tuner-values">
-      <p>Ambient ↓ <span id="tuner-ambient-val"></span></p>
-      <p>Sun ↓ <span id="tuner-sun-val"></span></p>
-      <p>Sun Pos ↓ <span id="tuner-sun-pos"></span></p>
-    </div>
-    <button id="toggle-light-tuner">Chiudi overlay</button>
-  `;
+        <h3>Light tuner</h3>
+        <div class="row"><span>Stato</span><span id="light-tuner-state">standby</span></div>
+        <div class="row">
+          <label>Ambient</label>
+          <input type="range" id="ambient-range" min="0" max="1" step="0.01" value="${ambient.intensity}">
+        </div>
+        <div class="row">
+          <label>Sun</label>
+          <input type="range" id="sun-range" min="0" max="1.5" step="0.01" value="${sun.intensity}">
+        </div>
+        <div class="row">
+          <label>Pos X</label>
+          <input type="range" id="sun-pos-x" min="-6" max="6" step="0.1" value="${sun.position.x}">
+        </div>
+        <div class="row">
+          <label>Pos Y</label>
+          <input type="range" id="sun-pos-y" min="5" max="25" step="0.1" value="${sun.position.y}">
+        </div>
+        <div class="row">
+          <label>Pos Z</label>
+          <input type="range" id="sun-pos-z" min="-6" max="6" step="0.1" value="${sun.position.z}">
+        </div>
+        <div class="row">
+          <label>Colore amb.</label>
+          <input type="color" id="ambient-color" value="#fff5e0">
+        </div>
+        <div class="row">
+          <label>Colore sun</label>
+          <input type="color" id="sun-color" value="#fff0d0">
+        </div>
+        <div id="light-tuner-values">
+          <p>Ambient ↓ <span id="tuner-ambient-val"></span></p>
+          <p>Sun ↓ <span id="tuner-sun-val"></span></p>
+          <p>Sun Pos ↓ <span id="tuner-sun-pos"></span></p>
+        </div>
+        <button id="toggle-light-tuner">Chiudi overlay</button>
+      `;
         document.body.appendChild(overlay);
 
         const ambientRange = document.getElementById("ambient-range");
