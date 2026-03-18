@@ -151,6 +151,20 @@
       #end-btn:not(:disabled):active {
         background: rgba(255, 255, 255, 0.12);
       }
+      #end-btn.active {
+        background: linear-gradient(to bottom, var(--gold-lt), var(--gold));
+        color: var(--dark);
+        border-color: var(--gold-lt);
+        font-weight: 700;
+      }
+      #turn-info {
+        font-family: "Cinzel", serif;
+        font-size: 11px;
+        color: var(--gold-lt);
+        text-align: right;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+      }
 
       /* ---- STATUS (floating su canvas) ---- */
       #status {
@@ -243,10 +257,12 @@
         background: linear-gradient(to bottom, #2a1808, #1a1008);
         border: 1px solid var(--gold);
         border-radius: 12px;
-        padding: 32px;
+        padding: 24px 16px;
         text-align: center;
-        max-width: 320px;
-        width: 90%;
+        max-width: 480px;
+        width: 95%;
+        max-height: 85vh;
+        overflow-y: auto;
       }
       .score-card h2 {
         font-family: "Cinzel", serif;
@@ -279,6 +295,39 @@
         cursor: pointer;
         letter-spacing: 1px;
       }
+      #game-log-container {
+        overflow-x: auto;
+        margin: 12px 0 16px;
+      }
+      .game-log-table {
+        border-collapse: collapse;
+        font-size: 11px;
+        margin: 0 auto;
+        min-width: 100%;
+      }
+      .game-log-table th,
+      .game-log-table td {
+        border: 1px solid rgba(201, 168, 76, 0.25);
+        padding: 5px 8px;
+        text-align: center;
+        color: var(--parch);
+        vertical-align: middle;
+        line-height: 1.4;
+      }
+      .game-log-table th {
+        font-family: "Cinzel", serif;
+        font-size: 10px;
+        letter-spacing: 1px;
+        color: var(--gold);
+        background: rgba(201, 168, 76, 0.12);
+      }
+      .game-log-table .player-col {
+        font-family: "Cinzel", serif;
+        font-size: 10px;
+        color: var(--gold);
+        background: rgba(201, 168, 76, 0.08);
+        white-space: nowrap;
+      }
 
       /* ---- DICE TRAY LABEL ---- */
       #tray-label {
@@ -299,6 +348,7 @@
     <!-- HEADER -->
     <div id="header">
       <h1>CORINTH</h1>
+      <div id="turn-info"></div>
     </div>
 
     <!-- 3D VIEW -->
@@ -307,8 +357,7 @@
       <div id="scoreboard">
         <div class="score-card">
           <h2>PARTITA FINITA</h2>
-          <div class="big-score" id="final-score">0</div>
-          <p id="final-detail">—</p>
+          <div id="game-log-container"></div>
           <button onclick="restartGame()">Nuova partita</button>
         </div>
       </div>
@@ -353,7 +402,9 @@
     <!-- Barra controlli sotto la plancia -->
     <div id="bottom-controls">
       <div style="display: flex; align-items: center; gap: 10px">
-        <label for="yellow-dice">Dadi gialli:</label>
+        <label for="yellow-dice"
+          ><img src="/yellow_dice24x25.png" alt="Dadi gialli"
+        /></label>
         <select id="yellow-dice">
           <option value="0">0</option>
           <option value="1">1</option>
@@ -689,6 +740,13 @@
       // hasPicked rimane per compatibilità, ora significa "almeno uno scelto"
       let hasPicked = false;
 
+      let numPlayers = 0;
+      let currentGameTurn = 1;
+      let maxGameTurns = 4;
+      let pickSequence = [];
+      let pickIndex = 0;
+      let playerHasPicked = false;
+
       const DISTRICT_ORDER = [
         "Goats",
         "Oil",
@@ -698,17 +756,94 @@
         "Gold",
       ];
 
+      const DISTRICT_NAMES_IT = {
+        Gold: "Oro",
+        Goats: "Capre",
+        Oil: "Olio",
+        Wine: "Vino",
+        Carpets: "Tappeti",
+        Spices: "Spezie",
+      };
+
+      let gameLog = []; // gameLog[turnIdx][playerNum] = [{district, cnt}, ...]
+
       window.startGame = startGame;
 
-      function startGame(numPlayers) {
-        // 2-3 giocatori → turni = 6 per giocatore × numPlayers
-        // 4 giocatori  → turni = 4 per giocatore × numPlayers
-        const roundsPerPlayer = numPlayers <= 3 ? 6 : 4;
-        maxTurns = roundsPerPlayer * numPlayers;
-        const maxTurnsEl = document.getElementById("s-max-turns");
-        if (maxTurnsEl) maxTurnsEl.textContent = maxTurns;
+      function computePickSequence(gameTurn) {
+        if (numPlayers === 4) return [1, 2, 3, 4];
+        if (numPlayers === 3) return [1, 2, 3];
+        // 2 giocatori: turni dispari G1,G2,G1 — turni pari G2,G1,G2
+        return gameTurn % 2 === 1 ? [1, 2, 1] : [2, 1, 2];
+      }
+
+      function getCurrentPlayer() {
+        return pickSequence[pickIndex] || 1;
+      }
+
+      function updateTurnInfo() {
+        const el = document.getElementById("turn-info");
+        if (!el) return;
+        el.textContent = `Turno ${currentGameTurn} di ${maxGameTurns} — Giocatore ${getCurrentPlayer()}`;
+      }
+
+      function nextPlayerContext() {
+        playerHasPicked = false;
+        updateTurnInfo();
+        // Riabilita le zone con dadi non ancora scelte dal turno corrente
+        DISTRICT_ORDER.forEach((k) => {
+          const hasGroup = currentGroups[k] && currentGroups[k].length > 0;
+          const alreadyPicked = pickedThisTurn.has(k);
+          const btn = document.getElementById("d-" + k);
+          if (btn) btn.disabled = !hasGroup || alreadyPicked;
+          if (zoneOverlays[k]) {
+            if (hasGroup && !alreadyPicked) {
+              zoneOverlays[k].visible = true;
+              zoneOverlays[k].material.opacity = 0.28;
+            } else {
+              zoneOverlays[k].visible = false;
+            }
+          }
+        });
+      }
+
+      function startGame(n) {
+        numPlayers = n;
+        maxGameTurns = n === 2 ? 6 : 4;
+        currentGameTurn = 1;
+        pickSequence = computePickSequence(1);
+        pickIndex = 0;
+        playerHasPicked = false;
+        turn = 1;
+        gold = 1;
+        goats = 1;
+        score = 0;
+        maxTurns = maxGameTurns;
+        Object.keys(shopProgress).forEach((k) => (shopProgress[k] = 0));
+        hasRolled = false;
+        hasPicked = false;
+        isRolling = false;
+        pickedThisTurn = new Set();
+        currentGroups = {};
+        gameLog = [];
+        diceObjects.forEach((d) => {
+          scene.remove(d.mesh);
+          world.remove(d.body);
+        });
+        diceObjects.length = 0;
+        DISTRICT_ORDER.forEach((k) => {
+          document.getElementById("dc-" + k).textContent = "—";
+          document.getElementById("dv-" + k).textContent = "";
+          document.getElementById("d-" + k).disabled = true;
+          document.getElementById("d-" + k).classList.remove("active");
+          if (zoneOverlays[k]) zoneOverlays[k].visible = false;
+        });
         document.getElementById("player-setup").classList.add("hidden");
         document.getElementById("roll-btn").disabled = false;
+        document.getElementById("end-btn").disabled = true;
+        document.getElementById("end-btn").classList.remove("active");
+        document.getElementById("yellow-dice").value = "0";
+        updateTurnInfo();
+        refreshHUD();
         setStatus();
       }
 
@@ -764,7 +899,6 @@
           10,
         );
         document.getElementById("roll-btn").disabled = true;
-        document.getElementById("end-btn").disabled = false;
         setAllDistricts(false);
         setStatus("I dadi rotolano nel porto\u2026");
         spawnDice(yellowDiceCount);
@@ -975,7 +1109,7 @@
       canvas.addEventListener("click", (e) => {
         // Selezione distretto via click sulla zona
         if (!_calibKey) {
-          if (!hasRolled || isRolling) return;
+          if (!hasRolled || isRolling || playerHasPicked) return;
           const rect = canvas.getBoundingClientRect();
           const mouse = new THREE.Vector2(
             ((e.clientX - rect.left) / rect.width) * 2 - 1,
@@ -1129,6 +1263,29 @@
         if (zoneOverlays[key]) zoneOverlays[key].material.opacity = 0.08;
 
         refreshHUD();
+
+        // Log per la tabella finale
+        const _lt = currentGameTurn - 1;
+        const _lp = getCurrentPlayer();
+        if (!gameLog[_lt]) gameLog[_lt] = {};
+        if (!gameLog[_lt][_lp]) gameLog[_lt][_lp] = [];
+        gameLog[_lt][_lp].push({
+          district: key,
+          cnt,
+          face: currentGroups[key][0],
+        });
+
+        // Gestione multi-giocatore: avanza al prossimo giocatore
+        playerHasPicked = true;
+        setAllDistricts(false);
+        pickIndex++;
+        if (pickIndex < pickSequence.length) {
+          setTimeout(nextPlayerContext, 600);
+        } else {
+          document.getElementById("roll-btn").disabled = true;
+          document.getElementById("end-btn").disabled = false;
+          document.getElementById("end-btn").classList.add("active");
+        }
       }
 
       function shrinkPickedDice(key) {
@@ -1157,11 +1314,11 @@
       }
 
       function endTurn() {
-        turn++;
         hasRolled = false;
         hasPicked = false;
         isRolling = false;
         pickedThisTurn = new Set();
+        playerHasPicked = false;
         currentGroups = {};
         clearTimeout(settleTimer);
         // Rimuovi tutti i dadi dalla scena e dal mondo
@@ -1175,31 +1332,56 @@
           document.getElementById("dv-" + k).textContent = "";
           document.getElementById("d-" + k).classList.remove("active");
           document.getElementById("d-" + k).disabled = true;
-        });
-        document.getElementById("end-btn").disabled = true;
-        document.getElementById("roll-btn").disabled = false;
-        // Resetta selettore dadi gialli (sempre, anche a fine partita)
-        document.getElementById("yellow-dice").value = "0";
-        // Ripristina visibilità zone
-        DISTRICT_ORDER.forEach((k) => {
           if (zoneOverlays[k]) zoneOverlays[k].visible = false;
         });
+        document.getElementById("end-btn").disabled = true;
+        document.getElementById("end-btn").classList.remove("active");
+        document.getElementById("roll-btn").disabled = true;
+        // Resetta selettore dadi gialli (sempre, anche a fine partita)
+        document.getElementById("yellow-dice").value = "0";
 
-        if (turn > maxTurns) {
+        currentGameTurn++;
+        turn = currentGameTurn;
+        if (currentGameTurn > maxGameTurns) {
           endGame();
           return;
         }
 
-        setStatus(`Turno ${turn}/${maxTurns} — Lancia i dadi!`);
+        pickSequence = computePickSequence(currentGameTurn);
+        pickIndex = 0;
+        document.getElementById("roll-btn").disabled = false;
+        updateTurnInfo();
         refreshHUD();
       }
 
       function endGame() {
-        const bonus = Math.floor(gold / 2) + Math.floor(goats / 2);
-        const final = score + bonus;
-        document.getElementById("final-score").textContent = final;
-        document.getElementById("final-detail").textContent =
-          `Merci: ${score} pt · Bonus risorse: ${bonus} pt`;
+        // Header turni
+        let html = `<table class="game-log-table"><thead><tr><th></th>`;
+        for (let t = 1; t <= maxGameTurns; t++) {
+          html += `<th>T${t}</th>`;
+        }
+        html += `</tr></thead><tbody>`;
+        // Righe per giocatore
+        for (let p = 1; p <= numPlayers; p++) {
+          html += `<tr><td class="player-col">G${p}</td>`;
+          for (let t = 0; t < maxGameTurns; t++) {
+            const picks = (gameLog[t] && gameLog[t][p]) || [];
+            if (picks.length === 0) {
+              html += `<td>—</td>`;
+            } else {
+              const cells = picks
+                .map(
+                  ({ district, cnt, face }) =>
+                    `${cnt} dadi [${face}] ${DISTRICT_NAMES_IT[district] || district}`,
+                )
+                .join("<br>");
+              html += `<td>${cells}</td>`;
+            }
+          }
+          html += `</tr>`;
+        }
+        html += `</tbody></table>`;
+        document.getElementById("game-log-container").innerHTML = html;
         document.getElementById("scoreboard").classList.add("show");
       }
 
@@ -1208,13 +1390,20 @@
         gold = 1;
         goats = 1;
         score = 0;
-        maxTurns = 18;
+        maxTurns = 4;
+        numPlayers = 0;
+        currentGameTurn = 1;
+        maxGameTurns = 4;
+        pickSequence = [];
+        pickIndex = 0;
+        playerHasPicked = false;
         Object.keys(shopProgress).forEach((k) => (shopProgress[k] = 0));
         hasRolled = false;
         hasPicked = false;
         isRolling = false;
         pickedThisTurn = new Set();
         currentGroups = {};
+        gameLog = [];
         diceObjects.forEach((d) => {
           scene.remove(d.mesh);
           world.remove(d.body);
@@ -1225,12 +1414,13 @@
           document.getElementById("dv-" + k).textContent = "";
           document.getElementById("d-" + k).disabled = true;
           document.getElementById("d-" + k).classList.remove("active");
+          if (zoneOverlays[k]) zoneOverlays[k].visible = false;
         });
         document.getElementById("roll-btn").disabled = true;
         document.getElementById("end-btn").disabled = true;
+        document.getElementById("end-btn").classList.remove("active");
         document.getElementById("scoreboard").classList.remove("show");
-        const maxTurnsEl = document.getElementById("s-max-turns");
-        if (maxTurnsEl) maxTurnsEl.textContent = maxTurns;
+        document.getElementById("turn-info").textContent = "";
         document.getElementById("player-setup").classList.remove("hidden");
         setStatus();
         refreshHUD();
@@ -1338,6 +1528,7 @@
       }
       animate();
       refreshHUD();
+
 
       let lightTunerOverlay = null;
       let lightTunerRefreshToggleText = () => {};
