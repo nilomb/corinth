@@ -1,0 +1,1542 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>Corinth</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap");
+
+      :root {
+        --gold: #c9a84c;
+        --gold-lt: #f0d080;
+        --dark: #1a1008;
+        --wood: #3d2208;
+        --wood-lt: #6b3d12;
+        --cream: #f5ead2;
+        --parch: #e8d5a8;
+        --red: #8b1a1a;
+        --teal: #1a5c5c;
+        --olive: #4a5c1a;
+        --purple: #3d1a5c;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--dark);
+        font-family: "Crimson Text", Georgia, serif;
+        color: var(--cream);
+        height: 100dvh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ---- HEADER ---- */
+      #header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 16px;
+        background: linear-gradient(to bottom, #0d0804, #1a1008);
+        border-bottom: 1px solid #4a3010;
+        flex-shrink: 0;
+        gap: 8px;
+      }
+      #header h1 {
+        font-family: "Cinzel", serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--gold);
+        letter-spacing: 3px;
+        text-shadow: 0 0 20px rgba(201, 168, 76, 0.4);
+      }
+      .stat-row {
+        display: flex;
+        gap: 12px;
+      }
+      .stat {
+        font-size: 13px;
+        color: var(--parch);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .stat-val {
+        font-family: "Cinzel", serif;
+        font-size: 14px;
+        color: var(--gold-lt);
+        font-weight: 600;
+        min-width: 18px;
+        text-align: center;
+      }
+
+      /* ---- 3D CANVAS ---- */
+      #canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 0;
+      }
+      #three-canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      /* ---- BOARD OVERLAY — nascosto, solo per compat. JS ---- */
+      #board-overlay {
+        display: none;
+      }
+      #districts {
+        display: none;
+      }
+
+      /* district buttons nascosti — nessuno stile necessario */
+
+      /* ---- BARRA INFERIORE ---- */
+      #bottom-controls {
+        display: flex;
+        flex-shrink: 0;
+        height: 52px;
+        padding: 6px 8px;
+        gap: 6px;
+        background: linear-gradient(to top, #0d0804, #1a1008);
+        border-top: 1px solid #4a3010;
+      }
+      #roll-btn {
+        flex: 3;
+        font-family: "Cinzel", serif;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        color: var(--dark);
+        background: linear-gradient(to bottom, var(--gold-lt), var(--gold));
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      #roll-btn:active {
+        transform: scale(0.97);
+      }
+      #roll-btn:disabled {
+        opacity: 0.4;
+        cursor: default;
+        transform: none;
+      }
+      #end-btn {
+        flex: 1;
+        font-family: "Cinzel", serif;
+        font-size: 13px;
+        color: var(--parch);
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid #4a3010;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      #end-btn:disabled {
+        opacity: 0.3;
+        cursor: default;
+      }
+      #end-btn:not(:disabled):active {
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      /* ---- STATUS (floating su canvas) ---- */
+      #status {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: "Crimson Text", serif;
+        font-style: italic;
+        font-size: 14px;
+        color: var(--gold);
+        text-align: center;
+        pointer-events: none;
+        white-space: nowrap;
+        opacity: 0.92;
+        text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+        z-index: 10;
+      }
+
+      /* ---- PLAYER SETUP OVERLAY ---- */
+      #player-setup {
+        display: flex;
+        position: absolute;
+        inset: 0;
+        background: rgba(10, 6, 2, 0.96);
+        align-items: center;
+        justify-content: center;
+        z-index: 200;
+        backdrop-filter: blur(8px);
+      }
+      #player-setup.hidden {
+        display: none;
+      }
+      .setup-card {
+        background: linear-gradient(to bottom, #2a1808, #1a1008);
+        border: 1px solid var(--gold);
+        border-radius: 14px;
+        padding: 36px 32px;
+        text-align: center;
+        width: 88%;
+        max-width: 320px;
+      }
+      .setup-card h2 {
+        font-family: "Cinzel", serif;
+        font-size: 22px;
+        color: var(--gold);
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+      }
+      .setup-card p {
+        font-size: 14px;
+        color: var(--parch);
+        margin-bottom: 24px;
+      }
+      .player-btns {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+      .player-btn {
+        font-family: "Cinzel", serif;
+        font-size: 18px;
+        font-weight: 700;
+        width: 58px;
+        height: 58px;
+        border-radius: 10px;
+        border: 2px solid var(--gold);
+        background: rgba(201, 168, 76, 0.12);
+        color: var(--gold-lt);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .player-btn:hover {
+        background: rgba(201, 168, 76, 0.3);
+      }
+      #scoreboard {
+        display: none;
+        position: absolute;
+        inset: 0;
+        background: rgba(10, 6, 2, 0.92);
+        align-items: center;
+        justify-content: center;
+        z-index: 99;
+        backdrop-filter: blur(6px);
+      }
+      #scoreboard.show {
+        display: flex;
+      }
+      .score-card {
+        background: linear-gradient(to bottom, #2a1808, #1a1008);
+        border: 1px solid var(--gold);
+        border-radius: 12px;
+        padding: 32px;
+        text-align: center;
+        max-width: 320px;
+        width: 90%;
+      }
+      .score-card h2 {
+        font-family: "Cinzel", serif;
+        font-size: 22px;
+        color: var(--gold);
+        margin-bottom: 8px;
+        letter-spacing: 2px;
+      }
+      .score-card .big-score {
+        font-family: "Cinzel", serif;
+        font-size: 56px;
+        color: var(--gold-lt);
+        font-weight: 700;
+        line-height: 1;
+        margin: 16px 0;
+      }
+      .score-card p {
+        font-size: 15px;
+        color: var(--parch);
+        margin-bottom: 20px;
+      }
+      .score-card button {
+        font-family: "Cinzel", serif;
+        font-size: 14px;
+        color: var(--dark);
+        background: var(--gold);
+        border: none;
+        border-radius: 6px;
+        padding: 10px 28px;
+        cursor: pointer;
+        letter-spacing: 1px;
+      }
+
+      /* ---- DICE TRAY LABEL ---- */
+      #tray-label {
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: "Cinzel", serif;
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: rgba(201, 168, 76, 0.4);
+        pointer-events: none;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <div id="header">
+      <h1>CORINTH</h1>
+    </div>
+
+    <!-- 3D VIEW -->
+    <div id="canvas-wrap">
+      <canvas id="three-canvas"></canvas>
+      <div id="scoreboard">
+        <div class="score-card">
+          <h2>PARTITA FINITA</h2>
+          <div class="big-score" id="final-score">0</div>
+          <p id="final-detail">—</p>
+          <button onclick="restartGame()">Nuova partita</button>
+        </div>
+      </div>
+
+      <!-- PLAYER SETUP -->
+      <div id="player-setup">
+        <div class="setup-card">
+          <h2>CORINTH</h2>
+          <p>Quanti giocatori?</p>
+          <div class="player-btns">
+            <button class="player-btn" onclick="startGame(2)">2</button>
+            <button class="player-btn" onclick="startGame(3)">3</button>
+            <button class="player-btn" onclick="startGame(4)">4</button>
+          </div>
+        </div>
+      </div>
+      <!-- <div id="status">Tocca una zona per scegliere il distretto!</div> -->
+      <!-- Elementi distretto nascosti (solo compatibilità JS) -->
+      <div id="board-overlay">
+        <div id="districts">
+          <button id="d-Gold" disabled>
+            <span id="dc-Gold">—</span><span id="dv-Gold"></span>
+          </button>
+          <button id="d-Spices" disabled>
+            <span id="dc-Spices">—</span><span id="dv-Spices"></span>
+          </button>
+          <button id="d-Carpets" disabled>
+            <span id="dc-Carpets">—</span><span id="dv-Carpets"></span>
+          </button>
+          <button id="d-Wine" disabled>
+            <span id="dc-Wine">—</span><span id="dv-Wine"></span>
+          </button>
+          <button id="d-Oil" disabled>
+            <span id="dc-Oil">—</span><span id="dv-Oil"></span>
+          </button>
+          <button id="d-Goats" disabled>
+            <span id="dc-Goats">—</span><span id="dv-Goats"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Barra controlli sotto la plancia -->
+    <div id="bottom-controls">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <label for="yellow-dice">Dadi gialli:</label>
+        <select id="yellow-dice">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+      <button id="roll-btn" onclick="rollDice()" disabled>
+        🎲 Lancia i dadi
+      </button>
+      <button id="end-btn" onclick="endTurn()" disabled>Fine →</button>
+    </div>
+
+    <!-- THREE.JS + CANNON.JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+
+    <script>
+      // ============================================================
+      //  THREE.JS SCENE
+      // ============================================================
+      const canvas = document.getElementById("three-canvas");
+      const wrap = document.getElementById("canvas-wrap");
+
+      const renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: true,
+      });
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a0604);
+      window.LIGHT_TUNER_ENABLED = window.LIGHT_TUNER_ENABLED ?? false;
+
+      // Camera ortografica dall'alto (nessuna prospettiva)
+      const camera = new THREE.OrthographicCamera(
+        -3.2,
+        3.2,
+        4.8,
+        -4.8,
+        0.1,
+        100,
+      );
+      camera.position.set(0, 15, -0.5);
+      camera.up.set(0, 0, -1);
+      camera.lookAt(0, 0, -0.5);
+
+      // Luci naturali — luce quasi perpendicolare, ombra quasi inesistente
+      const ambient = new THREE.AmbientLight(0xfffaf0, 0.77);
+      scene.add(ambient);
+
+      const sun = new THREE.DirectionalLight(0xababab, 0.5);
+      // Quasi perpendicolare: offset minimo su X/Z → ombra cortissima
+      sun.position.set(-2.9, 8.3, -1.9);
+      sun.castShadow = true;
+      sun.shadow.mapSize.set(512, 512);
+      sun.shadow.camera.near = 1;
+      sun.shadow.camera.far = 30;
+      sun.shadow.camera.left = sun.shadow.camera.bottom = -6;
+      sun.shadow.camera.right = sun.shadow.camera.top = 6;
+      scene.add(sun);
+
+      // Plancia: immagine Harbor_Corinth.jpg come texture del pavimento
+      const boardLoader = new THREE.TextureLoader();
+      const boardTex = boardLoader.load("Harbor_Corinth.jpg");
+      const trayGeo = new THREE.PlaneGeometry(6, 9);
+      const trayMat = new THREE.MeshStandardMaterial({
+        map: boardTex,
+        roughness: 0.9,
+        metalness: 0.0,
+      });
+      const tray = new THREE.Mesh(trayGeo, trayMat);
+      tray.rotation.x = -Math.PI / 2;
+      tray.position.set(0, 0.01, -0.5);
+      tray.receiveShadow = true;
+      scene.add(tray);
+
+      // Bordi sottili attorno alla plancia
+      const borderMat = new THREE.MeshStandardMaterial({
+        color: 0x2a1500,
+        roughness: 0.9,
+      });
+      // Bordi calcolati sulla plancia 6×9 (x: ±3, z: -5…+4)
+      const borderDefs = [
+        { pos: [0, 0.08, -5.06], scale: [6.24, 0.16, 0.12] },
+        { pos: [0, 0.08, 4.06], scale: [6.24, 0.16, 0.12] },
+        { pos: [-3.06, 0.08, -0.5], scale: [0.12, 0.16, 9.24] },
+        { pos: [3.06, 0.08, -0.5], scale: [0.12, 0.16, 9.24] },
+      ];
+      borderDefs.forEach((b) => {
+        const m = new THREE.Mesh(new THREE.BoxGeometry(...b.scale), borderMat);
+        m.position.set(...b.pos);
+        scene.add(m);
+      });
+
+      // 6 distretti distribuiti sulla larghezza 6 (x: ±3)
+      const districtX = [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5];
+
+      // ============================================================
+      //  CANNON.JS PHYSICS
+      // ============================================================
+      const world = new CANNON.World();
+      world.gravity.set(0, -25, 0);
+      world.broadphase = new CANNON.NaiveBroadphase();
+      world.solver.iterations = 10;
+
+      // Physics materials
+      const diceMat = new CANNON.Material("dice");
+      const floorMat = new CANNON.Material("floor");
+      const contact = new CANNON.ContactMaterial(diceMat, floorMat, {
+        friction: 0.4,
+        restitution: 0.35,
+      });
+      world.addContactMaterial(contact);
+
+      // Floor body
+      const floorBody = new CANNON.Body({ mass: 0, material: floorMat });
+      floorBody.addShape(new CANNON.Plane());
+      floorBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+      world.addBody(floorBody);
+
+      // Muri fisici plancia 6×9
+      const wallDefs = [
+        { pos: [0, 1, -5.05], halfExt: [3.0, 2, 0.05] },
+        { pos: [0, 1, 4.05], halfExt: [3.0, 2, 0.05] },
+        { pos: [-3.05, 1, -0.5], halfExt: [0.05, 2, 4.55] },
+        { pos: [3.05, 1, -0.5], halfExt: [0.05, 2, 4.55] },
+      ];
+      wallDefs.forEach((w) => {
+        const body = new CANNON.Body({ mass: 0, material: floorMat });
+        body.addShape(new CANNON.Box(new CANNON.Vec3(...w.halfExt)));
+        body.position.set(...w.pos);
+        world.addBody(body);
+      });
+
+      // ============================================================
+      //  DICE
+      // ============================================================
+      const NUM_DICE = 9;
+      const diceObjects = []; // { mesh, body, value }
+
+      // Dice face dot colors per visualizzare il valore
+      const FACE_NORMALS = [
+        new THREE.Vector3(0, 1, 0), // face 1 (top    in identity)
+        new THREE.Vector3(0, -1, 0), // face 6
+        new THREE.Vector3(0, 0, 1), // face 2
+        new THREE.Vector3(0, 0, -1), // face 5
+        new THREE.Vector3(1, 0, 0), // face 3
+        new THREE.Vector3(-1, 0, 0), // face 4
+      ];
+      const FACE_VALUES = [1, 6, 2, 5, 3, 4];
+
+      function createDie(isYellow = false) {
+        const size = isYellow ? 0.58 : 0.55;
+        const mat = new THREE.MeshStandardMaterial({
+          color: isYellow ? 0xffd600 : 0xf5ead2,
+          roughness: isYellow ? 0.25 : 0.35,
+          metalness: isYellow ? 0.05 : 0.03,
+          emissive: isYellow ? 0xffa800 : 0x000000,
+          emissiveIntensity: isYellow ? 0.22 : 0,
+          envMapIntensity: isYellow ? 0.35 : 0.25,
+        });
+        const geo = new THREE.BoxGeometry(size, size, size);
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.castShadow = true;
+
+        addPips(mesh, size, isYellow);
+
+        const half = size / 2;
+        const body = new CANNON.Body({ mass: 0.15, material: diceMat });
+        body.addShape(new CANNON.Box(new CANNON.Vec3(half, half, half)));
+        body.linearDamping = 0.3;
+        body.angularDamping = 0.4;
+
+        return { mesh, body, value: 1, isYellow };
+      }
+
+      function addPips(mesh, size, isYellow) {
+        // Dadi bianchi → pip scuri; dadi gialli → pip neri netti
+        const pipMat = new THREE.MeshStandardMaterial({
+          color: isYellow ? 0x6e3e01 : 0x0f0a00,
+          roughness: 1.0,
+          metalness: 0.0,
+        });
+        const pipR = 0.058;
+        const pipH = 0.03;
+        const pipGeo = new THREE.CylinderGeometry(pipR, pipR, pipH, 10);
+        // h leggermente dentro la superficie per effetto incavo
+        const h = size * 0.5 - 0.008;
+        const o = size * 0.22;
+
+        const layouts = {
+          1: [[0, 0]],
+          2: [
+            [-o, o],
+            [o, -o],
+          ],
+          3: [
+            [-o, o],
+            [0, 0],
+            [o, -o],
+          ],
+          4: [
+            [-o, o],
+            [o, o],
+            [-o, -o],
+            [o, -o],
+          ],
+          5: [
+            [-o, o],
+            [o, o],
+            [0, 0],
+            [-o, -o],
+            [o, -o],
+          ],
+          6: [
+            [-o, o],
+            [o, o],
+            [-o, 0],
+            [o, 0],
+            [-o, -o],
+            [o, -o],
+          ],
+        };
+
+        // [normale, valore, rotazione cilindro per allinearlo alla faccia]
+        const faces = [
+          [new THREE.Vector3(0, 1, 0), 1, new THREE.Euler(0, 0, 0)],
+          [new THREE.Vector3(0, -1, 0), 6, new THREE.Euler(0, 0, 0)],
+          [new THREE.Vector3(0, 0, 1), 2, new THREE.Euler(Math.PI / 2, 0, 0)],
+          [new THREE.Vector3(0, 0, -1), 5, new THREE.Euler(Math.PI / 2, 0, 0)],
+          [new THREE.Vector3(1, 0, 0), 3, new THREE.Euler(0, 0, Math.PI / 2)],
+          [new THREE.Vector3(-1, 0, 0), 4, new THREE.Euler(0, 0, Math.PI / 2)],
+        ];
+
+        faces.forEach(([normal, val, rot]) => {
+          const pts = layouts[val];
+          pts.forEach(([u, v]) => {
+            const pip = new THREE.Mesh(pipGeo, pipMat);
+            pip.rotation.copy(rot);
+            if (Math.abs(normal.y) === 1) {
+              pip.position.set(u, normal.y * h, v);
+            } else if (Math.abs(normal.z) === 1) {
+              pip.position.set(u, v, normal.z * h);
+            } else {
+              pip.position.set(normal.x * h, v, u);
+            }
+            mesh.add(pip);
+          });
+        });
+      }
+
+      function spawnDice(yellowDiceCount) {
+        const totalDice = 9 + yellowDiceCount;
+        for (let i = 0; i < totalDice; i++) {
+          const isYellow = i >= 9;
+          const die = createDie(isYellow);
+          // Posizione iniziale: sparse sulla plancia, lanciate dall'alto
+          const rx = (Math.random() - 0.5) * 4.2;
+          const rz = (Math.random() - 0.5) * 7.0 - 0.5;
+          const ry = 3.5 + Math.random() * 2.5;
+          die.body.position.set(rx, ry, rz);
+          die.mesh.position.set(rx, ry, rz);
+          // Rotazione casuale iniziale
+          const rOri = new CANNON.Quaternion();
+          rOri.setFromEuler(
+            Math.random() * Math.PI * 2,
+            Math.random() * Math.PI * 2,
+            Math.random() * Math.PI * 2,
+          );
+          die.body.quaternion.copy(rOri);
+          die.mesh.quaternion.set(rOri.x, rOri.y, rOri.z, rOri.w);
+          // Velocità casuale in caduta
+          die.body.velocity.set(
+            (Math.random() - 0.5) * 2.5,
+            -1.5,
+            (Math.random() - 0.5) * 2.5,
+          );
+          die.body.angularVelocity.set(
+            (Math.random() - 0.5) * 18,
+            (Math.random() - 0.5) * 18,
+            (Math.random() - 0.5) * 18,
+          );
+          die.body.type = CANNON.Body.DYNAMIC;
+          diceObjects.push(die);
+          scene.add(die.mesh);
+          world.addBody(die.body);
+        }
+      }
+
+      function readDieValue(die) {
+        // Trasforma ogni normale di faccia nello spazio mondo
+        // e trova quella più allineata con Vector3.up
+        let best = -Infinity,
+          bestVal = 1;
+        FACE_NORMALS.forEach((n, i) => {
+          const worldN = n.clone().applyQuaternion(die.mesh.quaternion);
+          const dot = worldN.dot(new THREE.Vector3(0, 1, 0));
+          if (dot > best) {
+            best = dot;
+            bestVal = FACE_VALUES[i];
+          }
+        });
+        return bestVal;
+      }
+
+      // ============================================================
+      //  GAME STATE
+      // ============================================================
+      let turn = 1;
+      let gold = 1;
+      let goats = 1;
+      let score = 0;
+      let maxTurns = 18; // 2-3 giocatori: 6 round×3=18; 4 giocatori: 6 round×4... gestito in startGame
+
+      const shopSlots = {
+        Oil: [3, 3, 4],
+        Wine: [2, 3, 4],
+        Carpets: [3, 3, 3],
+        Spices: [2, 2, 3],
+      };
+      const shopProgress = { Oil: 0, Wine: 0, Carpets: 0, Spices: 0 };
+
+      let hasRolled = false;
+      let pickedThisTurn = new Set(); // distretti già scelti in questo turno
+      let isRolling = false;
+      let settleTimer = null;
+      let currentGroups = {};
+
+      // hasPicked rimane per compatibilità, ora significa "almeno uno scelto"
+      let hasPicked = false;
+
+      const DISTRICT_ORDER = [
+        "Goats",
+        "Oil",
+        "Wine",
+        "Carpets",
+        "Spices",
+        "Gold",
+      ];
+
+      window.startGame = startGame;
+
+      function startGame(numPlayers) {
+        // 2-3 giocatori → turni = 6 per giocatore × numPlayers
+        // 4 giocatori  → turni = 4 per giocatore × numPlayers
+        const roundsPerPlayer = numPlayers <= 3 ? 6 : 4;
+        maxTurns = roundsPerPlayer * numPlayers;
+        const maxTurnsEl = document.getElementById("s-max-turns");
+        if (maxTurnsEl) maxTurnsEl.textContent = maxTurns;
+        document.getElementById("player-setup").classList.add("hidden");
+        document.getElementById("roll-btn").disabled = false;
+        setStatus();
+      }
+
+      // Quaternioni canonici per ogni faccia vista dall'alto
+      const FACE_SNAP_QUATS = [
+        new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0)), // face 0: top [0,1,0]
+        new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI)), // face 1: bottom [0,-1,0]
+        new THREE.Quaternion().setFromEuler(
+          new THREE.Euler(-Math.PI / 2, 0, 0),
+        ), // face 2: front [0,0,1]
+        new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0)), // face 3: back [0,0,-1]
+        new THREE.Quaternion().setFromEuler(
+          new THREE.Euler(0, 0, -Math.PI / 2),
+        ), // face 4: right [1,0,0]
+        new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 2)), // face 5: left [-1,0,0]
+      ];
+
+      function getSnapQuaternion(meshQuat) {
+        // Trova la normale locale più allineata con il mondo Y (su)
+        let best = -Infinity,
+          bestIdx = 0;
+        FACE_NORMALS.forEach((n, i) => {
+          const wn = n.clone().applyQuaternion(meshQuat);
+          if (wn.y > best) {
+            best = wn.y;
+            bestIdx = i;
+          }
+        });
+        // Rotazione che allinea la normale mondo alla direzione UP
+        const bestWorldN = FACE_NORMALS[bestIdx]
+          .clone()
+          .applyQuaternion(meshQuat);
+        const R_align = new THREE.Quaternion().setFromUnitVectors(
+          bestWorldN,
+          new THREE.Vector3(0, 1, 0),
+        );
+        // Applica la correzione alla quaternione corrente
+        const snapQ = R_align.clone().multiply(
+          new THREE.Quaternion().copy(meshQuat),
+        );
+        // Snap del yaw al multiplo di 90°
+        const euler = new THREE.Euler().setFromQuaternion(snapQ, "YXZ");
+        euler.y = Math.round(euler.y / (Math.PI / 2)) * (Math.PI / 2);
+        snapQ.setFromEuler(euler);
+        return snapQ;
+      }
+
+      function rollDice() {
+        if (hasRolled || isRolling) return;
+        isRolling = true;
+        const yellowDiceCount = parseInt(
+          document.getElementById("yellow-dice").value,
+          10,
+        );
+        document.getElementById("roll-btn").disabled = true;
+        document.getElementById("end-btn").disabled = false;
+        setAllDistricts(false);
+        setStatus("I dadi rotolano nel porto\u2026");
+        spawnDice(yellowDiceCount);
+        clearTimeout(settleTimer);
+        settleTimer = setTimeout(() => {
+          isRolling = false;
+          hasRolled = true;
+          // Snap piatto prima di distribuire
+          diceObjects.forEach((d) => {
+            d.targetQuat = getSnapQuaternion(d.mesh.quaternion);
+          });
+          distributeToDistricts();
+        }, 2500);
+      }
+
+      function distributeToDistricts() {
+        // Leggi il valore effettivo di ogni dado e tieni il riferimento all'oggetto
+        const dieValues = diceObjects.map((d) => ({
+          die: d,
+          val: readDieValue(d),
+        }));
+        const vals = dieValues.map((dv) => dv.val);
+        const sorted = [...vals].sort((a, b) => a - b);
+        const distinct = [...new Set(sorted)].sort((a, b) => a - b);
+
+        currentGroups = {};
+        DISTRICT_ORDER.forEach((k) => (currentGroups[k] = []));
+
+        if (distinct.length === 0) {
+          setStatus("Nessun dado?");
+          return;
+        }
+
+        // Mappa valore → distretto
+        const valueToDistrict = {};
+        const lo = distinct[0];
+        const hi = distinct[distinct.length - 1];
+        const mid = distinct.filter((v) => v !== lo && v !== hi);
+
+        if (lo === hi) {
+          // Tutti stesso valore → tutto in Oro
+          distinct.forEach((v) => (valueToDistrict[v] = "Gold"));
+        } else {
+          valueToDistrict[lo] = "Goats";
+          valueToDistrict[hi] = "Gold";
+          const midDistricts = ["Oil", "Wine", "Carpets", "Spices"];
+          mid.forEach((v, i) => {
+            if (i < midDistricts.length) valueToDistrict[v] = midDistricts[i];
+          });
+        }
+
+        // Assegna ogni dado al suo distretto (basato sul valore reale letto)
+        dieValues.forEach(({ die, val }) => {
+          const key = valueToDistrict[val];
+          if (key) {
+            die.districtKey = key;
+            currentGroups[key].push(val);
+          } else {
+            die.districtKey = null; // valore intermedio non assegnato
+          }
+        });
+
+        // Aggiorna UI distretti + mostra zone cliccabili
+        DISTRICT_ORDER.forEach((k) => {
+          const cnt = currentGroups[k].length;
+          const val = cnt > 0 ? currentGroups[k][0] : null;
+          document.getElementById("dc-" + k).textContent =
+            cnt > 0 ? cnt + "×" : "—";
+          document.getElementById("dv-" + k).textContent = val
+            ? "[" + val + "]"
+            : "";
+          const btn = document.getElementById("d-" + k);
+          btn.disabled = cnt === 0;
+          // Mostra/nasconde il rect colorato della zona
+          if (zoneOverlays[k]) {
+            zoneOverlays[k].visible = cnt > 0;
+            if (cnt > 0 && zoneOverlays[k].material)
+              zoneOverlays[k].material.opacity = 0.28;
+          }
+        });
+
+        // Sposta fisicamente i dadi verso i distretti
+        moveDiceToDistricts();
+        setStatus("Tocca una zona per scegliere il distretto!");
+      }
+
+      // ============================================================
+      //  ZONE DI DISTRETTO CALIBRABILI
+      //  Ogni zona = { xMin, xMax, zMin, zMax } sul piano Y=0
+      //  Puoi modificare questi valori direttamente qui oppure
+      //  usare startCalibration('Gold') dalla console di Chrome.
+      // ============================================================
+      let districtZones = {
+        Gold: {
+          xMin: -2.856862745098039,
+          xMax: 2.867704728950404,
+          zMin: -4.842214532871976,
+          zMax: -3.573702422145332,
+        },
+        Spices: {
+          xMin: -2.8460207612456743,
+          xMax: 2.867704728950404,
+          zMin: -3.367704728950407,
+          zMax: -2.0883506343713987,
+        },
+        Carpets: {
+          xMin: -2.856862745098039,
+          xMax: 2.856862745098039,
+          zMin: -1.882352941176474,
+          zMax: -0.602998846597466,
+        },
+        Wine: {
+          xMin: -2.8460207612456743,
+          xMax: 2.856862745098039,
+          zMin: -0.3970011534025406,
+          zMax: 0.8715109573241027,
+        },
+        Oil: {
+          xMin: -2.856862745098039,
+          xMax: 2.856862745098039,
+          zMin: 1.0775086505190279,
+          zMax: 2.3351787773933075,
+        },
+        Goats: {
+          xMin: -2.8460207612456743,
+          xMax: 2.856862745098039,
+          zMin: 2.5628604382929607,
+          zMax: 3.8313725490196053,
+        },
+      };
+
+      // --- Overlay visivi per le zone (attivabili con showZones()) ---
+      const zoneOverlays = {};
+      const zoneMats = {
+        Gold: 0xc9a84c,
+        Spices: 0xe0a060,
+        Carpets: 0x60a0e0,
+        Wine: 0xe060a0,
+        Oil: 0xa0c840,
+        Goats: 0xd0d0d0,
+      };
+      let zonesVisible = false;
+
+      function buildZoneOverlays() {
+        Object.keys(districtZones).forEach((key) => {
+          if (zoneOverlays[key]) scene.remove(zoneOverlays[key]);
+          const z = districtZones[key];
+          const w = z.xMax - z.xMin;
+          const h = z.zMax - z.zMin;
+          const geo = new THREE.PlaneGeometry(w, h);
+          const mat = new THREE.MeshBasicMaterial({
+            color: zoneMats[key],
+            opacity: 0.1,
+            transparent: true,
+            depthWrite: false,
+            side: THREE.DoubleSide,
+          });
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.rotation.x = -Math.PI / 2;
+          mesh.position.set((z.xMin + z.xMax) / 2, 0.05, (z.zMin + z.zMax) / 2);
+          mesh.visible = zonesVisible;
+          scene.add(mesh);
+          zoneOverlays[key] = mesh;
+        });
+      }
+      buildZoneOverlays();
+
+      // Esponi globalmente per la console di Chrome
+      window.showZones = function (visible) {
+        zonesVisible = visible !== undefined ? visible : !zonesVisible;
+        Object.values(zoneOverlays).forEach((m) => (m.visible = zonesVisible));
+        console.log("Zone", zonesVisible ? "VISIBILI" : "NASCOSTE");
+      };
+
+      // --- Calibrazione via click sul canvas ---
+      let _calibKey = null;
+      let _calibPoints = [];
+      const _calibRaycaster = new THREE.Raycaster();
+      const _calibPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+      window.startCalibration = function (key) {
+        if (!districtZones[key]) {
+          console.error(
+            "Chiave non valida. Valori: Gold, Spices, Carpets, Wine, Oil, Goats",
+          );
+          return;
+        }
+        _calibKey = key;
+        _calibPoints = [];
+        zonesVisible = true;
+        Object.values(zoneOverlays).forEach((m) => (m.visible = true));
+        console.log(
+          `%cCalibrazione [${key}] — Click punto 1 (angolo in alto a sinistra)`,
+          "color:#f0c030;font-weight:bold",
+        );
+      };
+
+      window.clearCalibration = function () {
+        _calibKey = null;
+        _calibPoints = [];
+        console.log("Calibrazione annullata.");
+      };
+
+      window.printZones = function () {
+        console.log(JSON.stringify(districtZones, null, 2));
+      };
+
+      canvas.addEventListener("click", (e) => {
+        // Selezione distretto via click sulla zona
+        if (!_calibKey) {
+          if (!hasRolled || isRolling) return;
+          const rect = canvas.getBoundingClientRect();
+          const mouse = new THREE.Vector2(
+            ((e.clientX - rect.left) / rect.width) * 2 - 1,
+            ((e.clientY - rect.top) / rect.height) * -2 + 1,
+          );
+          _calibRaycaster.setFromCamera(mouse, camera);
+          const hit = new THREE.Vector3();
+          _calibRaycaster.ray.intersectPlane(_calibPlane, hit);
+          if (hit) {
+            for (const key of DISTRICT_ORDER) {
+              if (!currentGroups[key] || currentGroups[key].length === 0)
+                continue;
+              if (pickedThisTurn.has(key)) continue; // già scelto questo turno
+              const z = districtZones[key];
+              if (
+                hit.x >= z.xMin &&
+                hit.x <= z.xMax &&
+                hit.z >= z.zMin &&
+                hit.z <= z.zMax
+              ) {
+                pickDistrict(key);
+                return;
+              }
+            }
+          }
+          return;
+        }
+        const rect = canvas.getBoundingClientRect();
+        const mouse = new THREE.Vector2(
+          ((e.clientX - rect.left) / rect.width) * 2 - 1,
+          ((e.clientY - rect.top) / rect.height) * -2 + 1,
+        );
+        _calibRaycaster.setFromCamera(mouse, camera);
+        const hit = new THREE.Vector3();
+        _calibRaycaster.ray.intersectPlane(_calibPlane, hit);
+        if (!hit) return;
+        _calibPoints.push({ x: hit.x, z: hit.z });
+        console.log(
+          `  Punto ${_calibPoints.length}: x=${hit.x.toFixed(3)}, z=${hit.z.toFixed(3)}`,
+        );
+
+        if (_calibPoints.length === 2) {
+          const [p1, p2] = _calibPoints;
+          districtZones[_calibKey] = {
+            xMin: Math.min(p1.x, p2.x),
+            xMax: Math.max(p1.x, p2.x),
+            zMin: Math.min(p1.z, p2.z),
+            zMax: Math.max(p1.z, p2.z),
+          };
+          console.log(
+            `%c[${_calibKey}] zona aggiornata!`,
+            "color:#80ff80;font-weight:bold",
+            districtZones[_calibKey],
+          );
+          buildZoneOverlays();
+          Object.values(zoneOverlays).forEach((m) => (m.visible = true));
+          _calibKey = null;
+          _calibPoints = [];
+          console.log("Chiama printZones() per copiare tutte le zone.");
+        } else {
+          console.log(`%c  → Click punto 2 (angolo opposto)`, "color:#f0c030");
+        }
+      });
+
+      // --- Posizionamento dadi nella zona ---
+      function moveDiceToDistricts() {
+        const posCounter = {};
+        DISTRICT_ORDER.forEach((k) => (posCounter[k] = 0));
+
+        diceObjects.forEach((die) => {
+          const key = die.districtKey;
+          if (!key) return;
+          const zone = districtZones[key];
+          const cnt = currentGroups[key].length;
+          const i = posCounter[key]++;
+
+          // Griglia: quante colonne in base alla larghezza della zona
+          const spacing = 0.65;
+          const cols = Math.max(
+            1,
+            Math.floor((zone.xMax - zone.xMin) / spacing),
+          );
+          const col = i % cols;
+          const row = Math.floor(i / cols);
+          const totalCols = Math.min(cnt, cols);
+          const cx = (zone.xMin + zone.xMax) / 2;
+          const cz = (zone.zMin + zone.zMax) / 2;
+          const startX = cx - ((totalCols - 1) / 2) * spacing;
+          const startZ = cz - (Math.floor((cnt - 1) / cols) / 2) * spacing;
+
+          die.target = new THREE.Vector3(
+            startX + col * spacing,
+            0.35,
+            startZ + row * spacing,
+          );
+          die.body.velocity.set(0, 0, 0);
+          die.body.angularVelocity.set(0, 0, 0);
+          die.body.type = CANNON.Body.KINEMATIC;
+          // Ricalcola snap piatto ora che il dado è fermo
+          die.targetQuat = getSnapQuaternion(die.mesh.quaternion);
+        });
+      }
+
+      function pickDistrict(key) {
+        if (!currentGroups[key] || currentGroups[key].length === 0) return;
+        if (pickedThisTurn.has(key)) return;
+        pickedThisTurn.add(key);
+        hasPicked = true;
+
+        const cnt = currentGroups[key].length;
+
+        switch (key) {
+          case "Gold":
+            gold += cnt;
+            setStatus(`+${cnt} monete d'oro! Totale: ${gold}`);
+            break;
+          case "Goats":
+            goats += cnt;
+            setStatus(`+${cnt} capre! Totale: ${goats}`);
+            break;
+          default: {
+            const toDeliver = cnt;
+            const before = shopProgress[key];
+            const total = shopSlots[key].reduce((a, b) => a + b, 0);
+            shopProgress[key] = Math.min(shopProgress[key] + toDeliver, total);
+            const actual = shopProgress[key] - before;
+            scoreShops(key, before, shopProgress[key]);
+            setStatus(`+${actual} consegne in ${key}!`);
+          }
+        }
+
+        // Rimpicciolisci e sposta i dadi di questo distretto a destra nella zona
+        shrinkPickedDice(key);
+
+        // Prima selezione del turno: nascondi i dadi gialli fuori da questo distretto
+        if (pickedThisTurn.size === 1) {
+          // appena aggiunto = prima selezione
+          diceObjects.forEach((d) => {
+            if (d.isYellow && d.districtKey !== key) {
+              // Animazione sparizione: scala verso 0 poi nascondi
+              d.targetScale = 0.0;
+              d.vanishing = true;
+              setTimeout(() => {
+                if (d.vanishing) d.mesh.visible = false;
+              }, 600);
+            }
+          });
+        }
+
+        // Smorza la zona visiva per indicare che è stata scelta
+        if (zoneOverlays[key]) zoneOverlays[key].material.opacity = 0.08;
+
+        refreshHUD();
+      }
+
+      function shrinkPickedDice(key) {
+        const zone = districtZones[key];
+        const xRight = zone.xMax - 0.22; // colonna destra della zona
+        const zCenter = (zone.zMin + zone.zMax) / 2;
+        const diceForKey = diceObjects.filter((d) => d.districtKey === key);
+        diceForKey.forEach((die, i) => {
+          // Rimpicciolisci a metà
+          die.shrinking = true;
+          // Target: impilati a destra, spaziatura ridotta
+          const tz = zCenter + (i - (diceForKey.length - 1) / 2) * 0.32;
+          die.target = new THREE.Vector3(xRight, 0.2, tz);
+          die.targetScale = 0.45;
+        });
+      }
+
+      function scoreShops(key, oldP, newP) {
+        if (!shopSlots[key]) return;
+        let cumul = 0;
+        shopSlots[key].forEach((s) => {
+          const end = cumul + s;
+          if (oldP < end && newP >= end) score += s;
+          cumul += s;
+        });
+      }
+
+      function endTurn() {
+        turn++;
+        hasRolled = false;
+        hasPicked = false;
+        isRolling = false;
+        pickedThisTurn = new Set();
+        currentGroups = {};
+        clearTimeout(settleTimer);
+        // Rimuovi tutti i dadi dalla scena e dal mondo
+        diceObjects.forEach((die) => {
+          scene.remove(die.mesh);
+          world.remove(die.body);
+        });
+        diceObjects.length = 0;
+        DISTRICT_ORDER.forEach((k) => {
+          document.getElementById("dc-" + k).textContent = "—";
+          document.getElementById("dv-" + k).textContent = "";
+          document.getElementById("d-" + k).classList.remove("active");
+          document.getElementById("d-" + k).disabled = true;
+        });
+        document.getElementById("end-btn").disabled = true;
+        document.getElementById("roll-btn").disabled = false;
+        // Resetta selettore dadi gialli (sempre, anche a fine partita)
+        document.getElementById("yellow-dice").value = "0";
+        // Ripristina visibilità zone
+        DISTRICT_ORDER.forEach((k) => {
+          if (zoneOverlays[k]) zoneOverlays[k].visible = false;
+        });
+
+        if (turn > maxTurns) {
+          endGame();
+          return;
+        }
+
+        setStatus(`Turno ${turn}/${maxTurns} — Lancia i dadi!`);
+        refreshHUD();
+      }
+
+      function endGame() {
+        const bonus = Math.floor(gold / 2) + Math.floor(goats / 2);
+        const final = score + bonus;
+        document.getElementById("final-score").textContent = final;
+        document.getElementById("final-detail").textContent =
+          `Merci: ${score} pt · Bonus risorse: ${bonus} pt`;
+        document.getElementById("scoreboard").classList.add("show");
+      }
+
+      function restartGame() {
+        turn = 1;
+        gold = 1;
+        goats = 1;
+        score = 0;
+        maxTurns = 18;
+        Object.keys(shopProgress).forEach((k) => (shopProgress[k] = 0));
+        hasRolled = false;
+        hasPicked = false;
+        isRolling = false;
+        pickedThisTurn = new Set();
+        currentGroups = {};
+        diceObjects.forEach((d) => {
+          scene.remove(d.mesh);
+          world.remove(d.body);
+        });
+        diceObjects.length = 0;
+        DISTRICT_ORDER.forEach((k) => {
+          document.getElementById("dc-" + k).textContent = "—";
+          document.getElementById("dv-" + k).textContent = "";
+          document.getElementById("d-" + k).disabled = true;
+          document.getElementById("d-" + k).classList.remove("active");
+        });
+        document.getElementById("roll-btn").disabled = true;
+        document.getElementById("end-btn").disabled = true;
+        document.getElementById("scoreboard").classList.remove("show");
+        const maxTurnsEl = document.getElementById("s-max-turns");
+        if (maxTurnsEl) maxTurnsEl.textContent = maxTurns;
+        document.getElementById("player-setup").classList.remove("hidden");
+        setStatus();
+        refreshHUD();
+      }
+      function setAllDistricts(enabled) {
+        DISTRICT_ORDER.forEach((k) => {
+          const btn = document.getElementById("d-" + k);
+          if (btn) btn.disabled = !enabled;
+          // Quando si disabilita (roll start / fine turno) nascondi tutte le zone
+          if (!enabled && zoneOverlays[k]) zoneOverlays[k].visible = false;
+        });
+      }
+
+      function setStatus() {
+        // kept as no-op; status text is static in markup
+      }
+
+      function refreshHUD() {
+        const turnEl = document.getElementById("s-turn");
+        if (turnEl) turnEl.textContent = Math.min(turn, maxTurns);
+        const goldEl = document.getElementById("s-gold");
+        if (goldEl) goldEl.textContent = gold;
+        const goatsEl = document.getElementById("s-goats");
+        if (goatsEl) goatsEl.textContent = goats;
+        const scoreEl = document.getElementById("s-score");
+        if (scoreEl) scoreEl.textContent = score;
+      }
+
+      // ============================================================
+      //  RENDER LOOP
+      // ============================================================
+      const clock = new THREE.Clock();
+      let physicsRunning = false;
+
+      function onResize() {
+        const w = wrap.clientWidth;
+        const h = wrap.clientHeight;
+        renderer.setSize(w, h);
+        // Camera ortografica: mostra tutta la plancia 6×9 con piccolo margine
+        const aspect = w / h;
+        const boardAspect = 6 / 9; // ≈ 0.667 (portrait)
+        let halfW, halfH;
+        if (aspect >= boardAspect) {
+          // Schermo più largo della plancia: vincolato dall'altezza
+          halfH = 4.7;
+          halfW = halfH * aspect;
+        } else {
+          // Schermo più stretto: vincolato dalla larghezza
+          halfW = 3.2;
+          halfH = halfW / aspect;
+        }
+        camera.left = -halfW;
+        camera.right = halfW;
+        camera.top = halfH;
+        camera.bottom = -halfH;
+        camera.updateProjectionMatrix();
+      }
+      window.addEventListener("resize", onResize);
+      onResize();
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        const dt = Math.min(clock.getDelta(), 0.05);
+
+        // Step physics solo mentre si lanciano i dadi
+        if (
+          isRolling ||
+          diceObjects.some((d) => d.body.type !== CANNON.Body.KINEMATIC)
+        ) {
+          world.step(1 / 60, dt, 3);
+        }
+
+        // Sync mesh ↔ body + lerp verso target + slerp piatto + scala graduale
+        diceObjects.forEach((d) => {
+          if (d.body.type === CANNON.Body.KINEMATIC && d.target) {
+            d.mesh.position.lerp(d.target, 0.08);
+            d.body.position.copy(d.mesh.position);
+            // Slerp verso rotazione piatta
+            if (d.targetQuat) {
+              d.mesh.quaternion.slerp(d.targetQuat, 0.12);
+              d.body.quaternion.x = d.mesh.quaternion.x;
+              d.body.quaternion.y = d.mesh.quaternion.y;
+              d.body.quaternion.z = d.mesh.quaternion.z;
+              d.body.quaternion.w = d.mesh.quaternion.w;
+            }
+          } else {
+            d.mesh.position.copy(d.body.position);
+            d.mesh.quaternion.set(
+              d.body.quaternion.x,
+              d.body.quaternion.y,
+              d.body.quaternion.z,
+              d.body.quaternion.w,
+            );
+          }
+          // Interpolazione scala
+          if (d.targetScale !== undefined && d.targetScale !== null) {
+            const cur = d.mesh.scale.x;
+            const ns = cur + (d.targetScale - cur) * 0.1;
+            d.mesh.scale.setScalar(ns);
+          }
+        });
+
+        renderer.render(scene, camera);
+      }
+      animate();
+      refreshHUD();
+
+      let lightTunerOverlay = null;
+      let lightTunerRefreshToggleText = () => {};
+
+      function mountLightTuner() {
+        if (lightTunerOverlay) return lightTunerOverlay;
+        const style = document.createElement("style");
+        style.textContent = `
+    #light-tuner {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 260px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(8, 8, 8, 0.85);
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      color: #f5ead2;
+      font-family: "Crimson Text", serif;
+      font-size: 13px;
+      z-index: 210;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.65);
+    }
+    #light-tuner.hidden {
+      display: none;
+    }
+    #light-tuner h3 {
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    #light-tuner .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      gap: 6px;
+    }
+    #light-tuner input[type="range"] {
+      width: 110px;
+    }
+    #light-tuner input[type="color"] {
+      border: none;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      background: transparent;
+    }
+    #light-tuner button {
+      border: none;
+      background: var(--gold);
+      color: var(--dark);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-family: "Cinzel", serif;
+      cursor: pointer;
+      margin-top: 6px;
+      width: 100%;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+    #light-tuner p {
+      font-size: 11px;
+      margin: 4px 0;
+      word-break: break-word;
+    }
+  `;
+        document.head.appendChild(style);
+
+        const overlay = document.createElement("div");
+        overlay.id = "light-tuner";
+        overlay.innerHTML = `
+    <h3>Light tuner</h3>
+    <div class="row"><span>Stato</span><span id="light-tuner-state">standby</span></div>
+    <div class="row">
+      <label>Ambient</label>
+      <input type="range" id="ambient-range" min="0" max="1" step="0.01" value="${ambient.intensity}">
+    </div>
+    <div class="row">
+      <label>Sun</label>
+      <input type="range" id="sun-range" min="0" max="1.5" step="0.01" value="${sun.intensity}">
+    </div>
+    <div class="row">
+      <label>Pos X</label>
+      <input type="range" id="sun-pos-x" min="-6" max="6" step="0.1" value="${sun.position.x}">
+    </div>
+    <div class="row">
+      <label>Pos Y</label>
+      <input type="range" id="sun-pos-y" min="5" max="25" step="0.1" value="${sun.position.y}">
+    </div>
+    <div class="row">
+      <label>Pos Z</label>
+      <input type="range" id="sun-pos-z" min="-6" max="6" step="0.1" value="${sun.position.z}">
+    </div>
+    <div class="row">
+      <label>Colore amb.</label>
+      <input type="color" id="ambient-color" value="#fff5e0">
+    </div>
+    <div class="row">
+      <label>Colore sun</label>
+      <input type="color" id="sun-color" value="#fff0d0">
+    </div>
+    <div id="light-tuner-values">
+      <p>Ambient ↓ <span id="tuner-ambient-val"></span></p>
+      <p>Sun ↓ <span id="tuner-sun-val"></span></p>
+      <p>Sun Pos ↓ <span id="tuner-sun-pos"></span></p>
+    </div>
+    <button id="toggle-light-tuner">Chiudi overlay</button>
+  `;
+        document.body.appendChild(overlay);
+
+        const ambientRange = document.getElementById("ambient-range");
+        const sunRange = document.getElementById("sun-range");
+        const sunPosX = document.getElementById("sun-pos-x");
+        const sunPosY = document.getElementById("sun-pos-y");
+        const sunPosZ = document.getElementById("sun-pos-z");
+        const ambientColor = document.getElementById("ambient-color");
+        const sunColor = document.getElementById("sun-color");
+        const stateLabel = document.getElementById("light-tuner-state");
+        const toggleButton = document.getElementById("toggle-light-tuner");
+        const ambientVal = document.getElementById("tuner-ambient-val");
+        const sunVal = document.getElementById("tuner-sun-val");
+        const sunPosVal = document.getElementById("tuner-sun-pos");
+
+        function updatePanel() {
+          ambientVal.textContent = `${ambient.color.getHexString()} · ${ambient.intensity.toFixed(2)}`;
+          sunVal.textContent = `${sun.color.getHexString()} · ${sun.intensity.toFixed(2)}`;
+          sunPosVal.textContent = `${sun.position.x.toFixed(1)}, ${sun.position.y.toFixed(1)}, ${sun.position.z.toFixed(1)}`;
+        }
+
+        function applyLights() {
+          ambient.intensity = parseFloat(ambientRange.value);
+          sun.intensity = parseFloat(sunRange.value);
+          sun.position.set(
+            parseFloat(sunPosX.value),
+            parseFloat(sunPosY.value),
+            parseFloat(sunPosZ.value),
+          );
+          ambient.color.set(ambientColor.value);
+          sun.color.set(sunColor.value);
+          updatePanel();
+        }
+
+        [
+          ambientRange,
+          sunRange,
+          sunPosX,
+          sunPosY,
+          sunPosZ,
+          ambientColor,
+          sunColor,
+        ].forEach((el) => el.addEventListener("input", applyLights));
+
+        toggleButton.addEventListener("click", () => {
+          overlay.classList.toggle("hidden");
+          lightTunerRefreshToggleText();
+        });
+
+        let lastState = "";
+        function pollState() {
+          const state = isRolling
+            ? "rotolando"
+            : hasRolled
+              ? "distribuiti"
+              : "standby";
+          if (state !== lastState) {
+            stateLabel.textContent = state;
+            lastState = state;
+          }
+          requestAnimationFrame(pollState);
+        }
+        pollState();
+
+        function refreshToggleLabel() {
+          toggleButton.textContent = overlay.classList.contains("hidden")
+            ? "Apri overlay"
+            : "Chiudi overlay";
+        }
+
+        lightTunerRefreshToggleText = refreshToggleLabel;
+        lightTunerOverlay = overlay;
+        updatePanel();
+        refreshToggleLabel();
+        return overlay;
+      }
+
+      window.toggleLightTuner = () => {
+        if (!lightTunerOverlay) {
+          mountLightTuner();
+        }
+        if (!lightTunerOverlay) return;
+        lightTunerOverlay.classList.toggle("hidden");
+        lightTunerRefreshToggleText();
+      };
+
+      if (window.LIGHT_TUNER_ENABLED) {
+        mountLightTuner();
+      }
+    </script>
+  </body>
+</html>
