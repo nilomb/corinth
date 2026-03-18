@@ -329,6 +329,63 @@
         white-space: nowrap;
       }
 
+      /* ---- MARKET SKIP MODAL ---- */
+      #market-skip-modal {
+        display: none;
+        position: absolute;
+        inset: 0;
+        background: rgba(10, 6, 2, 0.92);
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        backdrop-filter: blur(6px);
+      }
+      #market-skip-modal.show {
+        display: flex;
+      }
+      .market-skip-card {
+        background: linear-gradient(to bottom, #2a1808, #1a1008);
+        border: 2px solid var(--gold);
+        border-radius: 14px;
+        padding: 32px 28px;
+        text-align: center;
+        max-width: 420px;
+        width: 92%;
+      }
+      .market-skip-card h2 {
+        font-family: "Cinzel", serif;
+        font-size: 24px;
+        color: var(--gold);
+        margin-bottom: 16px;
+        letter-spacing: 2px;
+      }
+      .market-skip-card p {
+        font-size: 16px;
+        color: var(--parch);
+        margin-bottom: 24px;
+        line-height: 1.6;
+      }
+      .market-skip-card p strong {
+        color: var(--gold-lt);
+        font-weight: 700;
+      }
+      .market-skip-card button {
+        font-family: "Cinzel", serif;
+        font-size: 14px;
+        color: var(--dark);
+        background: linear-gradient(to bottom, var(--gold-lt), var(--gold));
+        border: none;
+        border-radius: 8px;
+        padding: 12px 32px;
+        cursor: pointer;
+        letter-spacing: 1px;
+        font-weight: 600;
+        transition: all 0.15s;
+      }
+      .market-skip-card button:active {
+        transform: scale(0.97);
+      }
+
       /* ---- DICE TRAY LABEL ---- */
       #tray-label {
         position: absolute;
@@ -359,6 +416,15 @@
           <h2>PARTITA FINITA</h2>
           <div id="game-log-container"></div>
           <button onclick="restartGame()">Nuova partita</button>
+        </div>
+      </div>
+
+      <!-- MARKET SKIP MODAL -->
+      <div id="market-skip-modal">
+        <div class="market-skip-card">
+          <h2>MERCATO</h2>
+          <p id="market-skip-message"></p>
+          <button onclick="closeMarketSkipModal()">OK</button>
         </div>
       </div>
 
@@ -789,6 +855,21 @@
       function nextPlayerContext() {
         playerHasPicked = false;
         updateTurnInfo();
+
+        // Controlla se il giocatore corrente ha opzioni disponibili
+        const availableOptions = DISTRICT_ORDER.filter(
+          (k) =>
+            currentGroups[k] &&
+            currentGroups[k].length > 0 &&
+            !pickedThisTurn.has(k),
+        );
+
+        if (availableOptions.length === 0) {
+          // Nessuna opzione disponibile per il giocatore corrente
+          showMarketSkipModal();
+          return;
+        }
+
         // Riabilita le zone con dadi non ancora scelte dal turno corrente
         DISTRICT_ORDER.forEach((k) => {
           const hasGroup = currentGroups[k] && currentGroups[k].length > 0;
@@ -804,6 +885,30 @@
             }
           }
         });
+      }
+
+      function showMarketSkipModal() {
+        const currentPlayer = getCurrentPlayer();
+        const message = `Il giocatore ${currentPlayer} può muovere di <strong>1 passo</strong> nel mercato.`;
+
+        // Mostra il modal
+        document.getElementById("market-skip-message").innerHTML = message;
+        document.getElementById("market-skip-modal").classList.add("show");
+      }
+
+      function closeMarketSkipModal() {
+        document.getElementById("market-skip-modal").classList.remove("show");
+
+        // Avanza al prossimo giocatore nella sequenza
+        pickIndex++;
+        if (pickIndex < pickSequence.length) {
+          setTimeout(nextPlayerContext, 300);
+        } else {
+          // Tutti i giocatori hanno avuto il loro turno (anche con skip)
+          document.getElementById("roll-btn").disabled = true;
+          document.getElementById("end-btn").disabled = false;
+          document.getElementById("end-btn").classList.add("active");
+        }
       }
 
       function startGame(n) {
@@ -1314,6 +1419,9 @@
       }
 
       function endTurn() {
+        // Chiudi il modal di skip turno se aperto
+        document.getElementById("market-skip-modal").classList.remove("show");
+
         hasRolled = false;
         hasPicked = false;
         isRolling = false;
@@ -1420,6 +1528,7 @@
         document.getElementById("end-btn").disabled = true;
         document.getElementById("end-btn").classList.remove("active");
         document.getElementById("scoreboard").classList.remove("show");
+        document.getElementById("market-skip-modal").classList.remove("show");
         document.getElementById("turn-info").textContent = "";
         document.getElementById("player-setup").classList.remove("hidden");
         setStatus();
@@ -1528,7 +1637,6 @@
       }
       animate();
       refreshHUD();
-
 
       let lightTunerOverlay = null;
       let lightTunerRefreshToggleText = () => {};
