@@ -694,7 +694,7 @@
       }
       .generic-modal {
         display: none;
-        position: absolute;
+        position: fixed;
         inset: 0;
         background: rgba(10, 6, 2, 0.92);
         align-items: center;
@@ -714,8 +714,9 @@
       }
       .instructions-card {
         width: min(96vw, 920px);
-        max-height: 88vh;
+        max-height: min(88vh, calc(100dvh - 40px));
         overflow-y: auto;
+        overscroll-behavior: contain;
       }
       .pdf-preview-card {
         width: min(96vw, 860px);
@@ -912,7 +913,7 @@
     <nav id="hamburger-menu" aria-label="Menu principale">
       <h3 class="menu-title">Menu</h3>
       <button class="menu-item" onclick="openInstructionsModal()">
-        Istruzioni
+        Regolamento
       </button>
       <button class="menu-item" onclick="openPdfPreviewModal()">
         PDF Segnapunti
@@ -2669,6 +2670,7 @@
       }
 
       function resetFromMenu() {
+        closeHamburgerMenu();
         restartGame();
       }
 
