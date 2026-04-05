@@ -2638,28 +2638,55 @@
 
       function printPdfPreview() {
         const iframe = document.getElementById("pdf-preview-iframe");
-        const frameWindow = iframe?.contentWindow;
 
-        if (frameWindow) {
-          frameWindow.focus();
-          frameWindow.print();
+        if (iframe && iframe.src) {
+          // Aspetta che l'iframe sia completamente caricato
+          if (
+            iframe.contentWindow &&
+            iframe.contentWindow.document.readyState === "complete"
+          ) {
+            // Già caricato
+            try {
+              iframe.contentWindow.print();
+            } catch (e) {
+              console.warn("Stampa iframe fallita:", e);
+            }
+          } else {
+            // Aspetta il caricamento
+            const printOnLoad = () => {
+              try {
+                iframe.contentWindow.print();
+              } catch (e) {
+                console.warn("Stampa iframe fallita:", e);
+              }
+            };
+
+            iframe.addEventListener("load", printOnLoad, { once: true });
+            // Timeout di sicurezza (il load event potrebbe non arrivare)
+            window.setTimeout(printOnLoad, 800);
+          }
           return;
         }
 
-        const pdfWindow = window.open(
-          "cr_scoring_a4.pdf",
-          "_blank",
-          "noopener",
-        );
-        if (!pdfWindow) return;
+        // Fallback: apri il PDF in una nuova finestra
+        const pdfWindow = window.open("cr_scoring_a4.pdf", "_blank");
+        if (!pdfWindow) {
+          alert(
+            "Impossibile aprire il PDF. Controlla se il browser blocca i popup.",
+          );
+          return;
+        }
 
         const triggerPrint = () => {
-          pdfWindow.focus();
-          pdfWindow.print();
+          try {
+            pdfWindow.print();
+          } catch (e) {
+            console.warn("Stampa finestra fallita:", e);
+          }
         };
 
         pdfWindow.addEventListener("load", triggerPrint, { once: true });
-        window.setTimeout(triggerPrint, 1200);
+        window.setTimeout(triggerPrint, 1500);
       }
 
       function chooseMainMode(mode) {
