@@ -746,7 +746,8 @@
         align-items: center;
         flex-wrap: wrap;
       }
-      .pdf-preview-actions a {
+      .pdf-preview-actions a,
+      .pdf-preview-actions button {
         font-family: "Cinzel", serif;
         font-size: 12px;
         color: var(--parch);
@@ -1497,6 +1498,7 @@
           </div>
           <div class="pdf-preview-actions">
             <a href="cr_scoring_a4.pdf" download>Scarica PDF</a>
+            <button onclick="printPdfPreview()">Stampa</button>
             <button onclick="closePdfPreviewModal()">Chiudi</button>
           </div>
         </div>
@@ -1917,6 +1919,7 @@
       window.openScoreSheetModal = openScoreSheetModal;
       window.closeScoreSheetModal = closeScoreSheetModal;
       window.openPdfPreviewModal = openPdfPreviewModal;
+      window.printPdfPreview = printPdfPreview;
       window.closePdfPreviewModal = closePdfPreviewModal;
       window.resetFromMenu = resetFromMenu;
       window.setScorecardTool = setScorecardTool;
@@ -2631,6 +2634,32 @@
 
       function closePdfPreviewModal() {
         document.getElementById("pdf-preview-modal").classList.remove("show");
+      }
+
+      function printPdfPreview() {
+        const iframe = document.getElementById("pdf-preview-iframe");
+        const frameWindow = iframe?.contentWindow;
+
+        if (frameWindow) {
+          frameWindow.focus();
+          frameWindow.print();
+          return;
+        }
+
+        const pdfWindow = window.open(
+          "cr_scoring_a4.pdf",
+          "_blank",
+          "noopener",
+        );
+        if (!pdfWindow) return;
+
+        const triggerPrint = () => {
+          pdfWindow.focus();
+          pdfWindow.print();
+        };
+
+        pdfWindow.addEventListener("load", triggerPrint, { once: true });
+        window.setTimeout(triggerPrint, 1200);
       }
 
       function chooseMainMode(mode) {
