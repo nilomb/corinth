@@ -388,8 +388,9 @@
       }
       .scorecard-stage {
         position: relative;
-        height: min(100%, calc((100vw - 48px) / 0.70710678));
-        width: calc(min(100%, calc((100vw - 48px) / 0.70710678)) * 0.70710678);
+        aspect-ratio: 2374 / 1632;
+        height: min(100%, calc((100vw - 48px) * 1632 / 2374));
+        width: auto;
         max-width: calc(100vw - 48px);
         max-height: 100%;
         border: 1px solid rgba(201, 168, 76, 0.5);
@@ -397,7 +398,7 @@
         box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
         overflow: hidden;
         background-image: url("cr_scoring_a4.png");
-        background-size: contain;
+        background-size: 100% 100%;
         background-repeat: no-repeat;
         background-position: center;
       }
@@ -2070,7 +2071,7 @@
        * Mercato/Edifici restano freehand sul canvas esistente.
        * ============================================================ */
       const SCORECARD_DIGITAL_STORAGE_KEY = "corinth-scorecard-digital-v1";
-      const SCORECARD_SHEET_LAYOUT = {"districts":{"orange":{"bonus":null,"shops":[{"points":4,"symbols":[{"x":0.20177,"y":0.17525,"r":0.01471},{"x":0.20177,"y":0.22794,"r":0.01471}]},{"points":5,"symbols":[{"x":0.30834,"y":0.17525,"r":0.01471},{"x":0.30834,"y":0.22794,"r":0.01471}]},{"points":10,"symbols":[{"x":0.39975,"y":0.17525,"r":0.01471},{"x":0.42797,"y":0.17525,"r":0.01471},{"x":0.39975,"y":0.22794,"r":0.01471},{"x":0.42797,"y":0.22794,"r":0.01471}]}]},"blue":{"bonus":{"points":3,"x":0.04002,"y":0.31863,"r":0.01348},"shops":[{"points":3,"symbols":[{"x":0.20514,"y":0.36336,"r":0.01471},{"x":0.20514,"y":0.41422,"r":0.01471}]},{"points":5,"symbols":[{"x":0.31129,"y":0.36336,"r":0.01471},{"x":0.29739,"y":0.41422,"r":0.01471},{"x":0.32519,"y":0.41422,"r":0.01471}]},{"points":8,"symbols":[{"x":0.40396,"y":0.36336,"r":0.01471},{"x":0.42797,"y":0.36336,"r":0.01471},{"x":0.40396,"y":0.41422,"r":0.01471},{"x":0.42797,"y":0.41422,"r":0.01471}]}]},"purple":{"bonus":{"points":4,"x":0.04002,"y":0.50245,"r":0.01348},"shops":[{"points":2,"symbols":[{"x":0.20219,"y":0.55025,"r":0.01471},{"x":0.20219,"y":0.60049,"r":0.01471}]},{"points":3,"symbols":[{"x":0.27296,"y":0.55025,"r":0.01471},{"x":0.25864,"y":0.60049,"r":0.01471},{"x":0.28728,"y":0.60049,"r":0.01471}]},{"points":4,"symbols":[{"x":0.34372,"y":0.55025,"r":0.01471},{"x":0.3294,"y":0.60049,"r":0.01471},{"x":0.35805,"y":0.60049,"r":0.01471}]},{"points":6,"symbols":[{"x":0.40017,"y":0.55025,"r":0.01471},{"x":0.42881,"y":0.55025,"r":0.01471},{"x":0.40017,"y":0.60049,"r":0.01471},{"x":0.42881,"y":0.60049,"r":0.01471}]}]},"green":{"bonus":{"points":5,"x":0.04002,"y":0.68627,"r":0.01348},"shops":[{"points":1,"symbols":[{"x":0.17397,"y":0.73346,"r":0.01471},{"x":0.17397,"y":0.78493,"r":0.01471}]},{"points":2,"symbols":[{"x":0.24431,"y":0.73346,"r":0.01471},{"x":0.23041,"y":0.78493,"r":0.01471},{"x":0.25864,"y":0.78493,"r":0.01471}]},{"points":3,"symbols":[{"x":0.31592,"y":0.73346,"r":0.01471},{"x":0.3016,"y":0.78493,"r":0.01471},{"x":0.33024,"y":0.78493,"r":0.01471}]},{"points":6,"symbols":[{"x":0.38669,"y":0.73346,"r":0.01471},{"x":0.41533,"y":0.73346,"r":0.01471},{"x":0.37237,"y":0.78493,"r":0.01471},{"x":0.40101,"y":0.78493,"r":0.01471},{"x":0.42881,"y":0.78493,"r":0.01471}]}]}},"gold":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.50551,"r":0.01348},{"x":0.65543,"y":0.50551,"r":0.01348},{"x":0.68324,"y":0.50551,"r":0.01348},{"x":0.71104,"y":0.50551,"r":0.01348},{"x":0.73884,"y":0.50551,"r":0.01348},{"x":0.76664,"y":0.50551,"r":0.01348},{"x":0.79444,"y":0.50551,"r":0.01348},{"x":0.82224,"y":0.50551,"r":0.01348},{"x":0.85004,"y":0.50551,"r":0.01348},{"x":0.87784,"y":0.50551,"r":0.01348},{"x":0.90564,"y":0.50551,"r":0.01348},{"x":0.93345,"y":0.50551,"r":0.01348},{"x":0.62763,"y":0.55147,"r":0.01348},{"x":0.65543,"y":0.55147,"r":0.01348},{"x":0.68324,"y":0.55147,"r":0.01348},{"x":0.71104,"y":0.55147,"r":0.01348},{"x":0.73884,"y":0.55147,"r":0.01348},{"x":0.76664,"y":0.55147,"r":0.01348},{"x":0.79444,"y":0.55147,"r":0.01348},{"x":0.82224,"y":0.55147,"r":0.01348},{"x":0.85004,"y":0.55147,"r":0.01348},{"x":0.87784,"y":0.55147,"r":0.01348},{"x":0.90564,"y":0.55147,"r":0.01348},{"x":0.93345,"y":0.55147,"r":0.01348}]},"goats":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.625,"r":0.01348},{"x":0.65543,"y":0.625,"r":0.01348},{"x":0.68324,"y":0.625,"r":0.01348},{"x":0.71104,"y":0.625,"r":0.01348},{"x":0.73884,"y":0.625,"r":0.01348},{"x":0.76664,"y":0.625,"r":0.01348},{"x":0.79444,"y":0.625,"r":0.01348},{"x":0.82224,"y":0.625,"r":0.01348},{"x":0.85004,"y":0.625,"r":0.01348},{"x":0.87784,"y":0.625,"r":0.01348},{"x":0.90564,"y":0.625,"r":0.01348},{"x":0.93345,"y":0.625,"r":0.01348},{"x":0.62763,"y":0.67402,"r":0.01348},{"x":0.65543,"y":0.67402,"r":0.01348},{"x":0.68324,"y":0.67402,"r":0.01348},{"x":0.71104,"y":0.67402,"r":0.01348},{"x":0.73884,"y":0.67402,"r":0.01348},{"x":0.76664,"y":0.67402,"r":0.01348},{"x":0.79444,"y":0.67402,"r":0.01348},{"x":0.82224,"y":0.67402,"r":0.01348},{"x":0.85004,"y":0.67402,"r":0.01348},{"x":0.87784,"y":0.67402,"r":0.01348},{"x":0.90564,"y":0.67402,"r":0.01348},{"x":0.93345,"y":0.67402,"r":0.01348}]},"turns":{"count":6,"slots":[{"x":0.03538,"y":0.92034,"r":0.02206},{"x":0.0973,"y":0.92034,"r":0.02206},{"x":0.15922,"y":0.92034,"r":0.02206},{"x":0.22662,"y":0.92034,"r":0.02206},{"x":0.28812,"y":0.92034,"r":0.02206},{"x":0.35004,"y":0.92034,"r":0.02206}]},"freehandRegions":{"mercato":{"x":0.46335,"y":0.02451,"w":0.52233,"h":0.31863},"edifici":{"x":0.46335,"y":0.68627,"w":0.52233,"h":0.29412}}};
+      const SCORECARD_SHEET_LAYOUT = {"districts":{"orange":{"bonus":null,"shops":[{"points":4,"symbols":[{"x":0.20177,"y":0.17525,"r":0.01471},{"x":0.20177,"y":0.22794,"r":0.01471}]},{"points":5,"symbols":[{"x":0.30834,"y":0.17525,"r":0.01471},{"x":0.30834,"y":0.22794,"r":0.01471}]},{"points":10,"symbols":[{"x":0.39975,"y":0.17525,"r":0.01471},{"x":0.42797,"y":0.17525,"r":0.01471},{"x":0.39975,"y":0.22794,"r":0.01471},{"x":0.42797,"y":0.22794,"r":0.01471}]}]},"blue":{"bonus":{"points":3,"x":0.04002,"y":0.31863,"r":0.01348},"shops":[{"points":3,"symbols":[{"x":0.20514,"y":0.36336,"r":0.01471},{"x":0.20514,"y":0.41422,"r":0.01471}]},{"points":5,"symbols":[{"x":0.31129,"y":0.36336,"r":0.01471},{"x":0.29739,"y":0.41422,"r":0.01471},{"x":0.32519,"y":0.41422,"r":0.01471}]},{"points":8,"symbols":[{"x":0.40396,"y":0.36336,"r":0.01471},{"x":0.42797,"y":0.36336,"r":0.01471},{"x":0.40396,"y":0.41422,"r":0.01471},{"x":0.42797,"y":0.41422,"r":0.01471}]}]},"purple":{"bonus":{"points":4,"x":0.04002,"y":0.50245,"r":0.01348},"shops":[{"points":2,"symbols":[{"x":0.20219,"y":0.55025,"r":0.01471},{"x":0.20219,"y":0.60049,"r":0.01471}]},{"points":3,"symbols":[{"x":0.27296,"y":0.55025,"r":0.01471},{"x":0.25864,"y":0.60049,"r":0.01471},{"x":0.28728,"y":0.60049,"r":0.01471}]},{"points":4,"symbols":[{"x":0.34372,"y":0.55025,"r":0.01471},{"x":0.3294,"y":0.60049,"r":0.01471},{"x":0.35805,"y":0.60049,"r":0.01471}]},{"points":6,"symbols":[{"x":0.40017,"y":0.55025,"r":0.01471},{"x":0.42881,"y":0.55025,"r":0.01471},{"x":0.40017,"y":0.60049,"r":0.01471},{"x":0.42881,"y":0.60049,"r":0.01471}]}]},"green":{"bonus":{"points":5,"x":0.04002,"y":0.68627,"r":0.01348},"shops":[{"points":1,"symbols":[{"x":0.17397,"y":0.73346,"r":0.01471},{"x":0.17397,"y":0.78493,"r":0.01471}]},{"points":2,"symbols":[{"x":0.24431,"y":0.73346,"r":0.01471},{"x":0.23041,"y":0.78493,"r":0.01471},{"x":0.25864,"y":0.78493,"r":0.01471}]},{"points":3,"symbols":[{"x":0.31592,"y":0.73346,"r":0.01471},{"x":0.3016,"y":0.78493,"r":0.01471},{"x":0.33024,"y":0.78493,"r":0.01471}]},{"points":6,"symbols":[{"x":0.38669,"y":0.73346,"r":0.01471},{"x":0.41533,"y":0.73346,"r":0.01471},{"x":0.37237,"y":0.78493,"r":0.01471},{"x":0.40101,"y":0.78493,"r":0.01471},{"x":0.42881,"y":0.78493,"r":0.01471}]}]}},"gold":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.50551,"r":0.01348},{"x":0.65543,"y":0.50551,"r":0.01348},{"x":0.68324,"y":0.50551,"r":0.01348},{"x":0.71104,"y":0.50551,"r":0.01348},{"x":0.73884,"y":0.50551,"r":0.01348},{"x":0.76664,"y":0.50551,"r":0.01348},{"x":0.79444,"y":0.50551,"r":0.01348},{"x":0.82224,"y":0.50551,"r":0.01348},{"x":0.85004,"y":0.50551,"r":0.01348},{"x":0.87784,"y":0.50551,"r":0.01348},{"x":0.90564,"y":0.50551,"r":0.01348},{"x":0.93345,"y":0.50551,"r":0.01348},{"x":0.62763,"y":0.55147,"r":0.01348},{"x":0.65543,"y":0.55147,"r":0.01348},{"x":0.68324,"y":0.55147,"r":0.01348},{"x":0.71104,"y":0.55147,"r":0.01348},{"x":0.73884,"y":0.55147,"r":0.01348},{"x":0.76664,"y":0.55147,"r":0.01348},{"x":0.79444,"y":0.55147,"r":0.01348},{"x":0.82224,"y":0.55147,"r":0.01348},{"x":0.85004,"y":0.55147,"r":0.01348},{"x":0.87784,"y":0.55147,"r":0.01348},{"x":0.90564,"y":0.55147,"r":0.01348},{"x":0.93345,"y":0.55147,"r":0.01348}]},"goats":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.625,"r":0.01348},{"x":0.65543,"y":0.625,"r":0.01348},{"x":0.68324,"y":0.625,"r":0.01348},{"x":0.71104,"y":0.625,"r":0.01348},{"x":0.73884,"y":0.625,"r":0.01348},{"x":0.76664,"y":0.625,"r":0.01348},{"x":0.79444,"y":0.625,"r":0.01348},{"x":0.82224,"y":0.625,"r":0.01348},{"x":0.85004,"y":0.625,"r":0.01348},{"x":0.87784,"y":0.625,"r":0.01348},{"x":0.90564,"y":0.625,"r":0.01348},{"x":0.93345,"y":0.625,"r":0.01348},{"x":0.62763,"y":0.67402,"r":0.01348},{"x":0.65543,"y":0.67402,"r":0.01348},{"x":0.68324,"y":0.67402,"r":0.01348},{"x":0.71104,"y":0.67402,"r":0.01348},{"x":0.73884,"y":0.67402,"r":0.01348},{"x":0.76664,"y":0.67402,"r":0.01348},{"x":0.79444,"y":0.67402,"r":0.01348},{"x":0.82224,"y":0.67402,"r":0.01348},{"x":0.85004,"y":0.67402,"r":0.01348},{"x":0.87784,"y":0.67402,"r":0.01348},{"x":0.90564,"y":0.67402,"r":0.01348},{"x":0.93345,"y":0.67402,"r":0.01348}]},"turns":{"count":6,"slots":[{"x":0.09309,"y":0.93076,"r":0.02206},{"x":0.15459,"y":0.93076,"r":0.02206},{"x":0.22199,"y":0.93076,"r":0.02206},{"x":0.28391,"y":0.93076,"r":0.02206},{"x":0.34541,"y":0.93076,"r":0.02206},{"x":0.40733,"y":0.93076,"r":0.02206}]},"freehandRegions":{"mercato":{"x":0.46335,"y":0.02451,"w":0.52233,"h":0.31863},"edifici":{"x":0.46335,"y":0.68627,"w":0.52233,"h":0.29412}}};
 
       /** @type {null|((info: object) => void)} Future multiplayer hook */
       let scorecardOnConfirm = null;
@@ -2187,9 +2188,12 @@
         const rect = scorecardCanvas.getBoundingClientRect();
         const w = rect.width || 1;
         const h = rect.height || 1;
+        const stageX = evt.clientX - rect.left;
+        const stageY = evt.clientY - rect.top;
+        const box = getSheetContentBox();
         return {
-          x: (evt.clientX - rect.left) / w,
-          y: (evt.clientY - rect.top) / h,
+          x: (stageX - box.ox) / Math.max(box.bw, 0.0001),
+          y: (stageY - box.oy) / Math.max(box.bh, 0.0001),
         };
       }
 
@@ -2198,6 +2202,38 @@
         return {
           w: scorecardStage.clientWidth || 1,
           h: scorecardStage.clientHeight || 1,
+        };
+      }
+
+      /** Box where cr_scoring_a4.png is painted inside the stage (handles letterboxing). */
+      function getSheetContentBox() {
+        const { w, h } = stageSize();
+        const imgAspect = 2374 / 1632;
+        const stageAspect = w / Math.max(h, 0.0001);
+        let bw;
+        let bh;
+        let ox;
+        let oy;
+        if (stageAspect > imgAspect) {
+          bh = h;
+          bw = h * imgAspect;
+          ox = (w - bw) / 2;
+          oy = 0;
+        } else {
+          bw = w;
+          bh = w / imgAspect;
+          ox = 0;
+          oy = (h - bh) / 2;
+        }
+        return { ox, oy, bw, bh, w, h };
+      }
+
+      function sheetToStage(nx, ny) {
+        const box = getSheetContentBox();
+        return {
+          x: box.ox + nx * box.bw,
+          y: box.oy + ny * box.bh,
+          scale: Math.min(box.bw, box.bh),
         };
       }
 
@@ -2257,29 +2293,27 @@
             const pending = isPendingShop(districtId, shopIndex);
             shopDef.symbols.forEach((sym, symIndex) => {
               if (!marked[symIndex]) return;
-              const cx = sym.x * w;
-              const cy = sym.y * h;
-              const r = sym.r * Math.min(w, h);
+              const pt = sheetToStage(sym.x, sym.y);
+              const r = sym.r * pt.scale;
               ctx.lineWidth = Math.max(2, r * 0.22);
               ctx.strokeStyle = pending ? pendingStroke : stroke;
-              drawMarkX(ctx, cx, cy, r);
+              drawMarkX(ctx, pt.x, pt.y, r);
             });
           });
 
           // District bonus
           if (def.bonus && dState.bonus) {
             const b = def.bonus;
-            const cx = b.x * w;
-            const cy = b.y * h;
-            const r = b.r * Math.min(w, h);
+            const pt = sheetToStage(b.x, b.y);
+            const r = b.r * pt.scale;
             const pendingBonus =
               scorecardPending &&
               scorecardPending.type === "bonus" &&
               scorecardPending.districtId === districtId;
             ctx.lineWidth = Math.max(2, r * 0.28);
             ctx.strokeStyle = pendingBonus ? pendingStroke : stroke;
-            if (dState.bonus === "circled") drawMarkCircle(ctx, cx, cy, r);
-            if (dState.bonus === "crossed") drawMarkX(ctx, cx, cy, r);
+            if (dState.bonus === "circled") drawMarkCircle(ctx, pt.x, pt.y, r);
+            if (dState.bonus === "crossed") drawMarkX(ctx, pt.x, pt.y, r);
           }
         }
 
@@ -2290,19 +2324,16 @@
           const circled = stateTrack.circled;
           const spent = stateTrack.spent || 0;
           layoutTrack.symbols.forEach((sym, i) => {
-            const cx = sym.x * w;
-            const cy = sym.y * h;
-            const r = sym.r * Math.min(w, h);
+            const pt = sheetToStage(sym.x, sym.y);
+            const r = sym.r * pt.scale;
             ctx.lineWidth = Math.max(2, r * 0.25);
-            // Pre-circled printed on artwork: only draw overlays for i >= preCircled
-            // when newly circled, or always draw spend crosses on circled+spent
             if (i < circled && i >= layoutTrack.preCircled) {
               ctx.strokeStyle = pending ? pendingStroke : stroke;
-              drawMarkCircle(ctx, cx, cy, r);
+              drawMarkCircle(ctx, pt.x, pt.y, r);
             }
             if (i < spent) {
               ctx.strokeStyle = stroke;
-              drawMarkX(ctx, cx, cy, r * 0.85);
+              drawMarkX(ctx, pt.x, pt.y, r * 0.85);
             }
           });
         };
@@ -2315,20 +2346,19 @@
           scorecardPending && scorecardPending.type === "turns";
         SCORECARD_SHEET_LAYOUT.turns.slots.forEach((slot, i) => {
           if (i >= turnsMarked) return;
-          const cx = slot.x * w;
-          const cy = slot.y * h;
-          const r = slot.r * Math.min(w, h);
+          const pt = sheetToStage(slot.x, slot.y);
+          const r = slot.r * pt.scale;
           ctx.lineWidth = Math.max(2.5, r * 0.18);
           ctx.strokeStyle = turnsPending ? pendingStroke : stroke;
-          drawMarkX(ctx, cx, cy, r * 0.7);
+          drawMarkX(ctx, pt.x, pt.y, r * 0.7);
         });
       }
 
       function buildScorecardHitLayer() {
         if (!scorecardHitLayer) return;
         scorecardHitLayer.innerHTML = "";
-        const { w, h } = stageSize();
-        const minSide = Math.min(w, h);
+        const box = getSheetContentBox();
+        if (box.bw < 2 || box.bh < 2) return;
 
         const addHit = (nx, ny, nr, attrs, title) => {
           const btn = document.createElement("button");
@@ -2336,11 +2366,12 @@
           btn.className = "scorecard-hit";
           btn.title = title || "";
           btn.setAttribute("aria-label", title || "Segna");
-          const size = Math.max(28, nr * minSide * 2.2);
+          const pt = sheetToStage(nx, ny);
+          const size = Math.max(30, nr * pt.scale * 2.4);
           btn.style.width = `${size}px`;
           btn.style.height = `${size}px`;
-          btn.style.left = `${nx * w - size / 2}px`;
-          btn.style.top = `${ny * h - size / 2}px`;
+          btn.style.left = `${pt.x - size / 2}px`;
+          btn.style.top = `${pt.y - size / 2}px`;
           Object.entries(attrs).forEach(([k, v]) =>
             btn.setAttribute(k, String(v)),
           );
@@ -2536,7 +2567,7 @@
           ) {
             marked = scorecardPending.marked.slice();
           } else {
-            marked = confirmed;
+            marked = confirmed.slice();
           }
           marked[symIndex] = !marked[symIndex];
           // Se non resta nulla di nuovo rispetto al confermato, annulla pending
@@ -2671,6 +2702,16 @@
         if (minus)
           minus.onclick = () => adjustScorecardQty(-1);
         if (plus) plus.onclick = () => adjustScorecardQty(1);
+
+        if (scorecardStage && typeof ResizeObserver !== "undefined") {
+          const ro = new ResizeObserver(() => {
+            if (!scorecardDigitalReady) return;
+            resizeScorecardMarksCanvas();
+            buildScorecardHitLayer();
+            renderScorecardMarks();
+          });
+          ro.observe(scorecardStage);
+        }
         scorecardDigitalReady = true;
       }
 
@@ -3444,12 +3485,14 @@
           document.getElementById("scorecard-page").classList.remove("hidden");
           document.getElementById("turn-info").textContent = "Segnapunti";
           requestAnimationFrame(() => {
-            resizeScorecardCanvas(true);
-            centerScorecardPanOffset();
-            if (scorecardDigitalReady) {
-              buildScorecardHitLayer();
-              renderScorecardMarks();
-            }
+            requestAnimationFrame(() => {
+              resizeScorecardCanvas(true);
+              centerScorecardPanOffset();
+              if (scorecardDigitalReady) {
+                buildScorecardHitLayer();
+                renderScorecardMarks();
+              }
+            });
           });
         }
 
