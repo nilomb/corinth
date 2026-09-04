@@ -490,6 +490,102 @@
           font-size: 11px;
         }
       }
+
+      /* ---- SEGNAPUNTI DIGITALE (overlay strutturato) ---- */
+      #scorecard-marks-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 2;
+      }
+      #scorecard-hit-layer {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+      }
+      .scorecard-hit {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: auto;
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .scorecard-hit:focus-visible {
+        outline: 2px solid rgba(201, 168, 76, 0.85);
+        outline-offset: 1px;
+      }
+      .scorecard-hit.is-disabled {
+        pointer-events: none;
+      }
+      .scorecard-hit-strip {
+        border-radius: 10px;
+      }
+      .scorecard-action-bar {
+        display: none;
+        width: min(100%, 560px);
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 10px;
+        background: rgba(26, 16, 8, 0.92);
+        border: 1px solid rgba(201, 168, 76, 0.45);
+        border-radius: 10px;
+        flex-shrink: 0;
+      }
+      .scorecard-action-bar.show {
+        display: flex;
+      }
+      .scorecard-action-bar .action-label {
+        flex: 1;
+        font-size: 13px;
+        color: var(--parch);
+        line-height: 1.25;
+        min-width: 0;
+      }
+      .scorecard-action-bar .action-btns {
+        display: flex;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+      .scorecard-action-bar button {
+        font-family: "Cinzel", serif;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        border-radius: 6px;
+        border: 1px solid rgba(201, 168, 76, 0.45);
+        padding: 8px 12px;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--gold-lt);
+      }
+      .scorecard-action-bar button.primary {
+        background: var(--gold);
+        color: var(--dark);
+        border-color: var(--gold);
+      }
+      .scorecard-action-bar button:disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
+      .scorecard-qty {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-right: 4px;
+      }
+      .scorecard-qty span {
+        font-family: "Cinzel", serif;
+        color: var(--gold-lt);
+        min-width: 1.4em;
+        text-align: center;
+      }
+
       .setup-card {
         background: linear-gradient(to bottom, #2a1808, #1a1008);
         border: 1px solid var(--gold);
@@ -1074,6 +1170,8 @@
             <div class="scorecard-pan-viewport" id="scorecard-pan-viewport">
               <div class="scorecard-stage" id="scorecard-stage">
                 <canvas id="scorecard-draw-canvas"></canvas>
+                <canvas id="scorecard-marks-canvas" aria-hidden="true"></canvas>
+                <div id="scorecard-hit-layer" aria-hidden="false"></div>
               </div>
             </div>
             <button
@@ -1105,7 +1203,23 @@
             oninput="onScorecardScrollbarInput(this.value)"
           />
 
-          <p class="scorecard-hint">Disegna con dito o mouse sulla scheda.</p>
+
+          <div id="scorecard-action-bar" class="scorecard-action-bar" aria-live="polite">
+            <div class="action-label" id="scorecard-action-label"></div>
+            <div class="action-btns">
+              <div class="scorecard-qty" id="scorecard-qty-controls" hidden>
+                <button type="button" id="scorecard-qty-minus" aria-label="Diminuisci">−</button>
+                <span id="scorecard-qty-value">1</span>
+                <button type="button" id="scorecard-qty-plus" aria-label="Aumenta">+</button>
+              </div>
+              <button type="button" id="scorecard-action-cancel" onclick="cancelScorecardPending()">Annulla</button>
+              <button type="button" class="primary" id="scorecard-action-confirm" onclick="confirmScorecardPending()">Conferma</button>
+            </div>
+          </div>
+          <p class="scorecard-hint">
+            Negozi / Oro / Capre / Turni: tocca per marcare, poi Conferma.
+            Mercato ed Edifici: disegno libero come prima.
+          </p>
         </div>
       </div>
 
@@ -1951,6 +2065,616 @@
       const SCORECARD_HISTORY_LIMIT = 80;
       const SCORECARD_STORAGE_KEY = "corinth-scorecard-v2";
 
+      /* ============================================================
+       * SEGNAPUNTI DIGITALE — layer strutturato su cr_scoring_a4.png
+       * Mercato/Edifici restano freehand sul canvas esistente.
+       * ============================================================ */
+      const SCORECARD_DIGITAL_STORAGE_KEY = "corinth-scorecard-digital-v1";
+      const SCORECARD_SHEET_LAYOUT = {"districts":{"orange":{"bonus":null,"shops":[{"points":4,"symbols":[{"x":0.20177,"y":0.17525,"r":0.01471},{"x":0.20177,"y":0.22794,"r":0.01471}]},{"points":5,"symbols":[{"x":0.30834,"y":0.17525,"r":0.01471},{"x":0.30834,"y":0.22794,"r":0.01471}]},{"points":10,"symbols":[{"x":0.39975,"y":0.17525,"r":0.01471},{"x":0.42797,"y":0.17525,"r":0.01471},{"x":0.39975,"y":0.22794,"r":0.01471},{"x":0.42797,"y":0.22794,"r":0.01471}]}]},"blue":{"bonus":{"points":3,"x":0.04002,"y":0.31863,"r":0.01348},"shops":[{"points":3,"symbols":[{"x":0.20514,"y":0.36336,"r":0.01471},{"x":0.20514,"y":0.41422,"r":0.01471}]},{"points":5,"symbols":[{"x":0.31129,"y":0.36336,"r":0.01471},{"x":0.29739,"y":0.41422,"r":0.01471},{"x":0.32519,"y":0.41422,"r":0.01471}]},{"points":8,"symbols":[{"x":0.40396,"y":0.36336,"r":0.01471},{"x":0.42797,"y":0.36336,"r":0.01471},{"x":0.40396,"y":0.41422,"r":0.01471},{"x":0.42797,"y":0.41422,"r":0.01471}]}]},"purple":{"bonus":{"points":4,"x":0.04002,"y":0.50245,"r":0.01348},"shops":[{"points":2,"symbols":[{"x":0.20219,"y":0.55025,"r":0.01471},{"x":0.20219,"y":0.60049,"r":0.01471}]},{"points":3,"symbols":[{"x":0.27296,"y":0.55025,"r":0.01471},{"x":0.25864,"y":0.60049,"r":0.01471},{"x":0.28728,"y":0.60049,"r":0.01471}]},{"points":4,"symbols":[{"x":0.34372,"y":0.55025,"r":0.01471},{"x":0.3294,"y":0.60049,"r":0.01471},{"x":0.35805,"y":0.60049,"r":0.01471}]},{"points":6,"symbols":[{"x":0.40017,"y":0.55025,"r":0.01471},{"x":0.42881,"y":0.55025,"r":0.01471},{"x":0.40017,"y":0.60049,"r":0.01471},{"x":0.42881,"y":0.60049,"r":0.01471}]}]},"green":{"bonus":{"points":5,"x":0.04002,"y":0.68627,"r":0.01348},"shops":[{"points":1,"symbols":[{"x":0.17397,"y":0.73346,"r":0.01471},{"x":0.17397,"y":0.78493,"r":0.01471}]},{"points":2,"symbols":[{"x":0.24431,"y":0.73346,"r":0.01471},{"x":0.23041,"y":0.78493,"r":0.01471},{"x":0.25864,"y":0.78493,"r":0.01471}]},{"points":3,"symbols":[{"x":0.31592,"y":0.73346,"r":0.01471},{"x":0.3016,"y":0.78493,"r":0.01471},{"x":0.33024,"y":0.78493,"r":0.01471}]},{"points":6,"symbols":[{"x":0.38669,"y":0.73346,"r":0.01471},{"x":0.41533,"y":0.73346,"r":0.01471},{"x":0.37237,"y":0.78493,"r":0.01471},{"x":0.40101,"y":0.78493,"r":0.01471},{"x":0.42881,"y":0.78493,"r":0.01471}]}]}},"gold":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.50551,"r":0.01348},{"x":0.65543,"y":0.50551,"r":0.01348},{"x":0.68324,"y":0.50551,"r":0.01348},{"x":0.71104,"y":0.50551,"r":0.01348},{"x":0.73884,"y":0.50551,"r":0.01348},{"x":0.76664,"y":0.50551,"r":0.01348},{"x":0.79444,"y":0.50551,"r":0.01348},{"x":0.82224,"y":0.50551,"r":0.01348},{"x":0.85004,"y":0.50551,"r":0.01348},{"x":0.87784,"y":0.50551,"r":0.01348},{"x":0.90564,"y":0.50551,"r":0.01348},{"x":0.93345,"y":0.50551,"r":0.01348},{"x":0.62763,"y":0.55147,"r":0.01348},{"x":0.65543,"y":0.55147,"r":0.01348},{"x":0.68324,"y":0.55147,"r":0.01348},{"x":0.71104,"y":0.55147,"r":0.01348},{"x":0.73884,"y":0.55147,"r":0.01348},{"x":0.76664,"y":0.55147,"r":0.01348},{"x":0.79444,"y":0.55147,"r":0.01348},{"x":0.82224,"y":0.55147,"r":0.01348},{"x":0.85004,"y":0.55147,"r":0.01348},{"x":0.87784,"y":0.55147,"r":0.01348},{"x":0.90564,"y":0.55147,"r":0.01348},{"x":0.93345,"y":0.55147,"r":0.01348}]},"goats":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.625,"r":0.01348},{"x":0.65543,"y":0.625,"r":0.01348},{"x":0.68324,"y":0.625,"r":0.01348},{"x":0.71104,"y":0.625,"r":0.01348},{"x":0.73884,"y":0.625,"r":0.01348},{"x":0.76664,"y":0.625,"r":0.01348},{"x":0.79444,"y":0.625,"r":0.01348},{"x":0.82224,"y":0.625,"r":0.01348},{"x":0.85004,"y":0.625,"r":0.01348},{"x":0.87784,"y":0.625,"r":0.01348},{"x":0.90564,"y":0.625,"r":0.01348},{"x":0.93345,"y":0.625,"r":0.01348},{"x":0.62763,"y":0.67402,"r":0.01348},{"x":0.65543,"y":0.67402,"r":0.01348},{"x":0.68324,"y":0.67402,"r":0.01348},{"x":0.71104,"y":0.67402,"r":0.01348},{"x":0.73884,"y":0.67402,"r":0.01348},{"x":0.76664,"y":0.67402,"r":0.01348},{"x":0.79444,"y":0.67402,"r":0.01348},{"x":0.82224,"y":0.67402,"r":0.01348},{"x":0.85004,"y":0.67402,"r":0.01348},{"x":0.87784,"y":0.67402,"r":0.01348},{"x":0.90564,"y":0.67402,"r":0.01348},{"x":0.93345,"y":0.67402,"r":0.01348}]},"turns":{"count":6,"slots":[{"x":0.03538,"y":0.92034,"r":0.02206},{"x":0.0973,"y":0.92034,"r":0.02206},{"x":0.15922,"y":0.92034,"r":0.02206},{"x":0.22662,"y":0.92034,"r":0.02206},{"x":0.28812,"y":0.92034,"r":0.02206},{"x":0.35004,"y":0.92034,"r":0.02206}]},"freehandRegions":{"mercato":{"x":0.46335,"y":0.02451,"w":0.52233,"h":0.31863},"edifici":{"x":0.46335,"y":0.68627,"w":0.52233,"h":0.29412}}};
+
+      /** @type {null|((info: object) => void)} Future multiplayer hook */
+      let scorecardOnConfirm = null;
+      window.setScorecardOnConfirm = function (cb) {
+        scorecardOnConfirm = typeof cb === "function" ? cb : null;
+      };
+
+      let scorecardMarksCanvas = null;
+      let scorecardMarksCtx = null;
+      let scorecardHitLayer = null;
+      let scorecardDigitalState = null;
+      let scorecardPending = null; // { type, ... } editable until confirm
+      let scorecardDigitalReady = false;
+
+      function createEmptyDigitalState() {
+        const districts = {};
+        for (const [id, def] of Object.entries(SCORECARD_SHEET_LAYOUT.districts)) {
+          districts[id] = {
+            shops: def.shops.map((shop) => ({
+              points: shop.points,
+              marked: shop.symbols.map(() => false),
+            })),
+            // null | "circled" | "crossed" — only for districts with bonus
+            bonus: null,
+          };
+        }
+        return {
+          version: 1,
+          districts,
+          // Indices 0..count-1; preCircled symbols start already circled (printed on sheet)
+          gold: {
+            circled: SCORECARD_SHEET_LAYOUT.gold.preCircled,
+            spent: 0,
+          },
+          goats: {
+            circled: SCORECARD_SHEET_LAYOUT.goats.preCircled,
+            spent: 0,
+          },
+          turns: { marked: 0 },
+          // Placeholder hooks for future structured Mercato / Edifici
+          mercato: { mode: "freehand" },
+          edifici: { mode: "freehand" },
+        };
+      }
+
+      function cloneDigitalState(state) {
+        return JSON.parse(JSON.stringify(state));
+      }
+
+      function getSerializableScorecardState() {
+        return {
+          digital: cloneDigitalState(scorecardDigitalState),
+          pending: scorecardPending ? cloneDigitalState(scorecardPending) : null,
+          freehand: scorecardCanvas
+            ? scorecardCanvas.toDataURL("image/png")
+            : null,
+        };
+      }
+      window.getSerializableScorecardState = getSerializableScorecardState;
+
+      function effectiveDigitalView() {
+        // Merge confirmed state with pending edits for rendering / rules checks
+        const base = cloneDigitalState(scorecardDigitalState);
+        if (!scorecardPending) return base;
+        const p = scorecardPending;
+        if (p.type === "shop") {
+          const shop = base.districts[p.districtId].shops[p.shopIndex];
+          shop.marked = p.marked.slice();
+        } else if (p.type === "bonus") {
+          base.districts[p.districtId].bonus = p.bonus;
+        } else if (p.type === "gold") {
+          base.gold.circled = p.circled;
+        } else if (p.type === "goats") {
+          base.goats.circled = p.circled;
+        } else if (p.type === "turns") {
+          base.turns.marked = p.marked;
+        }
+        return base;
+      }
+
+      function getActiveShopIndex(districtId, state) {
+        const shops = state.districts[districtId].shops;
+        for (let i = 0; i < shops.length; i++) {
+          if (!shops[i].marked.every(Boolean)) return i;
+        }
+        return -1; // all complete
+      }
+
+      function isDistrictComplete(districtId, state) {
+        return state.districts[districtId].shops.every((s) =>
+          s.marked.every(Boolean),
+        );
+      }
+
+      function pointInNormalizedRect(nx, ny, rect) {
+        return (
+          nx >= rect.x &&
+          ny >= rect.y &&
+          nx <= rect.x + rect.w &&
+          ny <= rect.y + rect.h
+        );
+      }
+
+      function isInFreehandRegion(nx, ny) {
+        const regions = SCORECARD_SHEET_LAYOUT.freehandRegions;
+        return (
+          pointInNormalizedRect(nx, ny, regions.mercato) ||
+          pointInNormalizedRect(nx, ny, regions.edifici)
+        );
+      }
+
+      function getScorecardNormPoint(evt) {
+        if (!scorecardCanvas) return { x: 0, y: 0 };
+        const rect = scorecardCanvas.getBoundingClientRect();
+        const w = rect.width || 1;
+        const h = rect.height || 1;
+        return {
+          x: (evt.clientX - rect.left) / w,
+          y: (evt.clientY - rect.top) / h,
+        };
+      }
+
+      function stageSize() {
+        if (!scorecardStage) return { w: 1, h: 1 };
+        return {
+          w: scorecardStage.clientWidth || 1,
+          h: scorecardStage.clientHeight || 1,
+        };
+      }
+
+      function resizeScorecardMarksCanvas() {
+        if (!scorecardMarksCanvas || !scorecardStage) return;
+        const rect = scorecardStage.getBoundingClientRect();
+        if (rect.width < 2 || rect.height < 2) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        scorecardMarksCanvas.width = Math.round(rect.width * dpr);
+        scorecardMarksCanvas.height = Math.round(rect.height * dpr);
+        scorecardMarksCtx = scorecardMarksCanvas.getContext("2d");
+        if (!scorecardMarksCtx) return;
+        scorecardMarksCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        renderScorecardMarks();
+      }
+
+      function drawMarkX(ctx, cx, cy, radius) {
+        const s = radius * 0.72;
+        ctx.beginPath();
+        ctx.moveTo(cx - s, cy - s);
+        ctx.lineTo(cx + s, cy + s);
+        ctx.moveTo(cx + s, cy - s);
+        ctx.lineTo(cx - s, cy + s);
+        ctx.stroke();
+      }
+
+      function drawMarkCircle(ctx, cx, cy, radius) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      function renderScorecardMarks() {
+        if (!scorecardMarksCtx || !scorecardStage) return;
+        const { w, h } = stageSize();
+        const ctx = scorecardMarksCtx;
+        ctx.clearRect(0, 0, w, h);
+        const view = effectiveDigitalView();
+        const stroke = "rgba(22, 14, 6, 0.95)";
+        const pendingStroke = "rgba(139, 26, 26, 0.9)";
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        const isPendingShop = (districtId, shopIndex) =>
+          scorecardPending &&
+          scorecardPending.type === "shop" &&
+          scorecardPending.districtId === districtId &&
+          scorecardPending.shopIndex === shopIndex;
+
+        // Shops
+        for (const [districtId, def] of Object.entries(
+          SCORECARD_SHEET_LAYOUT.districts,
+        )) {
+          const dState = view.districts[districtId];
+          def.shops.forEach((shopDef, shopIndex) => {
+            const marked = dState.shops[shopIndex].marked;
+            const pending = isPendingShop(districtId, shopIndex);
+            shopDef.symbols.forEach((sym, symIndex) => {
+              if (!marked[symIndex]) return;
+              const cx = sym.x * w;
+              const cy = sym.y * h;
+              const r = sym.r * Math.min(w, h);
+              ctx.lineWidth = Math.max(2, r * 0.22);
+              ctx.strokeStyle = pending ? pendingStroke : stroke;
+              drawMarkX(ctx, cx, cy, r);
+            });
+          });
+
+          // District bonus
+          if (def.bonus && dState.bonus) {
+            const b = def.bonus;
+            const cx = b.x * w;
+            const cy = b.y * h;
+            const r = b.r * Math.min(w, h);
+            const pendingBonus =
+              scorecardPending &&
+              scorecardPending.type === "bonus" &&
+              scorecardPending.districtId === districtId;
+            ctx.lineWidth = Math.max(2, r * 0.28);
+            ctx.strokeStyle = pendingBonus ? pendingStroke : stroke;
+            if (dState.bonus === "circled") drawMarkCircle(ctx, cx, cy, r);
+            if (dState.bonus === "crossed") drawMarkX(ctx, cx, cy, r);
+          }
+        }
+
+        // Gold / goats — circle newly obtained (skip printed preCircled index 0)
+        const renderTrack = (layoutTrack, stateTrack, pendingType) => {
+          const pending =
+            scorecardPending && scorecardPending.type === pendingType;
+          const circled = stateTrack.circled;
+          const spent = stateTrack.spent || 0;
+          layoutTrack.symbols.forEach((sym, i) => {
+            const cx = sym.x * w;
+            const cy = sym.y * h;
+            const r = sym.r * Math.min(w, h);
+            ctx.lineWidth = Math.max(2, r * 0.25);
+            // Pre-circled printed on artwork: only draw overlays for i >= preCircled
+            // when newly circled, or always draw spend crosses on circled+spent
+            if (i < circled && i >= layoutTrack.preCircled) {
+              ctx.strokeStyle = pending ? pendingStroke : stroke;
+              drawMarkCircle(ctx, cx, cy, r);
+            }
+            if (i < spent) {
+              ctx.strokeStyle = stroke;
+              drawMarkX(ctx, cx, cy, r * 0.85);
+            }
+          });
+        };
+        renderTrack(SCORECARD_SHEET_LAYOUT.gold, view.gold, "gold");
+        renderTrack(SCORECARD_SHEET_LAYOUT.goats, view.goats, "goats");
+
+        // Turns — barrare sequentially
+        const turnsMarked = view.turns.marked;
+        const turnsPending =
+          scorecardPending && scorecardPending.type === "turns";
+        SCORECARD_SHEET_LAYOUT.turns.slots.forEach((slot, i) => {
+          if (i >= turnsMarked) return;
+          const cx = slot.x * w;
+          const cy = slot.y * h;
+          const r = slot.r * Math.min(w, h);
+          ctx.lineWidth = Math.max(2.5, r * 0.18);
+          ctx.strokeStyle = turnsPending ? pendingStroke : stroke;
+          drawMarkX(ctx, cx, cy, r * 0.7);
+        });
+      }
+
+      function buildScorecardHitLayer() {
+        if (!scorecardHitLayer) return;
+        scorecardHitLayer.innerHTML = "";
+        const { w, h } = stageSize();
+        const minSide = Math.min(w, h);
+
+        const addHit = (nx, ny, nr, attrs, title) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "scorecard-hit";
+          btn.title = title || "";
+          btn.setAttribute("aria-label", title || "Segna");
+          const size = Math.max(28, nr * minSide * 2.2);
+          btn.style.width = `${size}px`;
+          btn.style.height = `${size}px`;
+          btn.style.left = `${nx * w - size / 2}px`;
+          btn.style.top = `${ny * h - size / 2}px`;
+          Object.entries(attrs).forEach(([k, v]) =>
+            btn.setAttribute(k, String(v)),
+          );
+          btn.addEventListener("click", onScorecardHitClick);
+          scorecardHitLayer.appendChild(btn);
+        };
+
+        for (const [districtId, def] of Object.entries(
+          SCORECARD_SHEET_LAYOUT.districts,
+        )) {
+          def.shops.forEach((shop, shopIndex) => {
+            shop.symbols.forEach((sym, symIndex) => {
+              addHit(sym.x, sym.y, sym.r, {
+                "data-kind": "shop-symbol",
+                "data-district": districtId,
+                "data-shop": shopIndex,
+                "data-symbol": symIndex,
+              }, `Negozio ${districtId} ${shop.points}pt — simbolo ${symIndex + 1}`);
+            });
+          });
+          if (def.bonus) {
+            addHit(def.bonus.x, def.bonus.y, def.bonus.r, {
+              "data-kind": "bonus",
+              "data-district": districtId,
+            }, `Bonus distretto ${districtId} (+${def.bonus.points})`);
+          }
+        }
+
+        // Gold / goats: one hit per symbol for quantity interaction
+        SCORECARD_SHEET_LAYOUT.gold.symbols.forEach((sym, i) => {
+          addHit(sym.x, sym.y, sym.r, {
+            "data-kind": "gold",
+            "data-index": i,
+          }, `Oro ${i + 1}`);
+        });
+        SCORECARD_SHEET_LAYOUT.goats.symbols.forEach((sym, i) => {
+          addHit(sym.x, sym.y, sym.r, {
+            "data-kind": "goats",
+            "data-index": i,
+          }, `Capra ${i + 1}`);
+        });
+
+        SCORECARD_SHEET_LAYOUT.turns.slots.forEach((slot, i) => {
+          addHit(slot.x, slot.y, slot.r, {
+            "data-kind": "turn",
+            "data-index": i,
+          }, `Turno ${i + 1}`);
+        });
+      }
+
+      function updateScorecardActionBar() {
+        const bar = document.getElementById("scorecard-action-bar");
+        const label = document.getElementById("scorecard-action-label");
+        const qtyWrap = document.getElementById("scorecard-qty-controls");
+        const qtyVal = document.getElementById("scorecard-qty-value");
+        if (!bar || !label) return;
+        if (!scorecardPending) {
+          bar.classList.remove("show");
+          if (qtyWrap) qtyWrap.hidden = true;
+          return;
+        }
+        bar.classList.add("show");
+        const p = scorecardPending;
+        if (qtyWrap) qtyWrap.hidden = !(p.type === "gold" || p.type === "goats");
+        if ((p.type === "gold" || p.type === "goats") && qtyVal) {
+          qtyVal.textContent = String(p.qty);
+        }
+        if (p.type === "shop") {
+          const n = p.marked.filter(Boolean).length;
+          const total = p.marked.length;
+          label.textContent = `Negozi (${p.districtId}): ${n}/${total} simboli — conferma per bloccare`;
+        } else if (p.type === "bonus") {
+          const map = {
+            circled: "cerchiato (primo)",
+            crossed: "barrato (non ottenibile)",
+            null: "nessuno",
+          };
+          label.textContent = `Bonus ${p.districtId}: ${map[String(p.bonus)]}`;
+        } else if (p.type === "gold") {
+          label.textContent = `Oro: cerchia i prossimi ${p.qty} simboli`;
+        } else if (p.type === "goats") {
+          label.textContent = `Capre: cerchia i prossimi ${p.qty} simboli`;
+        } else if (p.type === "turns") {
+          label.textContent = `Turni: barra fino a ${p.marked}`;
+        } else {
+          label.textContent = "Modifica in corso";
+        }
+      }
+
+      function setScorecardPending(pending) {
+        scorecardPending = pending;
+        updateScorecardActionBar();
+        renderScorecardMarks();
+      }
+
+      function cancelScorecardPending() {
+        setScorecardPending(null);
+      }
+      window.cancelScorecardPending = cancelScorecardPending;
+
+      function confirmScorecardPending() {
+        if (!scorecardPending || !scorecardDigitalState) return;
+        const p = scorecardPending;
+        const info = { type: p.type, payload: cloneDigitalState(p) };
+
+        if (p.type === "shop") {
+          scorecardDigitalState.districts[p.districtId].shops[p.shopIndex].marked =
+            p.marked.slice();
+        } else if (p.type === "bonus") {
+          scorecardDigitalState.districts[p.districtId].bonus = p.bonus;
+        } else if (p.type === "gold") {
+          scorecardDigitalState.gold.circled = p.circled;
+        } else if (p.type === "goats") {
+          scorecardDigitalState.goats.circled = p.circled;
+        } else if (p.type === "turns") {
+          scorecardDigitalState.turns.marked = p.marked;
+        }
+
+        setScorecardPending(null);
+        saveDigitalScorecardState();
+        if (typeof scorecardOnConfirm === "function") {
+          try {
+            scorecardOnConfirm({
+              ...info,
+              state: cloneDigitalState(scorecardDigitalState),
+            });
+          } catch (_err) {
+            // no-op: consumer hook must not break UI
+          }
+        }
+      }
+      window.confirmScorecardPending = confirmScorecardPending;
+
+      function adjustScorecardQty(delta) {
+        if (!scorecardPending) return;
+        if (scorecardPending.type !== "gold" && scorecardPending.type !== "goats")
+          return;
+        const trackKey = scorecardPending.type;
+        const layout =
+          trackKey === "gold"
+            ? SCORECARD_SHEET_LAYOUT.gold
+            : SCORECARD_SHEET_LAYOUT.goats;
+        const confirmed = scorecardDigitalState[trackKey].circled;
+        const maxQty = layout.count - confirmed;
+        let qty = scorecardPending.qty + delta;
+        qty = Math.max(1, Math.min(maxQty, qty));
+        setScorecardPending({
+          type: trackKey,
+          qty,
+          circled: confirmed + qty,
+        });
+      }
+      window.adjustScorecardQty = adjustScorecardQty;
+
+      function onScorecardHitClick(evt) {
+        const btn = evt.currentTarget;
+        const kind = btn.getAttribute("data-kind");
+        if (!kind || !scorecardDigitalState) return;
+        evt.preventDefault();
+        evt.stopPropagation();
+
+        if (kind === "shop-symbol") {
+          const districtId = btn.getAttribute("data-district");
+          const shopIndex = Number(btn.getAttribute("data-shop"));
+          const symIndex = Number(btn.getAttribute("data-symbol"));
+          const view = scorecardDigitalState;
+          const active = getActiveShopIndex(districtId, view);
+          // Allow edits only on active shop, or continue pending on same shop
+          if (
+            scorecardPending &&
+            scorecardPending.type === "shop" &&
+            (scorecardPending.districtId !== districtId ||
+              scorecardPending.shopIndex !== shopIndex)
+          ) {
+            // Switch only if cancelling implicit — require same pending shop
+            return;
+          }
+          if (active !== shopIndex) {
+            // Completed shops are locked; future shops blocked until previous done
+            return;
+          }
+          const confirmed =
+            view.districts[districtId].shops[shopIndex].marked.slice();
+          // Segni già confermati restano bloccati
+          if (confirmed[symIndex]) return;
+
+          let marked;
+          if (
+            scorecardPending &&
+            scorecardPending.type === "shop" &&
+            scorecardPending.districtId === districtId &&
+            scorecardPending.shopIndex === shopIndex
+          ) {
+            marked = scorecardPending.marked.slice();
+          } else {
+            marked = confirmed;
+          }
+          marked[symIndex] = !marked[symIndex];
+          // Se non resta nulla di nuovo rispetto al confermato, annulla pending
+          const same =
+            marked.length === confirmed.length &&
+            marked.every((v, i) => v === confirmed[i]);
+          if (same) {
+            setScorecardPending(null);
+          } else {
+            setScorecardPending({
+              type: "shop",
+              districtId,
+              shopIndex,
+              marked,
+            });
+          }
+          return;
+        }
+
+        if (kind === "bonus") {
+          const districtId = btn.getAttribute("data-district");
+          if (!isDistrictComplete(districtId, scorecardDigitalState)) return;
+          const current =
+            (scorecardPending &&
+              scorecardPending.type === "bonus" &&
+              scorecardPending.districtId === districtId &&
+              scorecardPending.bonus) ||
+            scorecardDigitalState.districts[districtId].bonus;
+          // Cycle: null -> circled -> crossed -> null
+          const next =
+            current == null
+              ? "circled"
+              : current === "circled"
+                ? "crossed"
+                : null;
+          setScorecardPending({ type: "bonus", districtId, bonus: next });
+          return;
+        }
+
+        if (kind === "gold" || kind === "goats") {
+          const trackKey = kind;
+          const layout =
+            trackKey === "gold"
+              ? SCORECARD_SHEET_LAYOUT.gold
+              : SCORECARD_SHEET_LAYOUT.goats;
+          const confirmed = scorecardDigitalState[trackKey].circled;
+          if (confirmed >= layout.count) return;
+          let qty = 1;
+          if (scorecardPending && scorecardPending.type === trackKey) {
+            qty = Math.min(layout.count - confirmed, scorecardPending.qty + 1);
+          }
+          setScorecardPending({
+            type: trackKey,
+            qty,
+            circled: confirmed + qty,
+          });
+          return;
+        }
+
+        if (kind === "turn") {
+          const index = Number(btn.getAttribute("data-index"));
+          const confirmed = scorecardDigitalState.turns.marked;
+          // Only allow marking the next sequential slot (or adjusting pending)
+          const target = index + 1;
+          if (target < confirmed) return;
+          if (target > confirmed + 1 && !(scorecardPending && scorecardPending.type === "turns")) {
+            // must go in order: only next one
+            if (target !== confirmed + 1) return;
+          }
+          if (target > confirmed + 1) return;
+          setScorecardPending({ type: "turns", marked: target });
+        }
+      }
+
+      function saveDigitalScorecardState() {
+        try {
+          localStorage.setItem(
+            SCORECARD_DIGITAL_STORAGE_KEY,
+            JSON.stringify(scorecardDigitalState),
+          );
+        } catch (_err) {
+          // no-op
+        }
+        // Also refresh composite storage used by freehand path
+        saveScorecardState();
+      }
+
+      function restoreDigitalScorecardState() {
+        scorecardDigitalState = createEmptyDigitalState();
+        let raw = null;
+        try {
+          raw = localStorage.getItem(SCORECARD_DIGITAL_STORAGE_KEY);
+        } catch (_err) {
+          raw = null;
+        }
+        if (!raw) return;
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.version === 1 && parsed.districts) {
+            scorecardDigitalState = parsed;
+          }
+        } catch (_err) {
+          // keep empty
+        }
+      }
+
+      function clearDigitalScorecardState() {
+        scorecardDigitalState = createEmptyDigitalState();
+        scorecardPending = null;
+        updateScorecardActionBar();
+        renderScorecardMarks();
+        try {
+          localStorage.removeItem(SCORECARD_DIGITAL_STORAGE_KEY);
+        } catch (_err) {
+          // no-op
+        }
+      }
+
+      function initScorecardDigital() {
+        scorecardMarksCanvas = document.getElementById(
+          "scorecard-marks-canvas",
+        );
+        scorecardHitLayer = document.getElementById("scorecard-hit-layer");
+        restoreDigitalScorecardState();
+        resizeScorecardMarksCanvas();
+        buildScorecardHitLayer();
+        updateScorecardActionBar();
+        renderScorecardMarks();
+
+        const minus = document.getElementById("scorecard-qty-minus");
+        const plus = document.getElementById("scorecard-qty-plus");
+        if (minus)
+          minus.onclick = () => adjustScorecardQty(-1);
+        if (plus) plus.onclick = () => adjustScorecardQty(1);
+        scorecardDigitalReady = true;
+      }
+
+
       function getScorecardCircleRadius() {
         if (!scorecardCanvas) return 12;
         const w = scorecardCanvas.clientWidth || 0;
@@ -2310,20 +3034,22 @@
 
       function requestClearScorecardCanvas() {
         const shouldClear = window.confirm(
-          "Vuoi davvero cancellare tutti i segni dalla scheda?",
+          "Vuoi davvero cancellare tutti i segni dalla scheda (negozi digitali e disegno libero)?",
         );
         if (!shouldClear) return;
         clearScorecardCanvas();
       }
 
       function clearScorecardCanvas() {
-        if (!scorecardCanvas || !scorecardCtx) return;
-        scorecardCtx.clearRect(
-          0,
-          0,
-          scorecardCanvas.width,
-          scorecardCanvas.height,
-        );
+        if (scorecardCanvas && scorecardCtx) {
+          scorecardCtx.clearRect(
+            0,
+            0,
+            scorecardCanvas.width,
+            scorecardCanvas.height,
+          );
+        }
+        clearDigitalScorecardState();
         commitScorecardChange();
       }
 
@@ -2368,6 +3094,9 @@
         scorecardCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         applyScorecardPanOffset();
+        resizeScorecardMarksCanvas();
+        buildScorecardHitLayer();
+        renderScorecardMarks();
       }
 
       function initScorecardDrawing() {
@@ -2390,6 +3119,7 @@
         scorecardStateBooting = false;
 
         centerScorecardPanOffset();
+        initScorecardDigital();
 
         if (!scorecardRestoredFromStorage) {
           resetScorecardHistory();
@@ -2400,6 +3130,12 @@
             x: evt.clientX,
             y: evt.clientY,
           });
+
+          // Freehand only on Mercato / Edifici regions
+          const norm = getScorecardNormPoint(evt);
+          if (!isInFreehandRegion(norm.x, norm.y)) {
+            return;
+          }
 
           if (scorecardCanvas.setPointerCapture) {
             try {
@@ -2436,6 +3172,10 @@
 
           if (!scorecardDrawing) return;
           evt.preventDefault();
+          const norm = getScorecardNormPoint(evt);
+          if (!isInFreehandRegion(norm.x, norm.y)) {
+            return;
+          }
           const nextPoint = getScorecardPoint(evt);
           if (scorecardTool === "pen" || scorecardTool === "eraser") {
             drawScorecardStroke(scorecardLastPoint, nextPoint);
@@ -2706,6 +3446,10 @@
           requestAnimationFrame(() => {
             resizeScorecardCanvas(true);
             centerScorecardPanOffset();
+            if (scorecardDigitalReady) {
+              buildScorecardHitLayer();
+              renderScorecardMarks();
+            }
           });
         }
 
