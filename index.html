@@ -2733,10 +2733,7 @@
         remainingResource as engineRemainingResource,
         scoreSheet,
         usableDistricts,
-      } from "./engine/index.ts";
-
-      const assetUrl = (path) =>
-        `${import.meta.env.BASE_URL}${String(path).replace(/^\//, "")}`;
+      } from "./engine.bundle.js";
 
       const THREE = window.THREE;
       const CANNON = window.CANNON;
@@ -2790,7 +2787,7 @@
 
       // Plancia: immagine Harbor_Corinth.jpg come texture del pavimento
       const boardLoader = new THREE.TextureLoader();
-      const boardTex = boardLoader.load(assetUrl("Harbor_Corinth.jpg"));
+      const boardTex = boardLoader.load("Harbor_Corinth.jpg");
       const trayGeo = new THREE.PlaneGeometry(6, 9);
       const trayMat = new THREE.MeshStandardMaterial({
         map: boardTex,
@@ -7258,7 +7255,7 @@
         closeHamburgerMenu();
         const iframe = document.getElementById("pdf-preview-iframe");
         if (iframe && !iframe.src) {
-          iframe.src = assetUrl("cr_scoring_a4.pdf");
+          iframe.src = "cr_scoring_a4.pdf";
         }
         document.getElementById("pdf-preview-modal").classList.add("show");
       }
@@ -7300,7 +7297,7 @@
         }
 
         // Fallback: apri il PDF in una nuova finestra
-        const pdfWindow = window.open(assetUrl("cr_scoring_a4.pdf"), "_blank");
+        const pdfWindow = window.open("cr_scoring_a4.pdf", "_blank");
         if (!pdfWindow) {
           alert(
             "Impossibile aprire il PDF. Controlla se il browser blocca i popup.",
@@ -8214,7 +8211,7 @@
             scorecardSheetImagePromise = null;
             reject(new Error("Impossibile caricare la plancia"));
           };
-          img.src = assetUrl("cr_scoring_a4.png");
+          img.src = "cr_scoring_a4.png";
         });
         return scorecardSheetImagePromise;
       }

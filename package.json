@@ -4,12 +4,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run build:engine && vite build",
+    "build:engine": "esbuild engine/index.ts --bundle --format=esm --outfile=engine.bundle.js",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "tsx engine/apply.test.ts"
   },
   "devDependencies": {
+    "esbuild": "^0.25.9",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
     "vite": "^7.1.5"
