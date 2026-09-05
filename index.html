@@ -280,7 +280,7 @@
         display: none;
       }
       #mode-setup {
-        display: none;
+        display: flex;
         position: absolute;
         inset: 0;
         background: rgba(10, 6, 2, 0.96);
@@ -1187,7 +1187,7 @@
     <div id="canvas-wrap">
       <canvas id="three-canvas"></canvas>
 
-      <div id="mode-setup" class="hidden">
+      <div id="mode-setup">
         <div class="setup-card">
           <h2>CORINTH</h2>
           <p>Scegli la modalità</p>
@@ -1788,7 +1788,7 @@
       </div>
 
       <!-- PLAYER SETUP -->
-      <div id="player-setup">
+      <div id="player-setup" class="hidden">
         <div class="setup-card">
           <h2>CORINTH</h2>
           <p>Quanti giocatori?</p>
@@ -4801,8 +4801,8 @@
       }
 
       function showMainModeSetup() {
-        document.getElementById("mode-setup").classList.add("hidden");
-        document.getElementById("player-setup").classList.remove("hidden");
+        document.getElementById("mode-setup").classList.remove("hidden");
+        document.getElementById("player-setup").classList.add("hidden");
         document.getElementById("scorecard-page").classList.add("hidden");
         document.getElementById("scorecard-page").classList.remove("turn-mode");
         document.getElementById("scoreboard").classList.remove("show");
