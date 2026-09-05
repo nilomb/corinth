@@ -22,6 +22,14 @@
         --teal: #1a5c5c;
         --olive: #4a5c1a;
         --purple: #3d1a5c;
+        --dim-r: 113;
+        --dim-g: 131;
+        --dim-b: 152;
+        --dim-opacity: 0.06;
+        --dim-gray: 0.12;
+        --dim-blur: 0.6px;
+        --dim-bright: 0.98;
+        --dim-radius: 8px;
       }
 
       * {
@@ -238,6 +246,87 @@
         border-color: var(--gold-lt);
         font-weight: 700;
       }
+      #yellow-buy-tray {
+        position: absolute;
+        top: auto;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 12;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px 10px;
+        border-radius: 14px;
+        background: rgba(12, 8, 4, 0.78);
+        border: 1px solid rgba(201, 168, 76, 0.45);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        pointer-events: auto;
+      }
+      #yellow-buy-tray[hidden] {
+        display: none;
+      }
+      #yellow-buy-copy {
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        color: var(--gold-lt);
+        white-space: nowrap;
+      }
+      #yellow-buy-slots {
+        display: flex;
+        gap: 8px;
+      }
+      .yellow-slot {
+        width: 46px;
+        height: 46px;
+        padding: 0;
+        border-radius: 12px;
+        border: 1.5px dashed rgba(201, 168, 76, 0.4);
+        background: rgba(10, 6, 2, 0.55) url("yellow_dice24x25.png") center /
+          30px no-repeat;
+        opacity: 0.32;
+        filter: grayscale(0.25);
+        cursor: pointer;
+      }
+      .yellow-slot.is-on {
+        opacity: 1;
+        filter: none;
+        border-style: solid;
+        border-color: #e8c44a;
+        background-color: rgba(48, 32, 6, 0.9);
+        box-shadow: 0 0 10px rgba(232, 196, 74, 0.28);
+      }
+      .yellow-slot.is-owned {
+        box-shadow:
+          0 0 0 2px rgba(201, 168, 76, 0.4),
+          0 0 10px rgba(232, 196, 74, 0.28);
+      }
+      .yellow-slot:disabled {
+        cursor: default;
+      }
+      .yellow-slot:not(:disabled):active {
+        transform: scale(0.96);
+      }
+      #yellow-dice-cost {
+        font-family: "Cinzel", serif;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        color: var(--gold);
+        white-space: nowrap;
+        min-height: 1em;
+      }
+      #yellow-dice-cost[hidden] {
+        visibility: hidden;
+      }
+      #header-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
       #turn-info {
         font-family: "Cinzel", serif;
         font-size: 11px;
@@ -245,6 +334,66 @@
         text-align: right;
         letter-spacing: 0.5px;
         white-space: nowrap;
+      }
+      #player-rail {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+      #player-rail[hidden] {
+        display: none;
+      }
+      .player-chip {
+        min-width: 36px;
+        height: 32px;
+        padding: 0 8px;
+        border-radius: 8px;
+        border: 1px solid #4a3010;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--parch);
+        font-family: "Cinzel", serif;
+        font-size: 11px;
+        letter-spacing: 0.4px;
+        cursor: pointer;
+      }
+      .player-chip.mine {
+        border-color: var(--gold);
+        color: var(--gold-lt);
+      }
+      .player-chip.to-play {
+        background: rgba(201, 168, 76, 0.28);
+        color: var(--gold-lt);
+      }
+      .player-chip.viewing {
+        box-shadow: inset 0 0 0 1px var(--gold-lt);
+      }
+      .player-chip.winner {
+        background: rgba(201, 168, 76, 0.35);
+        border-color: var(--gold);
+        color: var(--gold-lt);
+      }
+      .player-chip:active {
+        transform: scale(0.97);
+      }
+      #header-scorecard-btn {
+        font-family: "Cinzel", serif;
+        font-size: 11px;
+        letter-spacing: 0.5px;
+        color: var(--dark);
+        background: var(--gold);
+        border: none;
+        border-radius: 6px;
+        padding: 6px 10px;
+        cursor: pointer;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      #header-scorecard-btn[hidden] {
+        display: none;
+      }
+      #header-scorecard-btn:active {
+        transform: scale(0.97);
       }
 
       /* ---- STATUS (floating su canvas) ---- */
@@ -266,7 +415,8 @@
       }
 
       /* ---- PLAYER SETUP OVERLAY ---- */
-      #player-setup {
+      #player-setup,
+      #seat-setup {
         display: flex;
         position: absolute;
         inset: 0;
@@ -276,7 +426,8 @@
         z-index: 200;
         backdrop-filter: blur(8px);
       }
-      #player-setup.hidden {
+      #player-setup.hidden,
+      #seat-setup.hidden {
         display: none;
       }
       #mode-setup {
@@ -302,6 +453,8 @@
         z-index: 210;
         backdrop-filter: blur(8px);
         overflow: hidden;
+        --board-peek: 0;
+        --peek-bar-h: 58px;
       }
       #scorecard-page.hidden {
         display: none;
@@ -387,9 +540,13 @@
       .scorecard-pan-arrow {
         display: none;
       }
-      .scorecard-stage {
+      .scorecard-crop {
+        --scorecard-crop-x0: 0;
+        --scorecard-crop-span: 1;
+        --scorecard-crop-aspect: 1.454657;
         position: relative;
-        aspect-ratio: 2374 / 1632;
+        overflow: hidden;
+        aspect-ratio: var(--scorecard-crop-aspect);
         height: min(100%, calc((100vw - 48px) * 1632 / 2374));
         width: auto;
         max-width: calc(100vw - 48px);
@@ -397,11 +554,23 @@
         border: 1px solid rgba(201, 168, 76, 0.5);
         border-radius: 8px;
         box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
+        flex-shrink: 0;
+      }
+      .scorecard-stage {
+        position: absolute;
+        top: 0;
+        left: calc(
+          var(--scorecard-crop-x0) / var(--scorecard-crop-span) * -100%
+        );
+        height: 100%;
+        width: calc(100% / var(--scorecard-crop-span));
+        max-width: none;
+        max-height: none;
         overflow: hidden;
         background-image: url("cr_scoring_a4.png");
         background-size: 100% 100%;
         background-repeat: no-repeat;
-        background-position: center;
+        background-position: 0 0;
       }
       #scorecard-draw-canvas {
         position: absolute;
@@ -424,14 +593,13 @@
         .scorecard-viewport-wrapper {
           width: 100vw;
         }
-        .scorecard-stage {
+        .scorecard-crop {
           height: 100%;
           width: auto;
-          aspect-ratio: 2374 / 1632;
+          aspect-ratio: var(--scorecard-crop-aspect);
           flex-shrink: 0;
           max-width: none;
           max-height: none;
-          background-size: 100% 100%;
         }
         .scorecard-pan-arrow {
           display: flex;
@@ -575,6 +743,37 @@
         opacity: 0.35;
         cursor: default;
       }
+      #scorecard-toast {
+        position: absolute;
+        left: 50%;
+        top: 26%;
+        z-index: 50;
+        max-width: min(86vw, 340px);
+        padding: 12px 18px;
+        border-radius: 10px;
+        border: 1px solid var(--gold);
+        background: linear-gradient(to bottom, #2a1808, #1a1008);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+        color: var(--parch);
+        font-family: "Cinzel", serif;
+        font-size: 14px;
+        letter-spacing: 0.4px;
+        line-height: 1.35;
+        text-align: center;
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transform: translate(-50%, 8px);
+        transition:
+          opacity 0.22s ease,
+          transform 0.22s ease,
+          visibility 0.22s ease;
+      }
+      #scorecard-toast.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, 0);
+      }
       .scorecard-qty {
         display: inline-flex;
         align-items: center;
@@ -594,14 +793,13 @@
       #scorecard-page.turn-mode .scorecard-viewport-wrapper {
         width: 100%;
       }
-      #scorecard-page.turn-mode .scorecard-stage {
+      #scorecard-page.turn-mode .scorecard-crop {
         height: 100%;
         width: auto;
-        aspect-ratio: 2374 / 1632;
+        aspect-ratio: var(--scorecard-crop-aspect);
         flex-shrink: 0;
         max-width: none;
         max-height: none;
-        background-size: 100% 100%;
       }
       #scorecard-page.turn-mode .scorecard-pan-arrow {
         display: flex;
@@ -645,6 +843,321 @@
         opacity: 0.85;
         pointer-events: auto;
       }
+      #scorecard-page.turn-mode {
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        transform: translate3d(
+          0,
+          calc(var(--board-peek) * (100% - var(--peek-bar-h))),
+          0
+        );
+        transition: transform 0.28s ease;
+      }
+      #scorecard-page.turn-mode.peek-dragging {
+        transition: none;
+      }
+      #scorecard-page.turn-mode.peeked {
+        pointer-events: none;
+      }
+      #scorecard-page.turn-mode.peeked .board-peek-bar {
+        pointer-events: auto;
+      }
+      #scorecard-page.turn-mode .scorecard-wrap {
+        flex: 1;
+        height: auto;
+        min-height: 0;
+        padding-top: 4px;
+      }
+      #scorecard-page.turn-mode #scorecard-choice {
+        top: var(--peek-bar-h);
+      }
+      #scorecard-page.consult-mode #board-peek-slider {
+        display: none;
+      }
+      #scorecard-page.consult-mode #scorecard-hit-layer,
+      #scorecard-page.consult-mode #scorecard-draw-canvas {
+        pointer-events: none;
+      }
+      #scorecard-page.consult-mode .scorecard-action-bar,
+      #scorecard-page.consult-mode #scorecard-choice {
+        display: none !important;
+      }
+      #scorecard-page.consult-mode .board-peek-copy {
+        flex: 1 1 auto;
+      }
+      .board-peek-bar {
+        display: none;
+        flex-shrink: 0;
+        height: var(--peek-bar-h);
+        padding: 6px 12px 8px;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(to bottom, #2a1808, #1a1008);
+        border-bottom: 1px solid rgba(201, 168, 76, 0.45);
+        z-index: 40;
+        position: relative;
+      }
+      #scorecard-page.turn-mode .board-peek-bar {
+        display: flex;
+      }
+      .board-peek-copy {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        flex: 0 1 170px;
+      }
+      .board-peek-copy button {
+        font-family: "Cinzel", serif;
+        font-size: 12px;
+        letter-spacing: 0.6px;
+        color: var(--dark);
+        background: var(--gold);
+        border: none;
+        border-radius: 6px;
+        padding: 6px 10px;
+        text-align: center;
+        cursor: pointer;
+        width: fit-content;
+        max-width: 100%;
+      }
+      .board-peek-hint {
+        font-size: 11px;
+        color: rgba(232, 213, 168, 0.78);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      #board-peek-slider {
+        flex: 1 1 auto;
+        min-width: 0;
+        height: 22px;
+        cursor: pointer;
+        accent-color: rgba(201, 168, 76, 0.95);
+        touch-action: pan-x;
+      }
+      #scorecard-focus-layer {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+      }
+      .scorecard-focus-rect {
+        position: absolute;
+        z-index: 2;
+        pointer-events: none;
+        border: 2.5px solid rgba(201, 168, 76, 0.95);
+        border-radius: 14px;
+        background: rgba(201, 168, 76, 0.12);
+        box-shadow:
+          0 0 0 2px rgba(26, 16, 8, 0.35),
+          0 0 16px rgba(201, 168, 76, 0.32);
+        animation: scorecard-focus-pulse 1.8s ease-in-out infinite;
+      }
+      .scorecard-dim-band {
+        position: absolute;
+        z-index: 2;
+        pointer-events: none;
+        border-radius: var(--dim-radius);
+        background: rgba(var(--dim-r), var(--dim-g), var(--dim-b), var(--dim-opacity));
+        backdrop-filter: grayscale(var(--dim-gray)) blur(var(--dim-blur))
+          brightness(var(--dim-bright));
+        -webkit-backdrop-filter: grayscale(var(--dim-gray)) blur(var(--dim-blur))
+          brightness(var(--dim-bright));
+      }
+      .scorecard-split-line {
+        display: none;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        margin-left: -1px;
+        background: rgba(201, 168, 76, 0.95);
+        box-shadow: 0 0 10px rgba(201, 168, 76, 0.55);
+        z-index: 5;
+        pointer-events: none;
+      }
+      #scorecard-split-band {
+        display: none;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        background: rgba(201, 168, 76, 0.16);
+        z-index: 4;
+        pointer-events: none;
+      }
+      #scorecard-page.calibrating .scorecard-split-line,
+      #scorecard-page.calibrating #scorecard-split-band {
+        display: block;
+      }
+      #scorecard-page.calibrating #scorecard-hit-layer {
+        pointer-events: auto;
+      }
+      #scorecard-page.calibrating .scorecard-hit {
+        pointer-events: auto;
+        cursor: grab;
+        touch-action: none;
+      }
+      #scorecard-page.calibrating .scorecard-hit[data-layer="bonus"] {
+        background: rgba(210, 70, 170, 0.22);
+        outline: 2px solid rgba(210, 70, 170, 0.95);
+      }
+      #scorecard-page.calibrating .scorecard-hit[data-layer="shops"] {
+        background: rgba(80, 180, 255, 0.2);
+        outline: 2px solid rgba(80, 180, 255, 0.95);
+      }
+      #scorecard-page.calibrating .scorecard-hit[data-layer="turns"] {
+        background: rgba(255, 140, 70, 0.22);
+        outline: 2px solid rgba(255, 140, 70, 0.95);
+      }
+      #scorecard-page.calibrating .scorecard-hit[data-layer="market"] {
+        background: rgba(201, 168, 76, 0.22);
+        outline: 2px solid rgba(201, 168, 76, 0.95);
+      }
+      #scorecard-page.calibrating .scorecard-hit[data-layer="gold"] {
+        background: rgba(240, 200, 50, 0.24);
+        outline: 2px solid rgba(240, 200, 50, 0.95);
+      }
+      #scorecard-page.calibrating .scorecard-hit[data-layer="goats"] {
+        background: rgba(120, 170, 70, 0.22);
+        outline: 2px solid rgba(120, 170, 70, 0.95);
+      }
+      #scorecard-page.calibrating .scorecard-hit[data-layer="buildings"] {
+        background: rgba(190, 90, 50, 0.22);
+        outline: 2px solid rgba(190, 90, 50, 0.95);
+      }
+      #scorecard-page.calibrating .scorecard-hit.is-disabled {
+        pointer-events: auto;
+      }
+      #scorecard-page.calibrating .scorecard-hit:not(.is-cal-active) {
+        visibility: hidden;
+        pointer-events: none;
+      }
+      .cal-layer-box {
+        display: none;
+        position: absolute;
+        z-index: 1;
+        border-radius: 14px;
+        pointer-events: auto;
+        cursor: grab;
+        touch-action: none;
+      }
+      #scorecard-page.calibrating .cal-layer-box.is-selected {
+        display: block;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+      }
+      .cal-layer-box[data-layer="bonus"] {
+        border: 2px dashed rgba(210, 70, 170, 0.8);
+        background: rgba(210, 70, 170, 0.07);
+      }
+      .cal-layer-box[data-layer="shops"] {
+        border: 2px dashed rgba(80, 180, 255, 0.75);
+        background: rgba(80, 180, 255, 0.06);
+      }
+      .cal-layer-box[data-layer="turns"] {
+        border: 2px dashed rgba(255, 140, 70, 0.8);
+        background: rgba(255, 140, 70, 0.07);
+      }
+      .cal-layer-box[data-layer="market"] {
+        border: 2px dashed rgba(201, 168, 76, 0.8);
+        background: rgba(201, 168, 76, 0.07);
+      }
+      .cal-layer-box[data-layer="gold"] {
+        border: 2px dashed rgba(240, 200, 50, 0.85);
+        background: rgba(240, 200, 50, 0.08);
+      }
+      .cal-layer-box[data-layer="goats"] {
+        border: 2px dashed rgba(120, 170, 70, 0.8);
+        background: rgba(120, 170, 70, 0.07);
+      }
+      .cal-layer-box[data-layer="buildings"] {
+        border: 2px dashed rgba(190, 90, 50, 0.8);
+        background: rgba(190, 90, 50, 0.07);
+      }
+      .cal-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .scorecard-calibrator .cal-tabs button {
+        padding: 5px 8px;
+      }
+      .cal-tabs button.is-active {
+        background: rgba(201, 168, 76, 0.28);
+        color: var(--parch);
+      }
+      #scorecard-page.calibrating #scorecard-choice {
+        display: none !important;
+      }
+      .scorecard-calibrator {
+        display: none;
+        width: min(100%, 560px);
+        flex-shrink: 0;
+        padding: 8px 10px;
+        background: rgba(26, 16, 8, 0.94);
+        border: 1px solid rgba(201, 168, 76, 0.45);
+        border-radius: 10px;
+        color: var(--parch);
+        font-size: 12px;
+        gap: 8px;
+        flex-direction: column;
+      }
+      #scorecard-page.calibrating .scorecard-calibrator {
+        display: flex;
+      }
+      .scorecard-calibrator .cal-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .scorecard-calibrator label {
+        width: 72px;
+        flex-shrink: 0;
+        color: var(--gold-lt);
+      }
+      .scorecard-calibrator input[type="range"] {
+        flex: 1;
+        min-width: 0;
+        accent-color: rgba(201, 168, 76, 0.95);
+      }
+      .scorecard-calibrator .cal-val {
+        width: 52px;
+        text-align: right;
+        font-family: "Cinzel", serif;
+        color: var(--gold-lt);
+      }
+      .scorecard-calibrator .cal-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        width: 100%;
+      }
+      .scorecard-calibrator button {
+        font-family: "Cinzel", serif;
+        font-size: 11px;
+        letter-spacing: 0.4px;
+        border-radius: 6px;
+        border: 1px solid rgba(201, 168, 76, 0.45);
+        padding: 6px 10px;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--gold-lt);
+      }
+      .scorecard-calibrator .cal-close {
+        margin-left: auto;
+        background: rgba(201, 168, 76, 0.22);
+        color: var(--parch);
+      }
+      @keyframes scorecard-focus-pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
       #scorecard-choice {
         display: none;
         position: absolute;
@@ -666,7 +1179,16 @@
         padding: 12px 8px;
       }
       #scorecard-choice .setup-card h2 {
-        margin-bottom: 18px;
+        margin-bottom: 8px;
+      }
+      #scorecard-choice .choice-district {
+        font-family: "Cinzel", serif;
+        font-size: 14px;
+        letter-spacing: 1px;
+        color: var(--gold-lt);
+        text-align: center;
+        margin-bottom: 16px;
+        min-height: 1.2em;
       }
       #scorecard-choice .choice-btns {
         display: flex;
@@ -770,6 +1292,7 @@
         color: var(--gold-lt);
         cursor: pointer;
         transition: all 0.15s;
+        overflow: hidden;
       }
       .player-btn:hover {
         background: rgba(201, 168, 76, 0.3);
@@ -794,13 +1317,13 @@
         position: absolute;
         inset: 0;
         background: rgba(10, 6, 2, 0.92);
-        align-items: center;
-        justify-content: center;
         z-index: 99;
         backdrop-filter: blur(6px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
       #scoreboard.show {
-        display: flex;
+        display: block;
       }
       .score-card {
         background: linear-gradient(to bottom, #2a1808, #1a1008);
@@ -810,8 +1333,11 @@
         text-align: center;
         max-width: 480px;
         width: 95%;
-        max-height: 85vh;
-        overflow-y: auto;
+        margin: 24px auto;
+      }
+      .score-card.endgame-compare {
+        max-width: min(980px, 96vw);
+        text-align: left;
       }
       .score-card h2 {
         font-family: "Cinzel", serif;
@@ -819,6 +1345,7 @@
         color: var(--gold);
         margin-bottom: 8px;
         letter-spacing: 2px;
+        text-align: center;
       }
       .score-card .big-score {
         font-family: "Cinzel", serif;
@@ -833,7 +1360,9 @@
         color: var(--parch);
         margin-bottom: 20px;
       }
-      .score-card button {
+      .score-card-restart {
+        display: block;
+        margin: 8px auto 0;
         font-family: "Cinzel", serif;
         font-size: 14px;
         color: var(--dark);
@@ -843,6 +1372,120 @@
         padding: 10px 28px;
         cursor: pointer;
         letter-spacing: 1px;
+      }
+      .endgame-ranking {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin: 12px 0 18px;
+      }
+      .endgame-rank-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(201, 168, 76, 0.22);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .endgame-rank-row.winner {
+        border-color: var(--gold);
+        background: rgba(201, 168, 76, 0.14);
+      }
+      .endgame-rank-name {
+        font-family: "Cinzel", serif;
+        font-size: 14px;
+        color: var(--gold-lt);
+        letter-spacing: 0.4px;
+      }
+      .endgame-rank-score {
+        font-family: "Cinzel", serif;
+        font-size: 18px;
+        color: var(--gold);
+        white-space: nowrap;
+      }
+      .endgame-rank-break {
+        flex-basis: 100%;
+        font-size: 12px;
+        color: var(--parch);
+        opacity: 0.88;
+        margin-top: 2px;
+      }
+      .endgame-rank-row {
+        flex-wrap: wrap;
+      }
+      .endgame-sheets-title {
+        font-family: "Cinzel", serif;
+        font-size: 13px;
+        color: var(--gold);
+        letter-spacing: 1px;
+        margin: 4px 0 10px;
+        text-align: center;
+      }
+      .endgame-sheets {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      @media (min-width: 720px) {
+        .endgame-sheets {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .endgame-sheet-card {
+        display: block;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        border: 1px solid rgba(201, 168, 76, 0.4);
+        border-radius: 10px;
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.28);
+        cursor: pointer;
+        color: inherit;
+        text-align: left;
+        font: inherit;
+      }
+      .endgame-sheet-card.winner {
+        border-color: var(--gold);
+        box-shadow: 0 0 14px rgba(201, 168, 76, 0.32);
+      }
+      .endgame-sheet-card:active {
+        transform: scale(0.995);
+      }
+      .endgame-sheet-label {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 10px;
+        font-family: "Cinzel", serif;
+        font-size: 12px;
+        letter-spacing: 0.4px;
+        color: var(--gold-lt);
+        background: rgba(26, 16, 8, 0.85);
+      }
+      .endgame-sheet-card canvas {
+        width: 100%;
+        height: auto;
+        display: block;
+        background: #e8d5a8;
+      }
+      .endgame-log {
+        margin: 8px 0 16px;
+        border: 1px solid rgba(201, 168, 76, 0.25);
+        border-radius: 8px;
+        padding: 6px 8px;
+      }
+      .endgame-log summary {
+        font-family: "Cinzel", serif;
+        font-size: 12px;
+        color: var(--gold);
+        letter-spacing: 0.6px;
+        cursor: pointer;
+        padding: 6px 4px;
       }
       #game-log-container {
         overflow-x: auto;
@@ -1164,6 +1807,9 @@
       <button class="menu-item" onclick="openScoreSheetModal()">
         Visualizza Resoconto Dadi Raccolti
       </button>
+      <button class="menu-item" onclick="toggleScorecardCalibrator()">
+        Calibra scheda
+      </button>
       <div class="menu-separator"></div>
       <button class="menu-item reset" onclick="resetFromMenu()">RESET</button>
     </nav>
@@ -1180,35 +1826,100 @@
         </button>
         <h1>CORINTH</h1>
       </div>
-      <div id="turn-info"></div>
+      <div id="header-right">
+        <div id="player-rail" hidden></div>
+        <div id="turn-info"></div>
+        <button
+          type="button"
+          id="header-scorecard-btn"
+          hidden
+          onclick="toggleScorecardFromBoard()"
+        >
+          Segnapunti
+        </button>
+      </div>
     </div>
 
     <!-- 3D VIEW -->
     <div id="canvas-wrap">
       <canvas id="three-canvas"></canvas>
+      <div id="yellow-buy-tray" hidden>
+        <p id="yellow-buy-copy">Compra dadi gialli · 1 Oro l’uno</p>
+        <div id="yellow-buy-slots">
+          <button
+            type="button"
+            class="yellow-slot"
+            data-slot="0"
+            onclick="toggleYellowDieSlot(0)"
+            aria-label="Dado giallo 1"
+          ></button>
+          <button
+            type="button"
+            class="yellow-slot"
+            data-slot="1"
+            onclick="toggleYellowDieSlot(1)"
+            aria-label="Dado giallo 2"
+          ></button>
+          <button
+            type="button"
+            class="yellow-slot"
+            data-slot="2"
+            onclick="toggleYellowDieSlot(2)"
+            aria-label="Dado giallo 3"
+          ></button>
+        </div>
+        <span id="yellow-dice-cost" hidden></span>
+        <input type="hidden" id="yellow-dice" value="0" />
+      </div>
 
       <div id="mode-setup">
         <div class="setup-card">
           <h2>CORINTH</h2>
-          <p>Scegli la modalità</p>
+          <p>Partita in locale, oppure scheda libera</p>
           <div class="player-btns">
             <button
               class="player-btn mode-btn"
               onclick="chooseMainMode('board')"
             >
-              PLANCIA
+              PARTITA
             </button>
             <button
               class="player-btn mode-btn"
               onclick="chooseMainMode('scorecard')"
             >
-              SEGNAPUNTI
+              SCHEDE
             </button>
           </div>
         </div>
       </div>
 
       <div id="scorecard-page" class="hidden">
+        <div id="board-peek-bar" class="board-peek-bar">
+          <div class="board-peek-copy">
+            <button
+              type="button"
+              id="board-peek-toggle"
+              onclick="toggleBoardPeek()"
+            >
+              Plancia
+            </button>
+            <span id="board-peek-hint" class="board-peek-hint"
+              >Scorri per vedere i dadi</span
+            >
+          </div>
+          <input
+            type="range"
+            id="board-peek-slider"
+            min="0"
+            max="100"
+            value="0"
+            aria-label="Scorri per vedere la plancia"
+            oninput="onBoardPeekSliderInput(this.value)"
+            onpointerup="snapBoardPeek()"
+            onpointercancel="snapBoardPeek()"
+            onchange="snapBoardPeek()"
+          />
+        </div>
         <div class="scorecard-wrap">
           <div class="scorecard-toolbar">
             <button
@@ -1314,10 +2025,16 @@
 
           <div class="scorecard-viewport-wrapper">
             <div class="scorecard-pan-viewport" id="scorecard-pan-viewport">
-              <div class="scorecard-stage" id="scorecard-stage">
-                <canvas id="scorecard-draw-canvas"></canvas>
-                <canvas id="scorecard-marks-canvas" aria-hidden="true"></canvas>
-                <div id="scorecard-hit-layer" aria-hidden="false"></div>
+              <div class="scorecard-crop" id="scorecard-crop">
+                <div class="scorecard-stage" id="scorecard-stage">
+                  <canvas id="scorecard-draw-canvas"></canvas>
+                  <canvas id="scorecard-marks-canvas" aria-hidden="true"></canvas>
+                  <div id="scorecard-focus-layer" aria-hidden="true"></div>
+                  <div id="scorecard-split-band"></div>
+                  <div id="scorecard-split-line-left" class="scorecard-split-line"></div>
+                  <div id="scorecard-split-line-right" class="scorecard-split-line"></div>
+                  <div id="scorecard-hit-layer" aria-hidden="false"></div>
+                </div>
               </div>
             </div>
             <button
@@ -1350,6 +2067,149 @@
           />
 
 
+          <div id="scorecard-calibrator" class="scorecard-calibrator">
+            <div>
+              Ogni bottone mostra e sposta solo quel gruppo. I rombi restano
+              fermi. Trascina i cerchi, oppure usa gli slider. Scala X / Scala Y
+              ingrandiscono dal centro (fino al 400%). Chiudi (o Esc) per uscire.
+            </div>
+            <div class="cal-tabs">
+              <button
+                type="button"
+                data-cal-layer="bonus"
+                onclick="setScorecardCalibrateLayer('bonus')"
+              >
+                Solo bonus
+              </button>
+              <button
+                type="button"
+                data-cal-layer="shops"
+                class="is-active"
+                onclick="setScorecardCalibrateLayer('shops')"
+              >
+                Solo negozi
+              </button>
+              <button
+                type="button"
+                data-cal-layer="turns"
+                onclick="setScorecardCalibrateLayer('turns')"
+              >
+                Solo dadi turno
+              </button>
+              <button
+                type="button"
+                data-cal-layer="market"
+                onclick="setScorecardCalibrateLayer('market')"
+              >
+                Solo mercato
+              </button>
+              <button
+                type="button"
+                data-cal-layer="gold"
+                onclick="setScorecardCalibrateLayer('gold')"
+              >
+                Solo monete
+              </button>
+              <button
+                type="button"
+                data-cal-layer="goats"
+                onclick="setScorecardCalibrateLayer('goats')"
+              >
+                Solo capre
+              </button>
+              <button
+                type="button"
+                data-cal-layer="buildings"
+                onclick="setScorecardCalibrateLayer('buildings')"
+              >
+                Solo edifici
+              </button>
+            </div>
+            <div class="cal-row">
+              <label for="cal-offset-x">Offset X</label>
+              <input
+                id="cal-offset-x"
+                type="range"
+                min="-80"
+                max="80"
+                value="0"
+                oninput="onScorecardCalibratorInput()"
+              />
+              <span class="cal-val" id="cal-offset-x-val">0.0%</span>
+            </div>
+            <div class="cal-row">
+              <label for="cal-offset-y">Offset Y</label>
+              <input
+                id="cal-offset-y"
+                type="range"
+                min="-80"
+                max="80"
+                value="0"
+                oninput="onScorecardCalibratorInput()"
+              />
+              <span class="cal-val" id="cal-offset-y-val">0.0%</span>
+            </div>
+            <div class="cal-row">
+              <label for="cal-scale-x">Scala X</label>
+              <input
+                id="cal-scale-x"
+                type="range"
+                min="40"
+                max="400"
+                value="100"
+                oninput="onScorecardCalibratorInput()"
+              />
+              <span class="cal-val" id="cal-scale-x-val">100%</span>
+            </div>
+            <div class="cal-row">
+              <label for="cal-scale-y">Scala Y</label>
+              <input
+                id="cal-scale-y"
+                type="range"
+                min="40"
+                max="400"
+                value="100"
+                oninput="onScorecardCalibratorInput()"
+              />
+              <span class="cal-val" id="cal-scale-y-val">100%</span>
+            </div>
+            <div class="cal-row">
+              <label for="cal-split-left">Rombi sx</label>
+              <input
+                id="cal-split-left"
+                type="range"
+                min="400"
+                max="500"
+                value="438"
+                oninput="onScorecardCalibratorInput()"
+              />
+              <span class="cal-val" id="cal-split-left-val">43.8%</span>
+            </div>
+            <div class="cal-row">
+              <label for="cal-split-right">Rombi dx</label>
+              <input
+                id="cal-split-right"
+                type="range"
+                min="490"
+                max="560"
+                value="532"
+                oninput="onScorecardCalibratorInput()"
+              />
+              <span class="cal-val" id="cal-split-right-val">53.2%</span>
+            </div>
+            <div class="cal-actions">
+              <button type="button" onclick="nudgeScorecardAlign(-1, 0)">←</button>
+              <button type="button" onclick="nudgeScorecardAlign(1, 0)">→</button>
+              <button type="button" onclick="nudgeScorecardAlign(0, -1)">↑</button>
+              <button type="button" onclick="nudgeScorecardAlign(0, 1)">↓</button>
+              <button type="button" onclick="resetScorecardAlign()">Azzera</button>
+              <button type="button" onclick="copyScorecardAlign()">Copia valori</button>
+              <button type="button" class="cal-close" onclick="closeScorecardCalibrator()">
+                Chiudi
+              </button>
+            </div>
+          </div>
+
           <div id="scorecard-action-bar" class="scorecard-action-bar" aria-live="polite">
             <div class="action-label" id="scorecard-action-label"></div>
             <div class="action-btns">
@@ -1367,9 +2227,16 @@
             Mercato ed Edifici: disegno libero come prima.
           </p>
         </div>
+        <div
+          id="scorecard-toast"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        ></div>
         <div id="scorecard-choice" aria-live="polite">
           <div class="setup-card">
             <h2>SCEGLI</h2>
+            <p id="scorecard-choice-district" class="choice-district"></p>
             <div class="choice-btns">
               <button
                 type="button"
@@ -1396,7 +2263,9 @@
         <div class="score-card">
           <h2>PARTITA FINITA</h2>
           <div id="game-log-container"></div>
-          <button onclick="restartGame()">Nuova partita</button>
+          <button class="score-card-restart" onclick="restartGame()">
+            Nuova partita
+          </button>
         </div>
       </div>
 
@@ -1467,13 +2336,15 @@
                       sinistra sul proprio Tracciato dei Turni.
                     </li>
                     <li>
-                      Acquisto dadi gialli (Opzionale): Può acquistare fino a 3
-                      dadi gialli al costo di 1 Oro ciascuno (per pagare,
-                      barrare un simbolo Oro precedentemente cerchiato).
+                      Dadi gialli (Opzionale): I gialli già guadagnati nel
+                      Mercato si aggiungono in automatico. Il primo giocatore
+                      può comprarne altri al costo di 1 Oro ciascuno (barrare un
+                      simbolo Oro cerchiato), fino a un massimo di 3 gialli in
+                      totale.
                     </li>
                     <li>
                       Lancio dei dadi: Lancia i 9 dadi bianchi insieme agli
-                      eventuali dadi gialli acquistati.
+                      eventuali dadi gialli (guadagnati o acquistati).
                     </li>
                     <li>
                       Smistamento sul Tabellone: I dadi vengono raggruppati per
@@ -1535,9 +2406,13 @@
                 <div class="instructions-body">
                   <p>
                     I dadi gialli sono un vantaggio esclusivo del primo
-                    giocatore. Dopo che questi ha concluso il suo turno, tutti i
-                    dadi gialli rimasti sul tabellone vengono rimossi. Gli altri
-                    giocatori utilizzeranno solo i dadi bianchi.
+                    giocatore. Si ottengono in due modi: all'inizio del round il
+                    primo giocatore può comprarli con l'Oro (1 Oro ciascuno);
+                    oppure, fermandosi su una casella dado nel Mercato, quel
+                    dado si aggiunge in automatico a tutti i suoi lanci
+                    successivi. Mai più di 3. Dopo che il primo giocatore ha
+                    concluso il suo turno, i dadi gialli rimasti sul tabellone
+                    vengono rimossi: gli altri giocatori usano solo i bianchi.
                   </p>
                 </div>
               </details>
@@ -1657,7 +2532,7 @@
                       <tr>
                         <td>Tempio</td>
                         <td>
-                          A fine partita, ricevi 3 punti per ogni edificio
+                          Nell'ottagono del totale, 3 punti per ogni edificio
                           costruito (incluso il Tempio).
                         </td>
                       </tr>
@@ -1665,14 +2540,15 @@
                         <td>Magazzino</td>
                         <td>
                           Ogni volta che esegui l'azione "Consegnare Merci",
-                          barra 1 simbolo extra.
+                          barra 1 simbolo extra sul negozio scelto.
                         </td>
                       </tr>
                       <tr>
                         <td>Stalla</td>
                         <td>
                           Ogni volta che muovi l'Intendente, puoi variare il
-                          movimento di 1 o 2 passi gratis.
+                          movimento di 1 o 2 passi gratis (combinabile con
+                          monete d'oro extra).
                         </td>
                       </tr>
                       <tr>
@@ -1799,6 +2675,13 @@
           </div>
         </div>
       </div>
+      <div id="seat-setup" class="hidden">
+        <div class="setup-card">
+          <h2>CORINTH</h2>
+          <p>Questo telefono è il giocatore…</p>
+          <div class="player-btns" id="seat-btns"></div>
+        </div>
+      </div>
       <!-- <div id="status">Tocca una zona per scegliere il distretto!</div> -->
       <!-- Elementi distretto nascosti (solo compatibilità JS) -->
       <div id="board-overlay">
@@ -1826,17 +2709,6 @@
     </div>
     <!-- Barra controlli sotto la plancia -->
     <div id="bottom-controls">
-      <div style="display: flex; align-items: center; gap: 10px">
-        <label for="yellow-dice"
-          ><img src="yellow_dice24x25.png" alt="Dadi gialli"
-        /></label>
-        <select id="yellow-dice">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
-      </div>
       <button id="roll-btn" onclick="rollDice()" disabled>
         🎲 Lancia i dadi
       </button>
@@ -1847,7 +2719,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
 
-    <script>
+    <script type="module">
+      import {
+        applyMove,
+        BUILDINGS,
+        buildingIndexesToIds,
+        canStepOnce,
+        createInitialState,
+        currentPicker,
+        engineSheetToUi,
+        goatGain as engineGoatGain,
+        goldGain as engineGoldGain,
+        remainingResource as engineRemainingResource,
+        scoreSheet,
+        usableDistricts,
+      } from "./engine/index.ts";
+
+      const THREE = window.THREE;
+      const CANNON = window.CANNON;
+
       // ============================================================
       //  THREE.JS SCENE
       // ============================================================
@@ -1909,6 +2799,12 @@
       tray.position.set(0, 0.01, -0.5);
       tray.receiveShadow = true;
       scene.add(tray);
+
+      const yellowSupplyGroup = new THREE.Group();
+      yellowSupplyGroup.visible = false;
+      scene.add(yellowSupplyGroup);
+      /** @type {THREE.Mesh[] | null} */
+      let yellowSupplyMeshes = null;
 
       // Bordi sottili attorno alla plancia
       const borderMat = new THREE.MeshStandardMaterial({
@@ -2171,6 +3067,14 @@
       let pickSequence = [];
       let pickIndex = 0;
       let playerHasPicked = false;
+      /** @type {null | "hotseat" | "practice"} */
+      let playMode = null;
+      /** @type {import("./engine/index.ts").GameState | null} */
+      let engineState = null;
+      /** 0-based seat claimed on this device */
+      let localSeat = 0;
+      /** 0-based sheet currently shown */
+      let viewingSeat = 0;
 
       const DISTRICT_ORDER = [
         "Goats",
@@ -2192,6 +3096,179 @@
 
       let gameLog = []; // gameLog[turnIdx][playerNum] = [{district, cnt}, ...]
 
+      function isHotseat() {
+        return playMode === "hotseat" && !!engineState;
+      }
+
+      function isGameOver() {
+        return isHotseat() && engineState.phase === "over";
+      }
+
+      function enginePlayerId() {
+        if (!engineState) return 0;
+        if (engineState.phase === "action" && engineState.activePick) {
+          return engineState.activePick.playerId;
+        }
+        if (engineState.phase === "draft") {
+          return currentPicker(engineState.pickQueue, engineState.pickIndex);
+        }
+        return engineState.firstPlayerId;
+      }
+
+      function loadEngineSheet(playerId) {
+        if (!engineState) return;
+        const player = engineState.players.find((p) => p.id === playerId);
+        if (!player) return;
+        viewingSeat = playerId;
+        scorecardDigitalState = engineSheetToUi(player.sheet);
+        scorecardDigitalReady = true;
+        renderScorecardMarks();
+        updateScorecardActionBar();
+      }
+
+      function syncHudFromEngine() {
+        if (!engineState) return;
+        const player = engineState.players.find((p) => p.id === enginePlayerId());
+        if (!player) return;
+        gold = engineRemainingResource(player.sheet, "gold");
+        goats = engineRemainingResource(player.sheet, "goats");
+        score = scoreSheet(player.sheet).total;
+        turn = engineState.round;
+        maxTurns = engineState.maxRounds;
+        currentGameTurn = engineState.round;
+        maxGameTurns = engineState.maxRounds;
+        numPlayers = engineState.playerCount;
+        refreshHUD();
+      }
+
+      function commitEngineMove(move, playerId) {
+        if (!engineState) return false;
+        const result = applyMove(engineState, move, { playerId });
+        if (!result.ok) {
+          window.alert(result.error);
+          return false;
+        }
+        engineState = result.state;
+        loadEngineSheet(enginePlayerId());
+        syncHudFromEngine();
+        syncYellowDiceSelect();
+        updateTurnInfo();
+        return true;
+      }
+
+      function syncHarborUiFromEngine() {
+        if (!engineState) return;
+        currentGroups = {};
+        DISTRICT_ORDER.forEach((key) => {
+          currentGroups[key] = [];
+        });
+        Object.entries(engineState.harbor.groups).forEach(([key, ids]) => {
+          currentGroups[key] = (ids || []).map((id) => {
+            const die = engineState.harbor.dice.find((d) => d.id === id);
+            return die ? die.face : 0;
+          });
+        });
+        engineState.harbor.dice.forEach((ed, i) => {
+          if (diceObjects[i]) diceObjects[i].districtKey = ed.district;
+        });
+        DISTRICT_ORDER.forEach((k) => {
+          const cnt = currentGroups[k] ? currentGroups[k].length : 0;
+          const val = cnt > 0 ? currentGroups[k][0] : null;
+          const dc = document.getElementById("dc-" + k);
+          const dv = document.getElementById("dv-" + k);
+          const btn = document.getElementById("d-" + k);
+          if (dc) dc.textContent = cnt > 0 ? cnt + "×" : "—";
+          if (dv) dv.textContent = val ? "[" + val + "]" : "";
+          if (btn) btn.disabled = cnt === 0;
+          if (zoneOverlays[k]) {
+            zoneOverlays[k].visible = cnt > 0;
+            if (cnt > 0 && zoneOverlays[k].material) {
+              zoneOverlays[k].material.opacity = 0.28;
+            }
+          }
+        });
+      }
+
+      function hideClearedYellowDice() {
+        if (!engineState || !engineState.harbor.yellowsCleared) return;
+        diceObjects.forEach((d) => {
+          if (!d.isYellow || d.shrinking || !d.mesh.visible) return;
+          d.targetScale = 0.0;
+          d.vanishing = true;
+          setTimeout(() => {
+            if (d.vanishing) d.mesh.visible = false;
+          }, 600);
+        });
+      }
+
+      function shopMarksFromPending(pending) {
+        if (!pending || pending.type !== "shop-turn") return [];
+        const confirmedShops =
+          isHotseat() && engineState
+            ? engineState.players.find((p) => p.id === enginePlayerId())
+                ?.sheet.districts[pending.districtId].shops
+            : scorecardDigitalState.districts[pending.districtId].shops;
+        if (!confirmedShops) return [];
+        const confirmed = confirmedShops;
+        const marks = [];
+        pending.shops.forEach((marked, shopIndex) => {
+          marked.forEach((value, symbolIndex) => {
+            if (value && !confirmed[shopIndex].marked[symbolIndex]) {
+              marks.push({
+                district: pending.districtId,
+                shopIndex,
+                symbolIndex,
+              });
+            }
+          });
+        });
+        return marks;
+      }
+
+      function afterHotseatAction() {
+        setScorecardPending(null);
+        scorecardTurn = null;
+        closeScorecardTurnView();
+        hideClearedYellowDice();
+        syncHarborUiFromEngine();
+        viewingSeat = localSeat;
+        loadEngineSheet(localSeat);
+        syncHudFromEngine();
+        renderPlayerRail();
+        if (!engineState) return;
+        if (engineState.phase === "draft") {
+          setTimeout(nextPlayerContext, 300);
+        } else if (engineState.phase === "supply") {
+          document.getElementById("roll-btn").disabled = true;
+          document.getElementById("end-btn").disabled = false;
+          document.getElementById("end-btn").classList.add("active");
+        } else if (engineState.phase === "over") {
+          endGame();
+        }
+      }
+
+      function startCompensationTurn() {
+        const playerId = enginePlayerId();
+        if (!commitEngineMove({ type: "takeCompensation" }, playerId)) return;
+        const actor = engineState.players.find((p) => p.id === playerId);
+        loadEngineSheet(playerId);
+        if (actor && !canStepOnce(actor.sheet)) {
+          commitEngineMove(
+            { type: "completeTurn", action: { kind: "pass" }, buildings: [] },
+            playerId,
+          );
+          afterHotseatAction();
+          return;
+        }
+        openScorecardForTurn({
+          player: playerId + 1,
+          districtKey: null,
+          diceCount: 0,
+          diceValue: 1,
+          compensation: true,
+        });
+      }
+
       window.startGame = startGame;
       window.chooseMainMode = chooseMainMode;
       window.toggleHamburgerMenu = toggleHamburgerMenu;
@@ -2212,11 +3289,57 @@
       window.requestClearScorecardCanvas = requestClearScorecardCanvas;
       window.clearScorecardCanvas = clearScorecardCanvas;
       window.scorecardPanStep = scorecardPanStep;
+      window.claimSeat = claimSeat;
+      window.viewPlayerSheet = viewPlayerSheet;
+      window.rollDice = rollDice;
+      window.adjustYellowDice = adjustYellowDice;
+      window.toggleYellowDieSlot = toggleYellowDieSlot;
+      window.endTurn = endTurn;
+      window.restartGame = restartGame;
+      window.closeMarketSkipModal = closeMarketSkipModal;
 
       let scorecardCanvas = null;
       let scorecardCtx = null;
       let scorecardStage = null;
+      let scorecardCrop = null;
       let scorecardPanViewport = null;
+      let scorecardCropSide = "full";
+      const SCORECARD_ALIGN_KEY = "corinth-scorecard-align-v3";
+      const SCORECARD_ALIGN_KEY_LEGACY = "corinth-scorecard-align-v2";
+      const SCORECARD_SPLIT_LEFT_DEFAULT = 0.438;
+      const SCORECARD_SPLIT_RIGHT_DEFAULT = 0.532;
+      const SCORECARD_ALIGN_CLAMP = 0.08;
+      const SCORECARD_CAL_LAYERS = [
+        { id: "bonus", label: "Solo bonus" },
+        { id: "shops", label: "Solo negozi" },
+        { id: "turns", label: "Solo dadi turno" },
+        { id: "market", label: "Solo mercato" },
+        { id: "gold", label: "Solo monete" },
+        { id: "goats", label: "Solo capre" },
+        { id: "buildings", label: "Solo edifici" },
+      ];
+      const SCORECARD_CAL_LAYER_IDS = SCORECARD_CAL_LAYERS.map((l) => l.id);
+      const SCORECARD_CAL_LEFT_LAYERS = ["bonus", "shops", "turns"];
+      const SCORECARD_CAL_RIGHT_LAYERS = ["market", "gold", "goats", "buildings"];
+      function emptyLayerAlign() {
+        return { offsetX: 0, offsetY: 0, scaleX: 1, scaleY: 1 };
+      }
+      function emptyScorecardAlign() {
+        const align = {
+          splitLeft: SCORECARD_SPLIT_LEFT_DEFAULT,
+          splitRight: SCORECARD_SPLIT_RIGHT_DEFAULT,
+        };
+        SCORECARD_CAL_LAYER_IDS.forEach((id) => {
+          align[id] = emptyLayerAlign();
+        });
+        return align;
+      }
+      function isCalLayer(layer) {
+        return SCORECARD_CAL_LAYER_IDS.indexOf(layer) !== -1;
+      }
+      let scorecardAlign = emptyScorecardAlign();
+      let scorecardCalibrateLayer = "shops";
+      let scorecardCalibDrag = null;
       let scorecardDrawing = false;
       let scorecardTool = "pen";
       let scorecardLastPoint = null;
@@ -2317,7 +3440,10 @@
         }));
         return { nodes, byId, diamonds, originId: "r2c2" };
       })();
+      const MARKET_TEMPLE_BUILDING = 0;
+      const MARKET_WAREHOUSE_BUILDING = 1;
       const MARKET_STABLE_BUILDING = 2;
+      const MARKET_STORE_BUILDING = 3;
       const MARKET_DIRS = [
         [0, 1],
         [0, -1],
@@ -2333,11 +3459,15 @@
 
       let scorecardMarksCanvas = null;
       let scorecardMarksCtx = null;
+      let scorecardPreviewTarget = null;
+      let scorecardSheetImage = null;
+      let scorecardSheetImagePromise = null;
       let scorecardHitLayer = null;
       let scorecardDigitalState = null;
       let scorecardPending = null; // { type, ... } editable until confirm
       let scorecardDigitalReady = false;
       let scorecardTurn = null;
+      let scorecardToastTimer = null;
 
       const DISTRICT_SHEET_ID = {
         Spices: "orange",
@@ -2347,6 +3477,136 @@
       };
 
       const SHOP_DISTRICT_KEYS = ["Spices", "Carpets", "Wine", "Oil"];
+
+      const DISTRICT_FOCUS_STYLE = {
+        gold: {
+          stroke: "rgba(201, 168, 76, 0.95)",
+          fill: "rgba(201, 168, 76, 0.14)",
+        },
+        goats: {
+          stroke: "rgba(150, 118, 70, 0.95)",
+          fill: "rgba(150, 118, 70, 0.14)",
+        },
+      };
+
+      /** Printed shop bands on the left of cr_scoring_a4.png, including the character. */
+      const DISTRICT_BAND_BOXES = {
+        orange: { minX: 0.03, minY: 0.118, maxX: 0.458, maxY: 0.278 },
+        blue: { minX: 0.028, minY: 0.298, maxX: 0.458, maxY: 0.458 },
+        purple: { minX: 0.028, minY: 0.478, maxX: 0.458, maxY: 0.642 },
+        green: { minX: 0.03, minY: 0.658, maxX: 0.458, maxY: 0.822 },
+      };
+
+      function districtKeyFromSheetId(districtId) {
+        for (const [key, id] of Object.entries(DISTRICT_SHEET_ID)) {
+          if (id === districtId) return key;
+        }
+        return null;
+      }
+
+      function symbolsNormBox(symbols) {
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+        symbols.forEach((sym) => {
+          const r = sym.r || 0;
+          minX = Math.min(minX, sym.x - r);
+          minY = Math.min(minY, sym.y - r);
+          maxX = Math.max(maxX, sym.x + r);
+          maxY = Math.max(maxY, sym.y + r);
+        });
+        if (!Number.isFinite(minX)) return null;
+        return { minX, minY, maxX, maxY };
+      }
+
+      function unionNormBoxes(boxes, padX, padY) {
+        if (!boxes.length) return null;
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+        boxes.forEach((b) => {
+          minX = Math.min(minX, b.minX);
+          minY = Math.min(minY, b.minY);
+          maxX = Math.max(maxX, b.maxX);
+          maxY = Math.max(maxY, b.maxY);
+        });
+        return {
+          minX: minX - padX,
+          minY: minY - padY,
+          maxX: maxX + padX,
+          maxY: maxY + padY,
+        };
+      }
+
+      let veilTunerPreview = false;
+
+      function getScorecardFocusNormBoxes() {
+        if (veilTunerPreview) {
+          return Object.keys(DISTRICT_BAND_BOXES)
+            .map((id) => DISTRICT_BAND_BOXES[id])
+            .filter(Boolean)
+            .map((band) => ({ ...band, kind: "dim" }));
+        }
+        const p = scorecardPending;
+        if (!p) return [];
+        if (p.type === "shop-turn") {
+          const boxes = [];
+          Object.keys(SCORECARD_SHEET_LAYOUT.districts).forEach((id) => {
+            if (id === p.districtId) return;
+            const band = DISTRICT_BAND_BOXES[id];
+            if (!band) return;
+            boxes.push({ ...band, kind: "dim" });
+          });
+          return boxes;
+        }
+        if (p.type === "gold" || p.type === "goats") {
+          const layout = SCORECARD_SHEET_LAYOUT[p.type];
+          const box = symbolsNormBox(layout.symbols || []);
+          if (!box) return [];
+          const union = unionNormBoxes([box], 0.02, 0.024);
+          if (!union) return [];
+          return [
+            {
+              ...union,
+              ...(DISTRICT_FOCUS_STYLE[p.type] || DISTRICT_FOCUS_STYLE.gold),
+              layer: p.type,
+            },
+          ];
+        }
+        return [];
+      }
+
+      function updateScorecardFocusHighlight() {
+        const layer = document.getElementById("scorecard-focus-layer");
+        if (!layer) return;
+        const boxes = getScorecardFocusNormBoxes();
+        if (!boxes.length || !scorecardStage) {
+          layer.innerHTML = "";
+          return;
+        }
+        layer.innerHTML = "";
+        boxes.forEach((box) => {
+          const el = document.createElement("div");
+          const dim = box.kind === "dim";
+          el.className = dim ? "scorecard-dim-band" : "scorecard-focus-rect";
+          const tl = sheetToStage(box.minX, box.minY, box.layer);
+          const br = sheetToStage(box.maxX, box.maxY, box.layer);
+          el.style.left = `${tl.x}px`;
+          el.style.top = `${tl.y}px`;
+          el.style.width = `${Math.max(0, br.x - tl.x)}px`;
+          el.style.height = `${Math.max(0, br.y - tl.y)}px`;
+          if (!dim) {
+            el.style.borderColor = box.stroke || "";
+            el.style.background = box.fill || "";
+            el.style.boxShadow = box.stroke
+              ? `0 0 0 2px rgba(26, 16, 8, 0.4), 0 0 16px ${box.stroke}`
+              : "";
+          }
+          layer.appendChild(el);
+        });
+      }
 
       function emptyMercatoState() {
         return {
@@ -2431,7 +3691,9 @@
         if (!base.buildings) {
           base.buildings = SCORECARD_SHEET_LAYOUT.buildings.map(() => false);
         }
-        const p = scorecardPending;
+        const pendingOnThisSheet =
+          !scorecardTurn || viewingSeat === scorecardTurn.player - 1;
+        const p = pendingOnThisSheet ? scorecardPending : null;
         if (p) {
           if (p.type === "shop") {
             const shop = base.districts[p.districtId].shops[p.shopIndex];
@@ -2452,7 +3714,16 @@
             base.gold.spent = (base.gold.spent || 0) + p.goldCost;
           }
         }
-        if (scorecardTurn && scorecardTurn.pendingBuildings) {
+        const yellowSpend = pendingYellowGoldSpend();
+        if (
+          yellowSpend > 0 &&
+          isHotseat() &&
+          engineState &&
+          viewingSeat === engineState.firstPlayerId
+        ) {
+          base.gold.spent = (base.gold.spent || 0) + yellowSpend;
+        }
+        if (pendingOnThisSheet && scorecardTurn && scorecardTurn.pendingBuildings) {
           for (const idx of scorecardTurn.pendingBuildings) {
             const def = SCORECARD_SHEET_LAYOUT.buildings[idx];
             if (!def || base.buildings[idx]) continue;
@@ -2478,6 +3749,24 @@
         return marked.every(Boolean);
       }
 
+      /** Circle the printed VP on a shop header (above the goods). */
+      function shopPrintedScorePos(districtId, shopDef) {
+        const district = SCORECARD_SHEET_LAYOUT.districts[districtId];
+        let minX = Infinity;
+        let maxX = -Infinity;
+        let minY = Infinity;
+        shopDef.symbols.forEach((sym) => {
+          minX = Math.min(minX, sym.x);
+          maxX = Math.max(maxX, sym.x);
+          minY = Math.min(minY, sym.y);
+        });
+        return {
+          x: (minX + maxX) / 2,
+          y: district.bonus ? district.bonus.y : minY - 0.043,
+          r: shopDef.points >= 10 ? 0.0195 : 0.0158,
+        };
+      }
+
       function shopIsEmpty(marked) {
         return marked.every((v) => !v);
       }
@@ -2500,6 +3789,28 @@
         const incomplete = getIncompleteShopIndex(districtId, state);
         if (incomplete >= 0) return incomplete === shopIndex;
         return true;
+      }
+
+      function isBlockedByOpenShop(districtId, shopIndex, state) {
+        const incomplete = getIncompleteShopIndex(districtId, state);
+        return incomplete >= 0 && incomplete !== shopIndex;
+      }
+
+      function showScorecardToast(message) {
+        const el = document.getElementById("scorecard-toast");
+        if (!el) return;
+        el.textContent = message;
+        el.classList.add("show");
+        if (scorecardToastTimer) window.clearTimeout(scorecardToastTimer);
+        scorecardToastTimer = window.setTimeout(() => {
+          el.classList.remove("show");
+          scorecardToastTimer = null;
+        }, 2000);
+      }
+
+      function warnIfOtherShopBlocked(districtId, shopIndex, state) {
+        if (!isBlockedByOpenShop(districtId, shopIndex, state)) return;
+        showScorecardToast("Completa prima il negozio già iniziato");
       }
 
       function isDistrictComplete(districtId, state) {
@@ -2528,8 +3839,6 @@
       function getScorecardNormPoint(evt) {
         if (!scorecardCanvas) return { x: 0, y: 0 };
         const rect = scorecardCanvas.getBoundingClientRect();
-        const w = rect.width || 1;
-        const h = rect.height || 1;
         const stageX = evt.clientX - rect.left;
         const stageY = evt.clientY - rect.top;
         const box = getSheetContentBox();
@@ -2540,6 +3849,9 @@
       }
 
       function stageSize() {
+        if (scorecardPreviewTarget) {
+          return { w: scorecardPreviewTarget.w, h: scorecardPreviewTarget.h };
+        }
         if (!scorecardStage) return { w: 1, h: 1 };
         return {
           w: scorecardStage.clientWidth || 1,
@@ -2547,45 +3859,183 @@
         };
       }
 
-      /** Box where cr_scoring_a4.png is painted inside the stage (handles letterboxing). */
+      /** The sheet image fills the inner stage 1:1 (crop happens on the outer wrapper). */
       function getSheetContentBox() {
         const { w, h } = stageSize();
-        const imgAspect = 2374 / 1632;
-        const stageAspect = w / Math.max(h, 0.0001);
-        let bw;
-        let bh;
-        let ox;
-        let oy;
-        if (stageAspect > imgAspect) {
-          bh = h;
-          bw = h * imgAspect;
-          ox = (w - bw) / 2;
-          oy = 0;
-        } else {
-          bw = w;
-          bh = w / imgAspect;
-          ox = 0;
-          oy = (h - bh) / 2;
-        }
-        return { ox, oy, bw, bh, w, h };
+        return { ox: 0, oy: 0, bw: w, bh: h, w, h };
       }
 
-      function sheetToStage(nx, ny) {
+      function layerAlign(layer) {
+        if (isCalLayer(layer) && scorecardAlign[layer]) {
+          return scorecardAlign[layer];
+        }
+        return emptyLayerAlign();
+      }
+
+      function hitLayerForKind(kind) {
+        if (kind === "shop-symbol") return "shops";
+        if (kind === "bonus") return "bonus";
+        if (kind === "turn") return "turns";
+        if (kind === "market") return "market";
+        if (kind === "gold") return "gold";
+        if (kind === "goats") return "goats";
+        if (kind === "building") return "buildings";
+        return null;
+      }
+
+      function layerScaleOrigin(layer) {
+        const pts = calibLayerNormPoints(layer);
+        if (!pts.length) return { x: 0.5, y: 0.5 };
+        let sx = 0;
+        let sy = 0;
+        pts.forEach((p) => {
+          sx += p.x;
+          sy += p.y;
+        });
+        return { x: sx / pts.length, y: sy / pts.length };
+      }
+
+      function layerScaleXY(a) {
+        const sx = clampScorecardScale(a && a.scaleX, a && a.scale);
+        const sy = clampScorecardScale(a && a.scaleY, a && a.scale);
+        return { sx, sy, s: (sx + sy) / 2 };
+      }
+
+      function sheetToStage(nx, ny, layer) {
         const box = getSheetContentBox();
+        const a = layerAlign(layer);
+        const { sx, sy, s } = layerScaleXY(a);
+        let ax = nx;
+        let ay = ny;
+        if (layer && (sx !== 1 || sy !== 1)) {
+          const o = layerScaleOrigin(layer);
+          ax = o.x + (nx - o.x) * sx;
+          ay = o.y + (ny - o.y) * sy;
+        }
+        ax += a.offsetX || 0;
+        ay += a.offsetY || 0;
         return {
-          x: box.ox + nx * box.bw,
-          y: box.oy + ny * box.bh,
-          scale: Math.min(box.bw, box.bh),
+          x: box.ox + ax * box.bw,
+          y: box.oy + ay * box.bh,
+          scale: Math.min(box.bw, box.bh) * s,
         };
+      }
+
+      function isScorecardCalibrating() {
+        const page = document.getElementById("scorecard-page");
+        return !!(page && page.classList.contains("calibrating"));
+      }
+
+      function clampScorecardAlign(n) {
+        const v = Number(n);
+        if (!Number.isFinite(v)) return 0;
+        return Math.max(-SCORECARD_ALIGN_CLAMP, Math.min(SCORECARD_ALIGN_CLAMP, v));
+      }
+
+      function clampScorecardScale(n, fallback) {
+        const raw = Number(n);
+        const v =
+          Number.isFinite(raw) && raw > 0
+            ? raw
+            : Number(fallback);
+        if (!Number.isFinite(v) || v <= 0) return 1;
+        return Math.max(0.4, Math.min(4, v));
+      }
+
+      function positionScorecardHit(btn) {
+        const nx = Number(btn.dataset.nx);
+        const ny = Number(btn.dataset.ny);
+        const nr = Number(btn.dataset.nr);
+        if (!Number.isFinite(nx) || !Number.isFinite(ny) || !Number.isFinite(nr)) {
+          return;
+        }
+        const pt = sheetToStage(nx, ny, btn.dataset.layer || null);
+        const size = Math.max(30, nr * pt.scale * 2.4);
+        btn.style.width = `${size}px`;
+        btn.style.height = `${size}px`;
+        btn.style.left = `${pt.x - size / 2}px`;
+        btn.style.top = `${pt.y - size / 2}px`;
+        btn.classList.toggle(
+          "is-cal-active",
+          isScorecardCalibrating() && btn.dataset.layer === scorecardCalibrateLayer,
+        );
+      }
+
+      function calibLayerNormPoints(layer) {
+        const pts = [];
+        if (layer === "shops") {
+          Object.values(SCORECARD_SHEET_LAYOUT.districts).forEach((def) => {
+            def.shops.forEach((shop) => {
+              shop.symbols.forEach((sym) => pts.push(sym));
+            });
+          });
+        } else if (layer === "bonus") {
+          Object.values(SCORECARD_SHEET_LAYOUT.districts).forEach((def) => {
+            if (def.bonus) pts.push(def.bonus);
+          });
+        } else if (layer === "turns") {
+          SCORECARD_SHEET_LAYOUT.turns.slots.forEach((slot) => pts.push(slot));
+        } else if (layer === "market") {
+          SCORECARD_MARKET_LAYOUT.nodes.forEach((node) => pts.push(node));
+        } else if (layer === "gold") {
+          SCORECARD_SHEET_LAYOUT.gold.symbols.forEach((sym) => pts.push(sym));
+        } else if (layer === "goats") {
+          SCORECARD_SHEET_LAYOUT.goats.symbols.forEach((sym) => pts.push(sym));
+        } else if (layer === "buildings") {
+          SCORECARD_SHEET_LAYOUT.buildings.forEach((b) => pts.push(b));
+        }
+        return pts;
+      }
+
+      function appendCalibLayerBox(layer) {
+        if (!scorecardHitLayer || !isScorecardCalibrating()) return;
+        const pts = calibLayerNormPoints(layer);
+        const raw = symbolsNormBox(pts);
+        const box = raw ? unionNormBoxes([raw], 0.012, 0.016) : null;
+        if (!box) return;
+        const el = document.createElement("div");
+        el.className = "cal-layer-box";
+        el.dataset.layer = layer;
+        if (layer === scorecardCalibrateLayer) el.classList.add("is-selected");
+        const tl = sheetToStage(box.minX, box.minY, layer);
+        const br = sheetToStage(box.maxX, box.maxY, layer);
+        el.style.left = `${tl.x}px`;
+        el.style.top = `${tl.y}px`;
+        el.style.width = `${Math.max(0, br.x - tl.x)}px`;
+        el.style.height = `${Math.max(0, br.y - tl.y)}px`;
+        scorecardHitLayer.appendChild(el);
+      }
+
+      function refreshScorecardOverlayPositions() {
+        if (scorecardHitLayer) {
+          scorecardHitLayer.querySelectorAll(".scorecard-hit").forEach(positionScorecardHit);
+          scorecardHitLayer.querySelectorAll(".cal-layer-box").forEach((el) => {
+            const layer = el.dataset.layer;
+            const pts = calibLayerNormPoints(layer);
+            const raw = symbolsNormBox(pts);
+            const box = raw ? unionNormBoxes([raw], 0.012, 0.016) : null;
+            if (!box) return;
+            const tl = sheetToStage(box.minX, box.minY, layer);
+            const br = sheetToStage(box.maxX, box.maxY, layer);
+            el.style.left = `${tl.x}px`;
+            el.style.top = `${tl.y}px`;
+            el.style.width = `${Math.max(0, br.x - tl.x)}px`;
+            el.style.height = `${Math.max(0, br.y - tl.y)}px`;
+            el.classList.toggle("is-selected", layer === scorecardCalibrateLayer);
+          });
+        }
+        renderScorecardMarks();
+        updateScorecardFocusHighlight();
       }
 
       function resizeScorecardMarksCanvas() {
         if (!scorecardMarksCanvas || !scorecardStage) return;
-        const rect = scorecardStage.getBoundingClientRect();
-        if (rect.width < 2 || rect.height < 2) return;
+        const w = scorecardStage.clientWidth || 0;
+        const h = scorecardStage.clientHeight || 0;
+        if (w < 2 || h < 2) return;
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        scorecardMarksCanvas.width = Math.round(rect.width * dpr);
-        scorecardMarksCanvas.height = Math.round(rect.height * dpr);
+        scorecardMarksCanvas.width = Math.round(w * dpr);
+        scorecardMarksCanvas.height = Math.round(h * dpr);
         scorecardMarksCtx = scorecardMarksCanvas.getContext("2d");
         if (!scorecardMarksCtx) return;
         scorecardMarksCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -2600,6 +4050,36 @@
         ctx.moveTo(cx + s, cy - s);
         ctx.lineTo(cx - s, cy + s);
         ctx.stroke();
+      }
+
+      /** Single slash, bottom-left → top-right, like crossing an item off. */
+      function drawMarkStrike(ctx, cx, cy, radius) {
+        const oval = SCORECARD_SHEET_LAYOUT.resourceOval;
+        const dx = radius * oval.rxScale * 1.05;
+        const dy = radius * oval.ryScale * 1.05;
+        ctx.beginPath();
+        ctx.moveTo(cx - dx, cy + dy);
+        ctx.lineTo(cx + dx, cy - dy);
+        ctx.stroke();
+      }
+
+      /** Spend/circle order: first row left→right, then the next row, etc. */
+      function resourceTrackRowOrder(symbols) {
+        const yTol = 0.012;
+        const rows = [];
+        symbols.forEach((sym, index) => {
+          let row = rows.find((r) => Math.abs(r.y - sym.y) < yTol);
+          if (!row) {
+            row = { y: sym.y, indices: [] };
+            rows.push(row);
+          }
+          row.indices.push(index);
+        });
+        rows.sort((a, b) => a.y - b.y);
+        rows.forEach((row) => {
+          row.indices.sort((a, b) => symbols[a].x - symbols[b].x);
+        });
+        return rows.flatMap((row) => row.indices);
       }
 
       function drawMarkCircle(ctx, cx, cy, radius) {
@@ -2655,11 +4135,60 @@
         };
       }
 
-      function liveOctagonTotal(scores) {
-        return Object.values(scores).reduce(
+      function liveOctagonTotal(scores, state) {
+        const base = Object.values(scores).reduce(
           (sum, value) => sum + (Number(value) || 0),
           0,
         );
+        return base + templeVictoryPoints(state);
+      }
+
+      function hasTemple(state) {
+        return !!(
+          state &&
+          state.buildings &&
+          state.buildings[MARKET_TEMPLE_BUILDING]
+        );
+      }
+
+      function templeVictoryPoints(state) {
+        if (!hasTemple(state)) return 0;
+        const built = state.buildings.filter(Boolean).length;
+        return built * BUILDINGS.temple.vpPerBuilding;
+      }
+
+      function hasWarehouse(state) {
+        return !!(
+          state &&
+          state.buildings &&
+          state.buildings[MARKET_WAREHOUSE_BUILDING]
+        );
+      }
+
+      function hasStore(state) {
+        return !!(
+          state &&
+          state.buildings &&
+          state.buildings[MARKET_STORE_BUILDING]
+        );
+      }
+
+      function storeOwnedCommitted() {
+        if (isHotseat() && engineState) {
+          const sheet = engineState.players.find(
+            (p) => p.id === enginePlayerId(),
+          )?.sheet;
+          if (sheet) return !!sheet.buildings.store;
+        }
+        return hasStore(scorecardDigitalState);
+      }
+
+      function computeGoldQty(dieCount) {
+        const extra = storeOwnedCommitted() ? BUILDINGS.store.extraGold : 0;
+        const circled =
+          (scorecardDigitalState && scorecardDigitalState.gold.circled) || 0;
+        const room = SCORECARD_SHEET_LAYOUT.gold.count - circled;
+        return Math.min(dieCount + extra, Math.max(0, room));
       }
 
       function canAffordBuilding(index, state) {
@@ -2686,6 +4215,68 @@
           (n, shop) => n + shop.marked.filter((m) => !m).length,
           0,
         );
+      }
+
+      function warehouseOwnedForTurn() {
+        if (
+          scorecardTurn &&
+          (scorecardTurn.pendingBuildings || []).includes(
+            MARKET_WAREHOUSE_BUILDING,
+          )
+        ) {
+          return true;
+        }
+        if (hasWarehouse(scorecardDigitalState)) return true;
+        if (isHotseat() && engineState) {
+          const sheet = engineState.players.find(
+            (p) => p.id === enginePlayerId(),
+          )?.sheet;
+          if (sheet && sheet.buildings.warehouse) return true;
+        }
+        return false;
+      }
+
+      function computeShopTurnQuota(districtId, dieCount) {
+        const extra = warehouseOwnedForTurn()
+          ? BUILDINGS.warehouse.extraGood
+          : 0;
+        const remaining = remainingUnmarkedInDistrict(
+          districtId,
+          scorecardDigitalState,
+        );
+        return Math.min(dieCount + extra, remaining);
+      }
+
+      function refreshShopTurnQuota() {
+        if (
+          !scorecardPending ||
+          scorecardPending.type !== "shop-turn" ||
+          !scorecardTurn
+        ) {
+          return false;
+        }
+        const quota = computeShopTurnQuota(
+          scorecardPending.districtId,
+          scorecardTurn.diceCount,
+        );
+        if (quota === scorecardPending.quota) return false;
+        setScorecardPending({
+          type: "shop-turn",
+          districtId: scorecardPending.districtId,
+          shops: scorecardPending.shops,
+          quota,
+        });
+        return true;
+      }
+
+      function afterPendingBuildingsChanged() {
+        if (scorecardTurn && scorecardTurn.choice === "distance") {
+          refreshMarketMove(true);
+          return;
+        }
+        if (refreshShopTurnQuota()) return;
+        updateScorecardActionBar();
+        renderScorecardMarks();
       }
 
       function getMarketNode(id) {
@@ -2719,13 +4310,14 @@
 
       function marketGoldCost(diceValue, steps, hasStable) {
         const need = Math.abs(steps - diceValue);
-        const free = hasStable && need > 0 ? 1 : 0;
+        const free = hasStable ? BUILDINGS.stable.freeStepMod : 0;
         return Math.max(0, need - free);
       }
 
       function marketStepRange(state, diceValue) {
         const gold = remainingResource(state, "gold");
-        const extra = gold + (hasMarketStable(state) ? 1 : 0);
+        const extra =
+          gold + (hasMarketStable(state) ? BUILDINGS.stable.freeStepMod : 0);
         return {
           min: Math.max(1, diceValue - extra),
           max: diceValue + extra,
@@ -2773,13 +4365,184 @@
         return false;
       }
 
+      function yellowDiceLimits() {
+        let owned = 0;
+        let goldLeft = 0;
+        if (isHotseat()) {
+          const first = engineState.players.find(
+            (p) => p.id === engineState.firstPlayerId,
+          );
+          if (first) {
+            owned = first.sheet.mercato.yellowDice || 0;
+            goldLeft = engineRemainingResource(first.sheet, "gold");
+          }
+        } else if (scorecardDigitalState) {
+          owned =
+            (scorecardDigitalState.mercato &&
+              scorecardDigitalState.mercato.yellowDice) ||
+            0;
+          goldLeft = remainingResource(scorecardDigitalState, "gold");
+        }
+        owned = Math.max(0, Math.min(3, owned));
+        const maxTotal = Math.min(3, owned + Math.max(0, goldLeft));
+        const canEdit =
+          !hasRolled &&
+          !isRolling &&
+          (!isHotseat() || engineState.phase === "supply");
+        return { owned, maxTotal, canEdit };
+      }
+
+      function pendingYellowGoldSpend() {
+        if (hasRolled || isRolling) return 0;
+        const el = document.getElementById("yellow-dice");
+        if (!el) return 0;
+        const { owned } = yellowDiceLimits();
+        const cur = parseInt(el.value, 10) || 0;
+        return Math.max(0, cur - owned);
+      }
+
+      function poseYellowSupplyDie(mesh, index) {
+        const xs = [1.1, 1.85, 2.55];
+        mesh.position.set(xs[index] || 1.1, 0.36, -4.18);
+        mesh.rotation.set(-0.35, 0.55, 0.18);
+      }
+
+      function ensureYellowSupplyMeshes() {
+        if (yellowSupplyMeshes) return;
+        yellowSupplyMeshes = [0, 1, 2].map((i) => {
+          const die = createDie(true);
+          poseYellowSupplyDie(die.mesh, i);
+          die.mesh.visible = false;
+          yellowSupplyGroup.add(die.mesh);
+          return die.mesh;
+        });
+      }
+
+      function syncYellowSupplyOnBoard(count, show) {
+        ensureYellowSupplyMeshes();
+        const n = Math.max(0, Math.min(3, count));
+        yellowSupplyMeshes.forEach((mesh, i) => {
+          poseYellowSupplyDie(mesh, i);
+          mesh.visible = !!(show && i < n);
+        });
+        yellowSupplyGroup.visible = !!(show && n > 0);
+      }
+
       function syncYellowDiceSelect() {
         const el = document.getElementById("yellow-dice");
-        if (!el || !scorecardDigitalState) return;
-        const owned = (scorecardDigitalState.mercato &&
-          scorecardDigitalState.mercato.yellowDice) || 0;
+        const tray = document.getElementById("yellow-buy-tray");
+        const copy = document.getElementById("yellow-buy-copy");
+        const costEl = document.getElementById("yellow-dice-cost");
+        const rollBtn = document.getElementById("roll-btn");
+        const slots = document.querySelectorAll("#yellow-buy-slots .yellow-slot");
+        if (!el) return;
+        const { owned, maxTotal, canEdit } = yellowDiceLimits();
+        let cur = parseInt(el.value, 10) || 0;
+        if (canEdit) {
+          cur = Math.max(owned, Math.min(maxTotal, cur));
+        } else if (!hasRolled) {
+          cur = owned;
+        }
+        cur = Math.max(0, Math.min(3, cur));
+        el.value = String(cur);
+        const purchased = Math.max(0, cur - owned);
+        const controls = document.getElementById("bottom-controls");
+        const controlsVisible = !!(
+          controls && controls.style.display !== "none"
+        );
+        const showTray =
+          controlsVisible &&
+          !hasRolled &&
+          !isRolling &&
+          (!isHotseat() || engineState.phase === "supply");
+        if (tray) tray.hidden = !showTray;
+        if (copy) {
+          copy.textContent =
+            owned > 0
+              ? `Gialli del Mercato + compra · 1 Oro l’uno`
+              : `Compra dadi gialli · 1 Oro l’uno`;
+        }
+        slots.forEach((btn, i) => {
+          const isOn = i < cur;
+          const isOwned = i < owned;
+          btn.classList.toggle("is-on", isOn);
+          btn.classList.toggle("is-owned", isOwned);
+          btn.disabled = !canEdit || isOwned || (i >= cur && i >= maxTotal);
+          if (isOwned) {
+            btn.title = "Dado guadagnato nel Mercato: resta nel lancio";
+            btn.setAttribute("aria-label", `Dado giallo ${i + 1}, dal Mercato`);
+          } else if (isOn) {
+            btn.title = "Togli questo dado comprato (rimborso 1 Oro)";
+            btn.setAttribute(
+              "aria-label",
+              `Dado giallo ${i + 1}, comprato. Tocca per togliere`,
+            );
+          } else if (i >= maxTotal) {
+            btn.title =
+              cur >= 3 ? "Massimo 3 dadi gialli" : "Serve 1 Oro già cerchiato";
+            btn.setAttribute("aria-label", `Dado giallo ${i + 1}, non disponibile`);
+          } else {
+            btn.title = "Compra questo dado giallo (1 Oro)";
+            btn.setAttribute(
+              "aria-label",
+              `Dado giallo ${i + 1}. Tocca per comprare, 1 Oro`,
+            );
+          }
+        });
+        if (costEl) {
+          if (purchased > 0) {
+            costEl.hidden = false;
+            costEl.textContent =
+              purchased === 1 ? "−1 Oro al lancio" : `−${purchased} Oro al lancio`;
+          } else if (showTray) {
+            costEl.hidden = false;
+            costEl.textContent = canEdit
+              ? "Tocca un dado per comprarlo"
+              : "";
+            if (!canEdit) costEl.hidden = true;
+          } else {
+            costEl.hidden = true;
+            costEl.textContent = "";
+          }
+        }
+        if (rollBtn) {
+          if (showTray && cur > 0) {
+            rollBtn.textContent = `🎲 Lancia 9+${cur}`;
+          } else if (!hasRolled) {
+            rollBtn.textContent = "🎲 Lancia i dadi";
+          }
+        }
+        syncYellowSupplyOnBoard(cur, showTray);
+        if (scorecardDigitalReady) renderScorecardMarks();
+      }
+
+      function adjustYellowDice(delta) {
+        const el = document.getElementById("yellow-dice");
+        if (!el) return;
+        const { owned, maxTotal, canEdit } = yellowDiceLimits();
+        if (!canEdit) return;
         const cur = parseInt(el.value, 10) || 0;
-        el.value = String(Math.min(3, Math.max(cur, owned)));
+        const next = Math.max(owned, Math.min(maxTotal, cur + delta));
+        if (next === cur) return;
+        el.value = String(next);
+        syncYellowDiceSelect();
+      }
+
+      function toggleYellowDieSlot(slot) {
+        const el = document.getElementById("yellow-dice");
+        if (!el) return;
+        const { owned, maxTotal, canEdit } = yellowDiceLimits();
+        if (!canEdit) return;
+        const i = Math.max(0, Math.min(2, Number(slot) || 0));
+        if (i < owned) return;
+        const cur = parseInt(el.value, 10) || 0;
+        let next;
+        if (i < cur) next = i;
+        else next = Math.min(maxTotal, i + 1);
+        next = Math.max(owned, next);
+        if (next === cur) return;
+        el.value = String(next);
+        syncYellowDiceSelect();
       }
 
       function autoMarkDistrictGoods(districtId, qty, state) {
@@ -2978,7 +4741,7 @@
         const pts = path
           .map((id) => getMarketNode(id))
           .filter(Boolean)
-          .map((node) => sheetToStage(node.x, node.y));
+          .map((node) => sheetToStage(node.x, node.y, "market"));
         if (pts.length < 2) return;
         ctx.save();
         ctx.strokeStyle = color;
@@ -3001,7 +4764,7 @@
         (mercato.circled || []).forEach((id) => {
           const node = getMarketNode(id);
           if (!node) return;
-          const pt = sheetToStage(node.x, node.y);
+          const pt = sheetToStage(node.x, node.y, "market");
           const r = node.r * pt.scale;
           ctx.lineWidth = Math.max(2.2, r * 0.28);
           ctx.strokeStyle = stroke;
@@ -3010,7 +4773,7 @@
         SCORECARD_MARKET_LAYOUT.diamonds.forEach((diamond, i) => {
           const value = mercato.diamonds && mercato.diamonds[i];
           if (value == null) return;
-          const pt = sheetToStage(diamond.x, diamond.y);
+          const pt = sheetToStage(diamond.x, diamond.y, "market");
           const fontPx = Math.max(12, diamond.r * pt.scale * 1.45);
           ctx.fillStyle = "rgba(22, 14, 6, 0.95)";
           ctx.font = `700 ${fontPx}px Cinzel, Georgia, serif`;
@@ -3023,7 +4786,7 @@
         if (!p || p.type !== "market-move") return;
         const origin = getMarketNode(marketStewardId(view));
         if (origin) {
-          const pt = sheetToStage(origin.x, origin.y);
+          const pt = sheetToStage(origin.x, origin.y, "market");
           const r = origin.r * pt.scale;
           ctx.fillStyle = "rgba(201, 168, 76, 0.4)";
           ctx.beginPath();
@@ -3048,7 +4811,7 @@
         (p.dests || []).forEach((d) => {
           const node = getMarketNode(d.id);
           if (!node) return;
-          const pt = sheetToStage(node.x, node.y);
+          const pt = sheetToStage(node.x, node.y, "market");
           const r = node.r * pt.scale;
           const selected = p.selectedId === d.id;
           ctx.lineWidth = Math.max(2, r * (selected ? 0.38 : 0.24));
@@ -3058,11 +4821,13 @@
       }
 
       function renderScorecardMarks() {
-        if (!scorecardMarksCtx || !scorecardStage) return;
+        const preview = scorecardPreviewTarget;
+        const ctx = preview ? preview.ctx : scorecardMarksCtx;
+        if (!ctx) return;
+        if (!preview && !scorecardStage) return;
         const { w, h } = stageSize();
-        const ctx = scorecardMarksCtx;
         ctx.clearRect(0, 0, w, h);
-        const view = effectiveDigitalView();
+        const view = preview ? preview.view : effectiveDigitalView();
         const stroke = "rgba(22, 14, 6, 0.95)";
         const pendingStroke = "rgba(139, 26, 26, 0.9)";
         ctx.lineCap = "round";
@@ -3086,18 +4851,29 @@
             const pending = isPendingShop(districtId, shopIndex);
             shopDef.symbols.forEach((sym, symIndex) => {
               if (!marked[symIndex]) return;
-              const pt = sheetToStage(sym.x, sym.y);
+              const pt = sheetToStage(sym.x, sym.y, "shops");
               const r = sym.r * pt.scale;
               ctx.lineWidth = Math.max(2, r * 0.22);
               ctx.strokeStyle = pending ? pendingStroke : stroke;
               drawMarkX(ctx, pt.x, pt.y, r);
             });
+            if (!shopIsComplete(marked)) return;
+            const score = shopPrintedScorePos(districtId, shopDef);
+            const pt = sheetToStage(score.x, score.y, "shops");
+            const r = score.r * pt.scale;
+            const confirmed =
+              scorecardDigitalState.districts[districtId].shops[shopIndex]
+                .marked;
+            const justCompleted = pending && !shopIsComplete(confirmed);
+            ctx.lineWidth = Math.max(2.2, r * 0.26);
+            ctx.strokeStyle = justCompleted ? pendingStroke : stroke;
+            drawMarkCircle(ctx, pt.x, pt.y, r);
           });
 
           // District bonus
           if (def.bonus && dState.bonus) {
             const b = def.bonus;
-            const pt = sheetToStage(b.x, b.y);
+            const pt = sheetToStage(b.x, b.y, "bonus");
             const r = b.r * pt.scale;
             const pendingBonus =
               scorecardPending &&
@@ -3111,23 +4887,32 @@
         }
 
         const oval = SCORECARD_SHEET_LAYOUT.resourceOval;
-        const renderTrack = (layoutTrack, stateTrack, pendingType) => {
-          const pending =
-            scorecardPending && scorecardPending.type === pendingType;
-          const circled = stateTrack.circled;
-          const spent = stateTrack.spent || 0;
-          layoutTrack.symbols.forEach((sym, i) => {
-            const pt = sheetToStage(sym.x, sym.y);
+        const renderTrack = (layoutTrack, stateTrack, trackKey) => {
+          const pendingAcquire =
+            scorecardPending && scorecardPending.type === trackKey;
+          const circled = stateTrack.circled || 0;
+          const spent = Math.min(stateTrack.spent || 0, circled);
+          const confirmedSpent = Math.min(
+            (scorecardDigitalState[trackKey] &&
+              scorecardDigitalState[trackKey].spent) ||
+              0,
+            circled,
+          );
+          const order = resourceTrackRowOrder(layoutTrack.symbols);
+          order.forEach((i, rank) => {
+            const sym = layoutTrack.symbols[i];
+            const pt = sheetToStage(sym.x, sym.y, trackKey);
             const r = sym.r * pt.scale;
-            if (i < circled && i >= layoutTrack.preCircled) {
+            if (rank < circled && rank >= layoutTrack.preCircled) {
               ctx.lineWidth = Math.max(2.2, r * oval.lineWidthScale);
-              ctx.strokeStyle = pending ? pendingStroke : oval.color;
+              ctx.strokeStyle = pendingAcquire ? pendingStroke : oval.color;
               drawMarkOval(ctx, pt.x, pt.y, r);
             }
-            if (i < spent) {
-              ctx.lineWidth = Math.max(2, r * 0.25);
-              ctx.strokeStyle = stroke;
-              drawMarkX(ctx, pt.x, pt.y, r * 0.85);
+            if (rank < spent) {
+              ctx.lineWidth = Math.max(2.1, r * 0.3);
+              ctx.strokeStyle =
+                rank >= confirmedSpent ? pendingStroke : stroke;
+              drawMarkStrike(ctx, pt.x, pt.y, r);
             }
           });
         };
@@ -3140,7 +4925,7 @@
           scorecardPending && scorecardPending.type === "turns";
         SCORECARD_SHEET_LAYOUT.turns.slots.forEach((slot, i) => {
           if (i >= turnsMarked) return;
-          const pt = sheetToStage(slot.x, slot.y);
+          const pt = sheetToStage(slot.x, slot.y, "turns");
           const r = slot.r * pt.scale;
           ctx.lineWidth = Math.max(2.5, r * 0.18);
           ctx.strokeStyle = turnsPending ? pendingStroke : stroke;
@@ -3150,7 +4935,7 @@
         // Buildings
         SCORECARD_SHEET_LAYOUT.buildings.forEach((b, i) => {
           if (!view.buildings || !view.buildings[i]) return;
-          const pt = sheetToStage(b.x, b.y);
+          const pt = sheetToStage(b.x, b.y, "buildings");
           const r = b.r * pt.scale;
           const pendingB =
             scorecardTurn &&
@@ -3181,12 +4966,13 @@
 
         const octagon = SCORECARD_SHEET_LAYOUT.scoreOctagon;
         if (octagon) {
-          const octagonTotal = liveOctagonTotal(scores);
+          const octagonTotal = liveOctagonTotal(scores, view);
           const pt = sheetToStage(octagon.x, octagon.y);
           const fontPx = Math.max(16, octagon.r * pt.scale * 1.55);
           ctx.font = `700 ${fontPx}px Cinzel, Georgia, serif`;
           ctx.fillText(String(octagonTotal), pt.x, pt.y + fontPx * 0.04);
         }
+        if (!preview) updateScorecardFocusHighlight();
       }
 
       function buildScorecardHitLayer() {
@@ -3201,17 +4987,17 @@
           btn.className = "scorecard-hit";
           btn.title = title || "";
           btn.setAttribute("aria-label", title || "Segna");
-          const pt = sheetToStage(nx, ny);
-          const size = Math.max(30, nr * pt.scale * 2.4);
-          btn.style.width = `${size}px`;
-          btn.style.height = `${size}px`;
-          btn.style.left = `${pt.x - size / 2}px`;
-          btn.style.top = `${pt.y - size / 2}px`;
+          const layer = hitLayerForKind(attrs["data-kind"]);
+          btn.dataset.nx = String(nx);
+          btn.dataset.ny = String(ny);
+          btn.dataset.nr = String(nr);
+          if (layer) btn.dataset.layer = layer;
           Object.entries(attrs).forEach(([k, v]) =>
             btn.setAttribute(k, String(v)),
           );
           btn.addEventListener("click", onScorecardHitClick);
           scorecardHitLayer.appendChild(btn);
+          positionScorecardHit(btn);
         };
 
         for (const [districtId, def] of Object.entries(
@@ -3271,6 +5057,7 @@
           }, "Mercato");
         });
         updateMarketHitStates();
+        SCORECARD_CAL_LAYER_IDS.forEach(appendCalibLayerBox);
       }
 
       function updateMarketHitStates() {
@@ -3290,6 +5077,10 @@
         }
         scorecardHitLayer.querySelectorAll('[data-kind="market"]').forEach((btn) => {
           const id = btn.getAttribute("data-node");
+          if (isScorecardCalibrating()) {
+            btn.classList.remove("is-disabled", "market-dest", "market-selected");
+            return;
+          }
           const isDest = destIds.has(id);
           btn.classList.toggle("is-disabled", !isDest);
           btn.classList.toggle("market-dest", isDest && id !== selectedId);
@@ -3328,7 +5119,7 @@
               p && p.type === "market-move" && p.selectedId;
             if (!nDest) {
               label.textContent =
-                "Nessun percorso con questi passi. Usa ± (oro / scuderie) o Annulla.";
+                "Nessun percorso con questi passi. Usa ± (stalla ±2 gratis, poi oro) o Annulla.";
             } else if (selected) {
               const nPaths = (
                 (p.dests || []).find((d) => d.id === p.selectedId) || {}
@@ -3343,7 +5134,7 @@
                   : `Intendente: ${p.steps} passi. Conferma.`) + extra;
             } else {
               label.textContent =
-                `Intendente: ${p.steps} passi (dado ${t.diceValue}). Tocca un arrivo. ± spende oro.`;
+                `Intendente: ${p.steps} passi (dado ${t.diceValue}). Tocca un arrivo. ±: stalla ±2 gratis, poi oro.`;
             }
             if (confirmBtn) confirmBtn.disabled = !selected;
             return;
@@ -3351,7 +5142,13 @@
           const p = scorecardPending;
           if (p && (p.type === "gold" || p.type === "goats")) {
             const name = p.type === "gold" ? "Oro" : "Capre";
-            label.textContent = `${name}: +${p.qty}. Puoi comprare edifici, poi Conferma. Frecce: cambia metà.`;
+            const extraNote =
+              p.type === "gold" &&
+              scorecardTurn &&
+              p.qty > (scorecardTurn.diceCount || 0)
+                ? " (Bottega +2)"
+                : "";
+            label.textContent = `${name}: +${p.qty} nel riquadro${extraNote}. Puoi comprare edifici, poi Conferma. Frecce: cambia metà.`;
             if (confirmBtn) confirmBtn.disabled = false;
             return;
           }
@@ -3360,7 +5157,14 @@
               p.shops,
               scorecardDigitalState.districts[p.districtId].shops,
             );
-            label.textContent = `Negozi: ${placed}/${p.quota}. Finisci il negozio iniziato prima di aprirne un altro. Frecce: cambia metà.`;
+            const key = districtKeyFromSheetId(p.districtId);
+            const name = DISTRICT_NAMES_IT[key] || p.districtId;
+            const extraNote =
+              scorecardTurn &&
+              p.quota > (scorecardTurn.diceCount || 0)
+                ? " (Magazzino +1)"
+                : "";
+            label.textContent = `${name}: ${placed}/${p.quota} X nel riquadro${extraNote}. Finisci il negozio iniziato prima di aprirne un altro.`;
             if (confirmBtn) confirmBtn.disabled = placed !== p.quota;
             return;
           }
@@ -3432,10 +5236,25 @@
               setScorecardPending({ ...scorecardPending });
               return;
             }
+            if (isHotseat() && scorecardTurn.compensation) {
+              const playerId = enginePlayerId();
+              commitEngineMove(
+                {
+                  type: "completeTurn",
+                  action: { kind: "pass" },
+                  buildings: buildingIndexesToIds(
+                    scorecardTurn.pendingBuildings || [],
+                  ),
+                },
+                playerId,
+              );
+              afterHotseatAction();
+              return;
+            }
             scorecardTurn.choice = null;
             setScorecardPending(null);
             showScorecardChoice(true);
-            showScorecardHalf("right");
+            showScorecardHalf("full");
             return;
           }
           return;
@@ -3487,6 +5306,7 @@
           adjustMarketSteps(delta);
           return;
         }
+        if (isHotseat()) return;
         if (scorecardPending.type !== "gold" && scorecardPending.type !== "goats")
           return;
         const trackKey = scorecardPending.type;
@@ -3506,39 +5326,374 @@
       }
       window.adjustScorecardQty = adjustScorecardQty;
 
+      let boardPeek = 0;
+
+      function isScorecardOverlayOpen() {
+        const page = document.getElementById("scorecard-page");
+        return !!(
+          page &&
+          !page.classList.contains("hidden") &&
+          page.classList.contains("turn-mode")
+        );
+      }
+
+      function isBoardGameActive() {
+        if (playMode !== "hotseat") return false;
+        const setup = document.getElementById("player-setup");
+        const mode = document.getElementById("mode-setup");
+        const seat = document.getElementById("seat-setup");
+        return (
+          !!setup &&
+          setup.classList.contains("hidden") &&
+          !!mode &&
+          mode.classList.contains("hidden") &&
+          !!seat &&
+          seat.classList.contains("hidden")
+        );
+      }
+
+      function renderPlayerRail() {
+        const rail = document.getElementById("player-rail");
+        if (!rail) return;
+        if (!isHotseat() || !isBoardGameActive()) {
+          rail.hidden = true;
+          rail.innerHTML = "";
+          return;
+        }
+        rail.hidden = false;
+        const actor = enginePlayerId();
+        const overlayOpen = isScorecardOverlayOpen();
+        rail.innerHTML = engineState.players
+          .map((p) => {
+            const n = p.id + 1;
+            const classes = ["player-chip"];
+            if (p.id === localSeat) classes.push("mine");
+            if (!isGameOver() && p.id === actor) classes.push("to-play");
+            if (isGameOver() && engineState.winnerIds.includes(p.id)) {
+              classes.push("winner");
+            }
+            if (overlayOpen && p.id === viewingSeat) classes.push("viewing");
+            const label = p.id === localSeat ? "Tu" : `G${n}`;
+            return `<button type="button" class="${classes.join(" ")}" onclick="viewPlayerSheet(${n})" aria-label="Scheda giocatore ${n}">${label}</button>`;
+          })
+          .join("");
+      }
+
+      function updateHeaderScorecardBtn() {
+        const btn = document.getElementById("header-scorecard-btn");
+        if (btn) btn.hidden = true;
+        renderPlayerRail();
+      }
+
+      function showSeatSetup() {
+        const el = document.getElementById("seat-setup");
+        const btns = document.getElementById("seat-btns");
+        if (!el || !btns) return;
+        btns.innerHTML = "";
+        for (let i = 1; i <= numPlayers; i++) {
+          const b = document.createElement("button");
+          b.className = "player-btn";
+          b.textContent = String(i);
+          b.setAttribute("aria-label", `Giocatore ${i}`);
+          b.onclick = () => claimSeat(i);
+          btns.appendChild(b);
+        }
+        el.classList.remove("hidden");
+      }
+
+      function claimSeat(playerNum) {
+        localSeat = playerNum - 1;
+        viewingSeat = localSeat;
+        const seat = document.getElementById("seat-setup");
+        if (seat) seat.classList.add("hidden");
+        loadEngineSheet(localSeat);
+        syncHudFromEngine();
+        syncYellowDiceSelect();
+        document.getElementById("roll-btn").disabled = false;
+        setBottomControlsVisible(true);
+        updateTurnInfo();
+        updateHeaderScorecardBtn();
+      }
+
+      function viewPlayerSheet(playerNum) {
+        if (!isHotseat() || !engineState) return;
+        const id = playerNum - 1;
+        const acting = scorecardTurn ? scorecardTurn.player - 1 : null;
+        const overlayOpen = isScorecardOverlayOpen();
+        if (overlayOpen && viewingSeat === id) {
+          if (scorecardTurn && id === acting) {
+            toggleBoardPeek();
+            return;
+          }
+          if (scorecardTurn) {
+            viewPlayerSheet(scorecardTurn.player);
+            return;
+          }
+          closeScorecardConsult();
+          return;
+        }
+        viewingSeat = id;
+        loadEngineSheet(id);
+        const page = document.getElementById("scorecard-page");
+        const isActorTurn = !!(scorecardTurn && id === acting) && !isGameOver();
+        page.classList.remove("hidden");
+        page.classList.add("turn-mode");
+        page.classList.toggle("consult-mode", !isActorTurn);
+        page.classList.toggle("review-mode", isGameOver());
+        showScorecardChoice(
+          !!isActorTurn &&
+            !scorecardTurn.choice &&
+            !scorecardTurn.compensation,
+        );
+        setBottomControlsVisible(false);
+        if (isActorTurn) setBoardPeek(0);
+        else resetBoardPeek();
+        renderPlayerRail();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            resizeScorecardCanvas(true);
+            showScorecardHalf("full");
+            if (scorecardDigitalReady) {
+              buildScorecardHitLayer();
+              renderScorecardMarks();
+            }
+            updateScorecardActionBar();
+          });
+        });
+      }
+
+      function setBoardPeek(amount, options) {
+        const snap = options && options.snap;
+        boardPeek = Math.max(0, Math.min(1, Number(amount) || 0));
+        if (snap) boardPeek = boardPeek >= 0.42 ? 1 : 0;
+        const page = document.getElementById("scorecard-page");
+        const consulting = !!(page && page.classList.contains("consult-mode"));
+        if (page) {
+          page.style.setProperty("--board-peek", String(boardPeek));
+          page.classList.toggle("peeked", !consulting && boardPeek > 0.92);
+        }
+        const slider = document.getElementById("board-peek-slider");
+        if (slider && (document.activeElement !== slider || snap)) {
+          slider.value = String(Math.round(boardPeek * 100));
+        }
+        const toggle = document.getElementById("board-peek-toggle");
+        const hint = document.getElementById("board-peek-hint");
+        if (toggle) {
+          if (isGameOver()) toggle.textContent = "Classifica";
+          else
+            toggle.textContent =
+              consulting || boardPeek <= 0.5 ? "Plancia" : "Segnapunti";
+        }
+        if (hint) {
+          if (isGameOver()) {
+            const player = engineState.players.find((p) => p.id === viewingSeat);
+            hint.textContent = player
+              ? `Plancia di ${player.name}`
+              : "Plancia";
+          } else if (consulting) {
+            const n = viewingSeat + 1;
+            const mine = viewingSeat === localSeat;
+            hint.textContent = mine
+              ? "La tua scheda — sola lettura finché non è il tuo turno"
+              : `Scheda G${n} — sola lettura`;
+          } else {
+            hint.textContent =
+              boardPeek > 0.5
+                ? "Solo sguardo: i dadi scelti non si cambiano"
+                : "Scorri per vedere i dadi";
+          }
+        }
+        updateHeaderScorecardBtn();
+      }
+
+      function onBoardPeekSliderInput(val) {
+        const page = document.getElementById("scorecard-page");
+        if (page) page.classList.add("peek-dragging");
+        setBoardPeek(Number(val) / 100);
+      }
+
+      function snapBoardPeek() {
+        const page = document.getElementById("scorecard-page");
+        if (page) page.classList.remove("peek-dragging");
+        setBoardPeek(boardPeek, { snap: true });
+      }
+
+      function toggleBoardPeek() {
+        const page = document.getElementById("scorecard-page");
+        if (page) page.classList.remove("peek-dragging");
+        if (page && page.classList.contains("consult-mode")) {
+          closeScorecardConsult();
+          return;
+        }
+        setBoardPeek(boardPeek > 0.5 ? 0 : 1);
+      }
+
+      function resetBoardPeek() {
+        const page = document.getElementById("scorecard-page");
+        if (page) page.classList.remove("peek-dragging", "peeked");
+        setBoardPeek(0);
+      }
+
+      function openScorecardConsult() {
+        viewPlayerSheet(localSeat + 1);
+      }
+
+      function closeScorecardConsult() {
+        const page = document.getElementById("scorecard-page");
+        if (!page || !page.classList.contains("consult-mode")) return;
+        if (scorecardTurn) {
+          viewPlayerSheet(scorecardTurn.player);
+          return;
+        }
+        page.classList.add("hidden");
+        page.classList.remove("turn-mode", "consult-mode", "review-mode");
+        showScorecardChoice(false);
+        resetBoardPeek();
+        viewingSeat = localSeat;
+        if (!isGameOver()) setBottomControlsVisible(true);
+        renderPlayerRail();
+      }
+
+      function toggleScorecardFromBoard() {
+        const page = document.getElementById("scorecard-page");
+        if (scorecardTurn) {
+          toggleBoardPeek();
+          return;
+        }
+        if (page && page.classList.contains("consult-mode") && !page.classList.contains("hidden")) {
+          closeScorecardConsult();
+          return;
+        }
+        openScorecardConsult();
+      }
+
+      window.onBoardPeekSliderInput = onBoardPeekSliderInput;
+      window.snapBoardPeek = snapBoardPeek;
+      window.toggleBoardPeek = toggleBoardPeek;
+      window.toggleScorecardFromBoard = toggleScorecardFromBoard;
+
       function showScorecardChoice(show) {
         const el = document.getElementById("scorecard-choice");
         if (el) el.classList.toggle("show", !!show);
+        const districtEl = document.getElementById("scorecard-choice-district");
+        if (!districtEl) return;
+        if (
+          show &&
+          scorecardTurn &&
+          DISTRICT_NAMES_IT[scorecardTurn.districtKey]
+        ) {
+          const name = DISTRICT_NAMES_IT[scorecardTurn.districtKey];
+          const n = scorecardTurn.diceCount;
+          districtEl.textContent = `Distretto ${name} · ${n} ${n === 1 ? "dado" : "dadi"}`;
+        } else {
+          districtEl.textContent = "";
+        }
+      }
+
+      function getScorecardSplitLeft() {
+        const v = Number(scorecardAlign.splitLeft);
+        return Number.isFinite(v) ? v : SCORECARD_SPLIT_LEFT_DEFAULT;
+      }
+
+      function getScorecardSplitRight() {
+        const v = Number(scorecardAlign.splitRight);
+        return Number.isFinite(v) ? v : SCORECARD_SPLIT_RIGHT_DEFAULT;
+      }
+
+      function updateScorecardSplitLine() {
+        const leftEl = document.getElementById("scorecard-split-line-left");
+        const rightEl = document.getElementById("scorecard-split-line-right");
+        const band = document.getElementById("scorecard-split-band");
+        if (!scorecardStage) return;
+        const left = sheetToStage(getScorecardSplitLeft(), 0);
+        const right = sheetToStage(getScorecardSplitRight(), 0);
+        if (leftEl) leftEl.style.left = `${left.x}px`;
+        if (rightEl) rightEl.style.left = `${right.x}px`;
+        if (band) {
+          band.style.left = `${left.x}px`;
+          band.style.width = `${Math.max(0, right.x - left.x)}px`;
+        }
+      }
+
+      function applyScorecardCropVars(x0, span) {
+        const crop = scorecardCrop || document.getElementById("scorecard-crop");
+        if (!crop) return;
+        crop.style.setProperty("--scorecard-crop-x0", String(x0));
+        crop.style.setProperty("--scorecard-crop-span", String(span));
+        crop.style.setProperty(
+          "--scorecard-crop-aspect",
+          String((span * 2374) / 1632),
+        );
       }
 
       function showScorecardHalf(side) {
-        const bounds = getScorecardPanBounds();
-        if (bounds.min === 0 && bounds.max === 0) return;
-        scorecardPanOffsetX = side === "left" ? bounds.max : bounds.min;
-        applyScorecardPanOffset();
+        scorecardCropSide = side === "left" || side === "right" ? side : "full";
+        const splitLeft = getScorecardSplitLeft();
+        const splitRight = getScorecardSplitRight();
+        let x0 = 0;
+        let span = 1;
+        if (scorecardCropSide === "left") {
+          span = Math.max(0.2, splitRight);
+        } else if (scorecardCropSide === "right") {
+          x0 = splitLeft;
+          span = Math.max(0.2, 1 - splitLeft);
+        }
+        applyScorecardCropVars(x0, span);
+        requestAnimationFrame(() => {
+          resizeScorecardCanvas(true);
+          centerScorecardPanOffset();
+          updateScorecardSplitLine();
+          if (scorecardDigitalReady) {
+            buildScorecardHitLayer();
+            renderScorecardMarks();
+          }
+        });
       }
 
       function openScorecardForTurn(pick) {
+        if (isHotseat()) {
+          viewingSeat = (pick.player || 1) - 1;
+          loadEngineSheet(viewingSeat);
+        }
         scorecardTurn = {
           player: pick.player,
           districtKey: pick.districtKey,
           diceCount: pick.diceCount,
           diceValue: pick.diceValue,
-          choice: null,
+          choice: pick.compensation ? "distance" : null,
           pendingBuildings: [],
+          compensation: !!pick.compensation,
         };
         setScorecardPending(null);
         const page = document.getElementById("scorecard-page");
-        page.classList.remove("hidden");
+        page.classList.remove("hidden", "consult-mode", "review-mode");
         page.classList.add("turn-mode");
+        resetBoardPeek();
+        updateHeaderScorecardBtn();
         document.getElementById("player-setup").classList.add("hidden");
-        showScorecardChoice(true);
-        showScorecardHalf("right");
+        showScorecardChoice(!pick.compensation);
+        if (pick.compensation) {
+          if (!startMarketMove()) {
+            const playerId = (pick.player || 1) - 1;
+            commitEngineMove(
+              {
+                type: "completeTurn",
+                action: { kind: "pass" },
+                buildings: [],
+              },
+              playerId,
+            );
+            afterHotseatAction();
+            return;
+          }
+        } else {
+          showScorecardHalf("full");
+        }
         setBottomControlsVisible(false);
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             resizeScorecardCanvas(true);
-            showScorecardHalf("right");
+            showScorecardHalf(pick.compensation ? "right" : "full");
             buildScorecardHitLayer();
             renderScorecardMarks();
             updateScorecardActionBar();
@@ -3549,21 +5704,37 @@
       function closeScorecardTurnView() {
         const page = document.getElementById("scorecard-page");
         page.classList.add("hidden");
-        page.classList.remove("turn-mode");
+        page.classList.remove("turn-mode", "consult-mode", "review-mode");
         showScorecardChoice(false);
         scorecardTurn = null;
         setScorecardPending(null);
+        showScorecardHalf("full");
+        resetBoardPeek();
         setBottomControlsVisible(true);
+        renderPlayerRail();
+        updateHeaderScorecardBtn();
       }
 
       function applyQtyActionForPick() {
         const t = scorecardTurn;
         const key = t.districtKey;
+        const sheet =
+          isHotseat() && engineState
+            ? engineState.players.find((p) => p.id === enginePlayerId())
+                ?.sheet
+            : null;
         if (key === "Gold" || key === "Goats") {
           const trackKey = key === "Gold" ? "gold" : "goats";
           const layout = SCORECARD_SHEET_LAYOUT[trackKey];
           const confirmed = scorecardDigitalState[trackKey].circled;
-          const qty = Math.min(t.diceCount, layout.count - confirmed);
+          const qty =
+            key === "Gold"
+              ? sheet
+                ? engineGoldGain(sheet, t.diceCount)
+                : computeGoldQty(t.diceCount)
+              : sheet
+                ? engineGoatGain(sheet, t.diceCount)
+                : Math.min(t.diceCount, layout.count - confirmed);
           setScorecardPending({
             type: trackKey,
             qty,
@@ -3575,11 +5746,7 @@
         const districtId = DISTRICT_SHEET_ID[key];
         if (!districtId) return;
         const confirmedShops = scorecardDigitalState.districts[districtId].shops;
-        const remaining = remainingUnmarkedInDistrict(
-          districtId,
-          scorecardDigitalState,
-        );
-        const quota = Math.min(t.diceCount, remaining);
+        const quota = computeShopTurnQuota(districtId, t.diceCount);
         setScorecardPending({
           type: "shop-turn",
           districtId,
@@ -3664,6 +5831,43 @@
 
       function confirmScorecardTurn() {
         if (!scorecardTurn || !isScorecardTurnReady()) return;
+        if (isHotseat()) {
+          const playerId = enginePlayerId();
+          const pending = scorecardPending;
+          let action;
+          if (scorecardTurn.compensation) {
+            action = {
+              kind: "compensation",
+              path: pending.selectedPath.slice(),
+            };
+          } else if (scorecardTurn.choice === "distance") {
+            action = {
+              kind: "market",
+              path: pending.selectedPath.slice(),
+              extraGold: pending.goldCost || 0,
+            };
+          } else if (pending && pending.type === "shop-turn") {
+            action = {
+              kind: "quantity",
+              shopMarks: shopMarksFromPending(pending),
+            };
+          } else {
+            action = { kind: "quantity" };
+          }
+          const okMove = commitEngineMove(
+            {
+              type: "completeTurn",
+              action,
+              buildings: buildingIndexesToIds(
+                scorecardTurn.pendingBuildings || [],
+              ),
+            },
+            playerId,
+          );
+          if (!okMove) return;
+          afterHotseatAction();
+          return;
+        }
         commitPendingActionToState();
         if (scorecardTurn.pendingBuildings) {
           for (const idx of scorecardTurn.pendingBuildings) {
@@ -3699,7 +5903,7 @@
         gold = remainingResource(view, "gold");
         goats = remainingResource(view, "goats");
         const scores = liveDiamondScores(view);
-        score = liveOctagonTotal(scores);
+        score = liveOctagonTotal(scores, view);
         refreshHUD();
       }
 
@@ -3732,7 +5936,10 @@
               [districtId]: { shops: shops.map((marked) => ({ marked })) },
             },
           };
-          if (!canPlaceOnShop(districtId, shopIndex, pendingView)) return;
+          if (!canPlaceOnShop(districtId, shopIndex, pendingView)) {
+            warnIfOtherShopBlocked(districtId, shopIndex, pendingView);
+            return;
+          }
           const placed = countNewShopMarks(shops, confirmed);
           if (placed >= p.quota) return;
           shops[shopIndex][symIndex] = true;
@@ -3757,16 +5964,8 @@
         const already = pending.indexOf(index);
         if (already >= 0) {
           scorecardTurn.pendingBuildings = pending.filter((i) => i !== index);
-          if (scorecardTurn.choice === "distance") refreshMarketMove(true);
-          else {
-            updateScorecardActionBar();
-            renderScorecardMarks();
-          }
+          afterPendingBuildingsChanged();
           return;
-        }
-        if (!isScorecardTurnReady() && scorecardTurn.choice === "qty") {
-          const p = scorecardPending;
-          if (p && p.type === "shop-turn") return;
         }
         const probe = cloneDigitalState(scorecardDigitalState);
         if (scorecardPending && scorecardPending.type === "gold") {
@@ -3787,14 +5986,11 @@
         }
         if (!canAffordBuilding(index, probe)) return;
         scorecardTurn.pendingBuildings = pending.concat(index);
-        if (scorecardTurn.choice === "distance") refreshMarketMove(true);
-        else {
-          updateScorecardActionBar();
-          renderScorecardMarks();
-        }
+        afterPendingBuildingsChanged();
       }
 
       function onScorecardHitClick(evt) {
+        if (isScorecardCalibrating()) return;
         const btn = evt.currentTarget;
         const kind = btn.getAttribute("data-kind");
         if (!kind || !scorecardDigitalState) return;
@@ -3843,6 +6039,7 @@
             scorecardPending.shopIndex === shopIndex &&
             scorecardPending.marked[symIndex];
           if (!unmarkingPending && !canPlaceOnShop(districtId, shopIndex, pendingView)) {
+            warnIfOtherShopBlocked(districtId, shopIndex, pendingView);
             return;
           }
 
@@ -3935,6 +6132,7 @@
       }
 
       function saveDigitalScorecardState() {
+        if (isHotseat()) return;
         try {
           localStorage.setItem(
             SCORECARD_DIGITAL_STORAGE_KEY,
@@ -3995,6 +6193,7 @@
         restoreDigitalScorecardState();
         resizeScorecardMarksCanvas();
         buildScorecardHitLayer();
+        initScorecardCalibDrag();
         updateScorecardActionBar();
         renderScorecardMarks();
 
@@ -4026,11 +6225,12 @@
       }
 
       function getScorecardPanBounds() {
-        if (!scorecardPanViewport || !scorecardStage) {
+        const panEl = scorecardCrop || scorecardStage;
+        if (!scorecardPanViewport || !panEl) {
           return { min: 0, max: 0 };
         }
         const viewportW = scorecardPanViewport.clientWidth || 0;
-        const stageW = scorecardStage.offsetWidth || 0;
+        const stageW = panEl.offsetWidth || 0;
         if (stageW <= viewportW) {
           return { min: 0, max: 0 };
         }
@@ -4039,7 +6239,8 @@
       }
 
       function applyScorecardPanOffset() {
-        if (!scorecardStage) return;
+        const panEl = scorecardCrop || scorecardStage;
+        if (!panEl) return;
         const bounds = getScorecardPanBounds();
         if (bounds.min === 0 && bounds.max === 0) {
           scorecardPanOffsetX = 0;
@@ -4049,7 +6250,7 @@
             Math.min(bounds.max, scorecardPanOffsetX),
           );
         }
-        scorecardStage.style.transform = `translateX(${Math.round(scorecardPanOffsetX)}px)`;
+        panEl.style.transform = `translateX(${Math.round(scorecardPanOffsetX)}px)`;
         updateScorecardPanArrows();
       }
 
@@ -4397,8 +6598,9 @@
 
       function resizeScorecardCanvas(preserveDrawing = true) {
         if (!scorecardCanvas) return;
-        const rect = scorecardCanvas.getBoundingClientRect();
-        if (rect.width < 2 || rect.height < 2) return;
+        const w = scorecardCanvas.clientWidth || 0;
+        const h = scorecardCanvas.clientHeight || 0;
+        if (w < 2 || h < 2) return;
 
         let snapshot = null;
         if (
@@ -4414,8 +6616,8 @@
         }
 
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        scorecardCanvas.width = Math.round(rect.width * dpr);
-        scorecardCanvas.height = Math.round(rect.height * dpr);
+        scorecardCanvas.width = Math.round(w * dpr);
+        scorecardCanvas.height = Math.round(h * dpr);
         scorecardCtx = scorecardCanvas.getContext("2d");
         if (!scorecardCtx) return;
 
@@ -4439,16 +6641,354 @@
         resizeScorecardMarksCanvas();
         buildScorecardHitLayer();
         renderScorecardMarks();
+        updateScorecardSplitLine();
       }
+
+      function formatCalPct(n) {
+        return `${(n * 100).toFixed(1)}%`;
+      }
+
+      function coerceLayerAlign(src) {
+        const uniform = src && src.scale;
+        return {
+          offsetX: clampScorecardAlign(src && src.offsetX),
+          offsetY: clampScorecardAlign(src && src.offsetY),
+          scaleX: clampScorecardScale(src && src.scaleX, uniform),
+          scaleY: clampScorecardScale(src && src.scaleY, uniform),
+        };
+      }
+
+      function hasLayerAlign(src) {
+        return (
+          src &&
+          typeof src === "object" &&
+          (Number.isFinite(src.offsetX) ||
+            Number.isFinite(src.offsetY) ||
+            Number.isFinite(src.scale) ||
+            Number.isFinite(src.scaleX) ||
+            Number.isFinite(src.scaleY))
+        );
+      }
+
+      function applyParsedAlign(parsed) {
+        if (!parsed || typeof parsed !== "object") return;
+        let leftBase = emptyLayerAlign();
+        let rightBase = emptyLayerAlign();
+        if (parsed.shops || parsed.market) {
+          leftBase = coerceLayerAlign(parsed.shops);
+          rightBase = coerceLayerAlign(parsed.market);
+        } else if (
+          Number.isFinite(parsed.offsetX) ||
+          Number.isFinite(parsed.offsetY)
+        ) {
+          leftBase = coerceLayerAlign(parsed);
+        }
+        SCORECARD_CAL_LEFT_LAYERS.forEach((id) => {
+          scorecardAlign[id] = hasLayerAlign(parsed[id])
+            ? coerceLayerAlign(parsed[id])
+            : coerceLayerAlign(leftBase);
+        });
+        SCORECARD_CAL_RIGHT_LAYERS.forEach((id) => {
+          scorecardAlign[id] = hasLayerAlign(parsed[id])
+            ? coerceLayerAlign(parsed[id])
+            : coerceLayerAlign(rightBase);
+        });
+        if (Number.isFinite(parsed.splitLeft)) {
+          scorecardAlign.splitLeft = parsed.splitLeft;
+        } else if (Number.isFinite(parsed.splitX)) {
+          scorecardAlign.splitLeft = parsed.splitX;
+        }
+        if (Number.isFinite(parsed.splitRight)) {
+          scorecardAlign.splitRight = parsed.splitRight;
+        }
+      }
+
+      function restoreScorecardAlign() {
+        try {
+          const raw =
+            localStorage.getItem(SCORECARD_ALIGN_KEY) ||
+            localStorage.getItem(SCORECARD_ALIGN_KEY_LEGACY);
+          if (!raw) return;
+          applyParsedAlign(JSON.parse(raw));
+        } catch (_err) {
+          // keep defaults
+        }
+      }
+
+      function saveScorecardAlign() {
+        try {
+          localStorage.setItem(
+            SCORECARD_ALIGN_KEY,
+            JSON.stringify(scorecardAlign),
+          );
+        } catch (_err) {
+          // no-op
+        }
+      }
+
+      function activeLayerAlign() {
+        const key = isCalLayer(scorecardCalibrateLayer)
+          ? scorecardCalibrateLayer
+          : "shops";
+        if (!scorecardAlign[key]) scorecardAlign[key] = emptyLayerAlign();
+        const layer = scorecardAlign[key];
+        const { sx, sy } = layerScaleXY(layer);
+        layer.scaleX = sx;
+        layer.scaleY = sy;
+        return layer;
+      }
+
+      function formatCalScale(n) {
+        return `${Math.round(clampScorecardScale(n) * 100)}%`;
+      }
+
+      function syncScorecardCalibratorUi() {
+        const layer = activeLayerAlign();
+        const ox = document.getElementById("cal-offset-x");
+        const oy = document.getElementById("cal-offset-y");
+        const sx = document.getElementById("cal-scale-x");
+        const sy = document.getElementById("cal-scale-y");
+        const splitL = document.getElementById("cal-split-left");
+        const splitR = document.getElementById("cal-split-right");
+        if (ox) ox.value = String(Math.round(layer.offsetX * 1000));
+        if (oy) oy.value = String(Math.round(layer.offsetY * 1000));
+        if (sx) sx.value = String(Math.round(layer.scaleX * 100));
+        if (sy) sy.value = String(Math.round(layer.scaleY * 100));
+        if (splitL)
+          splitL.value = String(Math.round(getScorecardSplitLeft() * 1000));
+        if (splitR)
+          splitR.value = String(Math.round(getScorecardSplitRight() * 1000));
+        const oxv = document.getElementById("cal-offset-x-val");
+        const oyv = document.getElementById("cal-offset-y-val");
+        const sxv = document.getElementById("cal-scale-x-val");
+        const syv = document.getElementById("cal-scale-y-val");
+        const lv = document.getElementById("cal-split-left-val");
+        const rv = document.getElementById("cal-split-right-val");
+        if (oxv) oxv.textContent = formatCalPct(layer.offsetX);
+        if (oyv) oyv.textContent = formatCalPct(layer.offsetY);
+        if (sxv) sxv.textContent = formatCalScale(layer.scaleX);
+        if (syv) syv.textContent = formatCalScale(layer.scaleY);
+        if (lv) lv.textContent = formatCalPct(getScorecardSplitLeft());
+        if (rv) rv.textContent = formatCalPct(getScorecardSplitRight());
+        document
+          .querySelectorAll("#scorecard-calibrator [data-cal-layer]")
+          .forEach((btn) => {
+            btn.classList.toggle(
+              "is-active",
+              btn.getAttribute("data-cal-layer") === scorecardCalibrateLayer,
+            );
+          });
+      }
+
+      function applyScorecardAlignLive(rebuildCrop) {
+        saveScorecardAlign();
+        syncScorecardCalibratorUi();
+        refreshScorecardOverlayPositions();
+        updateScorecardSplitLine();
+        if (rebuildCrop) showScorecardHalf(scorecardCropSide);
+      }
+
+      function onScorecardCalibratorInput() {
+        const layer = activeLayerAlign();
+        const ox = document.getElementById("cal-offset-x");
+        const oy = document.getElementById("cal-offset-y");
+        const sx = document.getElementById("cal-scale-x");
+        const sy = document.getElementById("cal-scale-y");
+        const splitL = document.getElementById("cal-split-left");
+        const splitR = document.getElementById("cal-split-right");
+        layer.offsetX = clampScorecardAlign(ox ? Number(ox.value) / 1000 : 0);
+        layer.offsetY = clampScorecardAlign(oy ? Number(oy.value) / 1000 : 0);
+        layer.scaleX = clampScorecardScale(sx ? Number(sx.value) / 100 : 1);
+        layer.scaleY = clampScorecardScale(sy ? Number(sy.value) / 100 : 1);
+        let left = splitL
+          ? Number(splitL.value) / 1000
+          : SCORECARD_SPLIT_LEFT_DEFAULT;
+        let right = splitR
+          ? Number(splitR.value) / 1000
+          : SCORECARD_SPLIT_RIGHT_DEFAULT;
+        if (right < left + 0.02) right = left + 0.02;
+        const splitChanged =
+          scorecardAlign.splitLeft !== left ||
+          scorecardAlign.splitRight !== right;
+        scorecardAlign.splitLeft = left;
+        scorecardAlign.splitRight = right;
+        applyScorecardAlignLive(splitChanged);
+      }
+      window.onScorecardCalibratorInput = onScorecardCalibratorInput;
+
+      function setScorecardCalibrateLayer(layer) {
+        scorecardCalibrateLayer = isCalLayer(layer) ? layer : "shops";
+        syncScorecardCalibratorUi();
+        refreshScorecardOverlayPositions();
+      }
+      window.setScorecardCalibrateLayer = setScorecardCalibrateLayer;
+
+      function nudgeScorecardAlign(dx, dy) {
+        const layer = activeLayerAlign();
+        layer.offsetX = clampScorecardAlign(layer.offsetX + dx * 0.001);
+        layer.offsetY = clampScorecardAlign(layer.offsetY + dy * 0.001);
+        applyScorecardAlignLive(false);
+      }
+      window.nudgeScorecardAlign = nudgeScorecardAlign;
+
+      function resetScorecardAlign() {
+        scorecardAlign = emptyScorecardAlign();
+        applyScorecardAlignLive(true);
+      }
+      window.resetScorecardAlign = resetScorecardAlign;
+
+      function copyScorecardAlign() {
+        const text = JSON.stringify(scorecardAlign, null, 2);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(
+            () => showScorecardToast("Valori copiati. Puoi chiudere il pannello."),
+            () => window.prompt("Copia questi valori", text),
+          );
+        } else {
+          window.prompt("Copia questi valori", text);
+        }
+      }
+      window.copyScorecardAlign = copyScorecardAlign;
+
+      function getStageNormPoint(evt) {
+        const el = scorecardStage || scorecardCanvas;
+        if (!el) return { x: 0, y: 0 };
+        const rect = el.getBoundingClientRect();
+        const box = getSheetContentBox();
+        return {
+          x: (evt.clientX - rect.left - box.ox) / Math.max(box.bw, 0.0001),
+          y: (evt.clientY - rect.top - box.oy) / Math.max(box.bh, 0.0001),
+        };
+      }
+
+      function onCalibPointerDown(evt) {
+        if (!isScorecardCalibrating()) return;
+        const target = evt.target.closest("[data-layer]");
+        if (!target || !scorecardHitLayer.contains(target)) return;
+        const layerKey = target.dataset.layer;
+        if (!isCalLayer(layerKey)) return;
+        if (!scorecardAlign[layerKey]) {
+          scorecardAlign[layerKey] = emptyLayerAlign();
+        }
+        evt.preventDefault();
+        evt.stopPropagation();
+        setScorecardCalibrateLayer(layerKey);
+        const start = getStageNormPoint(evt);
+        const origin = { ...scorecardAlign[layerKey] };
+        scorecardCalibDrag = {
+          pointerId: evt.pointerId,
+          layer: layerKey,
+          start,
+          origin,
+        };
+        if (scorecardHitLayer.setPointerCapture) {
+          try {
+            target.setPointerCapture(evt.pointerId);
+          } catch (_err) {
+            // no-op
+          }
+        }
+      }
+
+      function onCalibPointerMove(evt) {
+        if (!scorecardCalibDrag || evt.pointerId !== scorecardCalibDrag.pointerId) {
+          return;
+        }
+        evt.preventDefault();
+        const now = getStageNormPoint(evt);
+        const layer = scorecardAlign[scorecardCalibDrag.layer];
+        layer.offsetX = clampScorecardAlign(
+          scorecardCalibDrag.origin.offsetX + (now.x - scorecardCalibDrag.start.x),
+        );
+        layer.offsetY = clampScorecardAlign(
+          scorecardCalibDrag.origin.offsetY + (now.y - scorecardCalibDrag.start.y),
+        );
+        applyScorecardAlignLive(false);
+      }
+
+      function onCalibPointerUp(evt) {
+        if (!scorecardCalibDrag || evt.pointerId !== scorecardCalibDrag.pointerId) {
+          return;
+        }
+        scorecardCalibDrag = null;
+        const el = evt.target;
+        if (el && el.releasePointerCapture) {
+          try {
+            el.releasePointerCapture(evt.pointerId);
+          } catch (_err) {
+            // no-op
+          }
+        }
+      }
+
+      function initScorecardCalibDrag() {
+        if (!scorecardHitLayer || scorecardHitLayer.dataset.calibDrag) return;
+        scorecardHitLayer.dataset.calibDrag = "1";
+        scorecardHitLayer.addEventListener("pointerdown", onCalibPointerDown, true);
+        window.addEventListener("pointermove", onCalibPointerMove);
+        window.addEventListener("pointerup", onCalibPointerUp);
+        window.addEventListener("pointercancel", onCalibPointerUp);
+        window.addEventListener("keydown", (evt) => {
+          if (evt.key !== "Escape") return;
+          if (!isScorecardCalibrating()) return;
+          evt.preventDefault();
+          closeScorecardCalibrator();
+        });
+      }
+
+      let scorecardCalibratorOpenedPage = false;
+
+      function toggleScorecardCalibrator() {
+        closeHamburgerMenu();
+        const page = document.getElementById("scorecard-page");
+        if (!page) return;
+        const enabling = !page.classList.contains("calibrating");
+        if (enabling) {
+          if (page.classList.contains("hidden")) {
+            page.classList.remove("hidden");
+            scorecardCalibratorOpenedPage = true;
+          }
+          page.classList.add("calibrating");
+          showScorecardHalf("full");
+          syncScorecardCalibratorUi();
+        } else {
+          page.classList.remove("calibrating");
+          if (scorecardCalibratorOpenedPage && !scorecardTurn) {
+            page.classList.add("hidden");
+          }
+          scorecardCalibratorOpenedPage = false;
+        }
+        requestAnimationFrame(() => {
+          resizeScorecardCanvas(true);
+          if (scorecardDigitalReady) {
+            buildScorecardHitLayer();
+            renderScorecardMarks();
+          }
+          updateScorecardSplitLine();
+        });
+      }
+      window.toggleScorecardCalibrator = toggleScorecardCalibrator;
+
+      function closeScorecardCalibrator() {
+        const page = document.getElementById("scorecard-page");
+        if (!page || !page.classList.contains("calibrating")) return;
+        toggleScorecardCalibrator();
+      }
+      window.closeScorecardCalibrator = closeScorecardCalibrator;
 
       function initScorecardDrawing() {
         scorecardCanvas = document.getElementById("scorecard-draw-canvas");
         scorecardStage = document.getElementById("scorecard-stage");
+        scorecardCrop = document.getElementById("scorecard-crop");
         scorecardPanViewport = document.getElementById(
           "scorecard-pan-viewport",
         );
         if (!scorecardCanvas || !scorecardStage || !scorecardPanViewport)
           return;
+
+        restoreScorecardAlign();
+        applyScorecardCropVars(0, 1);
+        syncScorecardCalibratorUi();
 
         scorecardStateBooting = true;
         setScorecardTool("circle");
@@ -4462,6 +7002,7 @@
 
         centerScorecardPanOffset();
         initScorecardDigital();
+        ensureScorecardSheetImage();
 
         if (!scorecardRestoredFromStorage) {
           resetScorecardHistory();
@@ -4475,7 +7016,11 @@
 
           // Freehand only on Mercato / Edifici regions, not during a guided turn
           const norm = getScorecardNormPoint(evt);
-          if (scorecardTurn || !isInFreehandRegion(norm.x, norm.y)) {
+          if (
+            isScorecardCalibrating() ||
+            scorecardTurn ||
+            !isInFreehandRegion(norm.x, norm.y)
+          ) {
             return;
           }
 
@@ -4558,6 +7103,7 @@
         const controls = document.getElementById("bottom-controls");
         if (!controls) return;
         controls.style.display = visible ? "flex" : "none";
+        syncYellowDiceSelect();
       }
 
       function toggleHamburgerMenu() {
@@ -4778,13 +7324,26 @@
         document.getElementById("market-skip-modal").classList.remove("show");
 
         if (mode === "board") {
+          playMode = "hotseat";
           document.getElementById("scorecard-page").classList.add("hidden");
+          document.getElementById("scorecard-page").classList.remove(
+            "turn-mode",
+            "consult-mode",
+            "review-mode",
+          );
           document.getElementById("player-setup").classList.remove("hidden");
+          const seat = document.getElementById("seat-setup");
+          if (seat) seat.classList.add("hidden");
           document.getElementById("turn-info").textContent = "";
         } else {
+          playMode = "practice";
+          engineState = null;
           document.getElementById("player-setup").classList.add("hidden");
+          const seatPractice = document.getElementById("seat-setup");
+          if (seatPractice) seatPractice.classList.add("hidden");
           document.getElementById("scorecard-page").classList.remove("hidden");
           document.getElementById("turn-info").textContent = "Segnapunti";
+          showScorecardHalf("full");
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               resizeScorecardCanvas(true);
@@ -4798,13 +7357,25 @@
         }
 
         setBottomControlsVisible(false);
+        updateHeaderScorecardBtn();
       }
 
       function showMainModeSetup() {
+        playMode = null;
+        engineState = null;
+        localSeat = 0;
+        viewingSeat = 0;
         document.getElementById("mode-setup").classList.remove("hidden");
         document.getElementById("player-setup").classList.add("hidden");
+        const seat = document.getElementById("seat-setup");
+        if (seat) seat.classList.add("hidden");
         document.getElementById("scorecard-page").classList.add("hidden");
-        document.getElementById("scorecard-page").classList.remove("turn-mode");
+        document.getElementById("scorecard-page").classList.remove(
+          "turn-mode",
+          "consult-mode",
+          "review-mode",
+        );
+        resetBoardPeek();
         document.getElementById("scoreboard").classList.remove("show");
         document.getElementById("market-skip-modal").classList.remove("show");
         showScorecardChoice(false);
@@ -4813,6 +7384,7 @@
         closeHamburgerMenu();
         document.getElementById("turn-info").textContent = "";
         setBottomControlsVisible(false);
+        updateHeaderScorecardBtn();
       }
 
       function resetFromMenu() {
@@ -4828,18 +7400,59 @@
       }
 
       function getCurrentPlayer() {
+        if (isHotseat()) return enginePlayerId() + 1;
         return pickSequence[pickIndex] || 1;
       }
 
       function updateTurnInfo() {
         const el = document.getElementById("turn-info");
         if (!el) return;
+        if (isHotseat()) {
+          if (isGameOver()) {
+            el.textContent = "Partita finita — confronta le plance";
+            renderPlayerRail();
+            return;
+          }
+          const actor = enginePlayerId();
+          const name =
+            engineState.players.find((p) => p.id === actor)?.name ||
+            `Giocatore ${actor + 1}`;
+          el.textContent = `Round ${engineState.round} di ${engineState.maxRounds} — ${name}${actor === localSeat ? " (tu)" : ""}`;
+          renderPlayerRail();
+          return;
+        }
         el.textContent = `Turno ${currentGameTurn} di ${maxGameTurns} — Giocatore ${getCurrentPlayer()}`;
       }
 
       function nextPlayerContext() {
         playerHasPicked = false;
         updateTurnInfo();
+        renderPlayerRail();
+        if (isHotseat()) {
+          const player = engineState.players.find(
+            (p) => p.id === enginePlayerId(),
+          );
+          syncHarborUiFromEngine();
+          const usable = player
+            ? usableDistricts(engineState.harbor, player.sheet)
+            : [];
+          if (usable.length === 0) {
+            startCompensationTurn();
+            return;
+          }
+          DISTRICT_ORDER.forEach((k) => {
+            const has = usable.includes(k);
+            const btn = document.getElementById("d-" + k);
+            if (btn) btn.disabled = !has;
+            if (zoneOverlays[k]) {
+              zoneOverlays[k].visible = has;
+              if (has && zoneOverlays[k].material) {
+                zoneOverlays[k].material.opacity = 0.28;
+              }
+            }
+          });
+          return;
+        }
 
         // Controlla se il giocatore corrente ha opzioni disponibili
         const availableOptions = DISTRICT_ORDER.filter(
@@ -4930,21 +7543,35 @@
         });
         document.getElementById("player-setup").classList.add("hidden");
         document.getElementById("mode-setup").classList.add("hidden");
+        const seatEl = document.getElementById("seat-setup");
+        if (seatEl) seatEl.classList.remove("hidden");
         document.getElementById("scorecard-page").classList.add("hidden");
-        document.getElementById("scorecard-page").classList.remove("turn-mode");
-        clearDigitalScorecardState();
-        if (n === 4) {
-          scorecardDigitalState.turns.marked = 2;
-          saveDigitalScorecardState();
-        }
-        document.getElementById("roll-btn").disabled = false;
+        document.getElementById("scorecard-page").classList.remove(
+          "turn-mode",
+          "consult-mode",
+          "review-mode",
+        );
+        resetBoardPeek();
+        document.getElementById("scoreboard").classList.remove("show");
+        scorecardTurn = null;
+        clearScorecardCanvas();
+        playMode = "hotseat";
+        engineState = createInitialState(n);
+        localSeat = 0;
+        viewingSeat = 0;
+        loadEngineSheet(0);
+        syncHudFromEngine();
+        document.getElementById("roll-btn").disabled = true;
         document.getElementById("end-btn").disabled = true;
         document.getElementById("end-btn").classList.remove("active");
         document.getElementById("yellow-dice").value = "0";
-        setBottomControlsVisible(true);
+        syncYellowDiceSelect();
+        setBottomControlsVisible(false);
         updateTurnInfo();
         refreshHUD();
         setStatus();
+        showSeatSetup();
+        updateHeaderScorecardBtn();
       }
 
       // Quaternioni canonici per ogni faccia vista dall'alto
@@ -4993,12 +7620,30 @@
 
       function rollDice() {
         if (hasRolled || isRolling) return;
-        isRolling = true;
+        if (isHotseat() && engineState.phase !== "supply") return;
         const yellowDiceCount = parseInt(
           document.getElementById("yellow-dice").value,
           10,
         );
+        if (isHotseat()) {
+          const first = engineState.players.find(
+            (p) => p.id === engineState.firstPlayerId,
+          );
+          const owned = first ? first.sheet.mercato.yellowDice : 0;
+          const purchased = yellowDiceCount - owned;
+          if (
+            purchased < 0 ||
+            purchased > 3 ||
+            !first ||
+            engineRemainingResource(first.sheet, "gold") < purchased
+          ) {
+            window.alert("Non puoi comprare tanti dadi gialli.");
+            return;
+          }
+        }
+        isRolling = true;
         document.getElementById("roll-btn").disabled = true;
+        syncYellowDiceSelect();
         setAllDistricts(false);
         setStatus("I dadi rotolano nel porto\u2026");
         spawnDice(yellowDiceCount);
@@ -5015,6 +7660,37 @@
       }
 
       function distributeToDistricts() {
+        if (isHotseat()) {
+          const first = engineState.players.find(
+            (p) => p.id === engineState.firstPlayerId,
+          );
+          const owned = first ? first.sheet.mercato.yellowDice : 0;
+          const dice = diceObjects.map((d) => ({
+            color: d.isYellow ? "yellow" : "white",
+            face: readDieValue(d),
+          }));
+          const yellowCount = dice.filter((d) => d.color === "yellow").length;
+          const purchased = yellowCount - owned;
+          if (
+            purchased < 0 ||
+            purchased > 3 ||
+            !commitEngineMove(
+              { type: "roll", purchasedYellow: purchased, dice },
+              engineState.firstPlayerId,
+            )
+          ) {
+            hasRolled = false;
+            document.getElementById("roll-btn").disabled = false;
+            syncYellowDiceSelect();
+            setStatus("Lancio non valido");
+            return;
+          }
+          syncHarborUiFromEngine();
+          moveDiceToDistricts();
+          nextPlayerContext();
+          setStatus("Tocca una zona per scegliere il distretto!");
+          return;
+        }
         // Leggi il valore effettivo di ogni dado e tieni il riferimento all'oggetto
         const dieValues = diceObjects.map((d) => ({
           die: d,
@@ -5324,6 +8000,42 @@
 
       function pickDistrict(key) {
         if (!currentGroups[key] || currentGroups[key].length === 0) return;
+        if (isHotseat()) {
+          const cnt = currentGroups[key].length;
+          const diceValue = currentGroups[key][0];
+          const diceMixLabel = getDiceColorMixLabelForDistrict(key);
+          if (
+            !commitEngineMove(
+              { type: "pickDistrict", district: key },
+              enginePlayerId(),
+            )
+          ) {
+            return;
+          }
+          shrinkPickedDice(key);
+          if (zoneOverlays[key]) zoneOverlays[key].material.opacity = 0.08;
+          const _lt = currentGameTurn - 1;
+          const _lp = getCurrentPlayer();
+          if (!gameLog[_lt]) gameLog[_lt] = {};
+          if (!gameLog[_lt][_lp]) gameLog[_lt][_lp] = [];
+          gameLog[_lt][_lp].push({
+            district: key,
+            cnt,
+            mix: diceMixLabel,
+            face: diceValue,
+          });
+          playerHasPicked = true;
+          hasPicked = true;
+          setAllDistricts(false);
+          syncHarborUiFromEngine();
+          openScorecardForTurn({
+            player: _lp,
+            districtKey: key,
+            diceCount: cnt,
+            diceValue,
+          });
+          return;
+        }
         if (pickedThisTurn.has(key)) return;
         pickedThisTurn.add(key);
         hasPicked = true;
@@ -5402,8 +8114,42 @@
       }
 
       function endTurn() {
-        // Chiudi il modal di skip turno se aperto
         document.getElementById("market-skip-modal").classList.remove("show");
+
+        if (isHotseat()) {
+          if (engineState.phase === "over") {
+            endGame();
+            return;
+          }
+          hasRolled = false;
+          hasPicked = false;
+          isRolling = false;
+          pickedThisTurn = new Set();
+          playerHasPicked = false;
+          currentGroups = {};
+          clearTimeout(settleTimer);
+          diceObjects.forEach((die) => {
+            scene.remove(die.mesh);
+            world.remove(die.body);
+          });
+          diceObjects.length = 0;
+          DISTRICT_ORDER.forEach((k) => {
+            document.getElementById("dc-" + k).textContent = "—";
+            document.getElementById("dv-" + k).textContent = "";
+            document.getElementById("d-" + k).classList.remove("active");
+            document.getElementById("d-" + k).disabled = true;
+            if (zoneOverlays[k]) zoneOverlays[k].visible = false;
+          });
+          document.getElementById("end-btn").disabled = true;
+          document.getElementById("end-btn").classList.remove("active");
+          document.getElementById("roll-btn").disabled = false;
+          document.getElementById("yellow-dice").value = "0";
+          loadEngineSheet(engineState.firstPlayerId);
+          syncYellowDiceSelect();
+          syncHudFromEngine();
+          updateTurnInfo();
+          return;
+        }
 
         hasRolled = false;
         hasPicked = false;
@@ -5446,13 +8192,169 @@
         refreshHUD();
       }
 
+      function ensureScorecardSheetImage() {
+        if (
+          scorecardSheetImage &&
+          scorecardSheetImage.complete &&
+          scorecardSheetImage.naturalWidth
+        ) {
+          return Promise.resolve(scorecardSheetImage);
+        }
+        if (scorecardSheetImagePromise) return scorecardSheetImagePromise;
+        scorecardSheetImagePromise = new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            scorecardSheetImage = img;
+            resolve(img);
+          };
+          img.onerror = () => {
+            scorecardSheetImagePromise = null;
+            reject(new Error("Impossibile caricare la plancia"));
+          };
+          img.src = "cr_scoring_a4.png";
+        });
+        return scorecardSheetImagePromise;
+      }
+
+      function paintSheetPreview(destCanvas, digitalState) {
+        const img = scorecardSheetImage;
+        if (!img || !img.naturalWidth || !destCanvas) return;
+        const pw = 900;
+        const ph = Math.round((pw * img.naturalHeight) / img.naturalWidth);
+        destCanvas.width = pw;
+        destCanvas.height = ph;
+        const marks = document.createElement("canvas");
+        marks.width = pw;
+        marks.height = ph;
+        const mctx = marks.getContext("2d");
+        const prevState = scorecardDigitalState;
+        const prevTarget = scorecardPreviewTarget;
+        scorecardDigitalState = digitalState;
+        scorecardPreviewTarget = {
+          ctx: mctx,
+          w: pw,
+          h: ph,
+          view: digitalState,
+        };
+        try {
+          renderScorecardMarks();
+        } finally {
+          scorecardPreviewTarget = prevTarget;
+          scorecardDigitalState = prevState;
+        }
+        const ctx = destCanvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, pw, ph);
+        ctx.drawImage(marks, 0, 0);
+      }
+
+      function paintEndgameSheetPreviews() {
+        if (!engineState) return;
+        ensureScorecardSheetImage()
+          .then(() => {
+            if (!engineState) return;
+            engineState.players.forEach((p) => {
+              const canvas = document.querySelector(
+                `[data-endgame-sheet="${p.id}"]`,
+              );
+              if (!canvas) return;
+              paintSheetPreview(canvas, engineSheetToUi(p.sheet));
+            });
+            if (scorecardDigitalReady) renderScorecardMarks();
+          })
+          .catch(() => {});
+      }
+
+      function formatScoreBreakdown(s) {
+        const parts = [
+          ["Spezie", s.orange],
+          ["Tappeti", s.blue],
+          ["Vino", s.purple],
+          ["Olio", s.green],
+          ["Oro", s.gold],
+          ["Capre", s.goats],
+          ["Mercato", s.market],
+          ["Tempio", s.temple],
+        ];
+        return parts
+          .filter(([, n]) => n > 0)
+          .map(([label, n]) => `${label} ${n}`)
+          .join(" · ");
+      }
+
+      function buildEndgameCompareHtml() {
+        const ranked = engineState.players
+          .map((p) => ({
+            p,
+            s: scoreSheet(p.sheet),
+            goldLeft: engineRemainingResource(p.sheet, "gold"),
+          }))
+          .sort((a, b) => {
+            if (b.s.total !== a.s.total) return b.s.total - a.s.total;
+            return b.goldLeft - a.goldLeft;
+          });
+        const ranking = ranked
+          .map(({ p, s }) => {
+            const win = engineState.winnerIds.includes(p.id);
+            const breakDown = formatScoreBreakdown(s);
+            return `<div class="endgame-rank-row${win ? " winner" : ""}">
+              <span class="endgame-rank-name">${p.name}${win ? " ★" : ""}</span>
+              <span class="endgame-rank-score">${s.total} pv</span>
+              ${breakDown ? `<div class="endgame-rank-break">${breakDown}</div>` : ""}
+            </div>`;
+          })
+          .join("");
+        const sheets = engineState.players
+          .map((p) => {
+            const s = scoreSheet(p.sheet);
+            const win = engineState.winnerIds.includes(p.id);
+            return `<button type="button" class="endgame-sheet-card${win ? " winner" : ""}" onclick="viewPlayerSheet(${p.id + 1})" aria-label="Apri plancia di ${p.name}">
+              <span class="endgame-sheet-label"><span>${p.name}</span><span>${s.total} pv</span></span>
+              <canvas data-endgame-sheet="${p.id}"></canvas>
+            </button>`;
+          })
+          .join("");
+        return `<div class="endgame-ranking">${ranking}</div>
+          <p class="endgame-sheets-title">Plance dei giocatori — tocca per ingrandire</p>
+          <div class="endgame-sheets">${sheets}</div>
+          <details class="endgame-log">
+            <summary>Resoconto dadi raccolti</summary>
+            ${buildGameLogTableHtml()}
+          </details>`;
+      }
+
       function endGame() {
-        document.getElementById("game-log-container").innerHTML =
-          buildGameLogTableHtml();
+        const page = document.getElementById("scorecard-page");
+        if (page) {
+          page.classList.add("hidden");
+          page.classList.remove("turn-mode", "consult-mode", "review-mode");
+        }
+        scorecardTurn = null;
+        setScorecardPending(null);
+        showScorecardChoice(false);
+        resetBoardPeek();
+        const card = document.querySelector("#scoreboard .score-card");
+        let html = buildGameLogTableHtml();
+        if (isHotseat()) {
+          html = buildEndgameCompareHtml();
+          if (card) card.classList.add("endgame-compare");
+        } else if (card) {
+          card.classList.remove("endgame-compare");
+        }
+        document.getElementById("game-log-container").innerHTML = html;
         document.getElementById("scoreboard").classList.add("show");
+        setBottomControlsVisible(false);
+        document.getElementById("roll-btn").disabled = true;
+        document.getElementById("end-btn").disabled = true;
+        document.getElementById("end-btn").classList.remove("active");
+        updateTurnInfo();
+        if (isHotseat()) paintEndgameSheetPreviews();
       }
 
       function restartGame() {
+        playMode = null;
+        engineState = null;
+        localSeat = 0;
+        viewingSeat = 0;
         turn = 1;
         gold = 1;
         goats = 1;
@@ -5487,6 +8389,8 @@
         document.getElementById("end-btn").disabled = true;
         document.getElementById("end-btn").classList.remove("active");
         document.getElementById("scoreboard").classList.remove("show");
+        const endCard = document.querySelector("#scoreboard .score-card");
+        if (endCard) endCard.classList.remove("endgame-compare");
         document.getElementById("market-skip-modal").classList.remove("show");
         clearScorecardCanvas();
         clearDigitalScorecardState();
@@ -5604,6 +8508,240 @@
 
       let lightTunerOverlay = null;
       let lightTunerRefreshToggleText = () => {};
+      let veilTunerOverlay = null;
+
+      function hexToRgbParts(hex) {
+        const n = String(hex || "").replace("#", "");
+        return {
+          r: parseInt(n.slice(0, 2), 16) || 0,
+          g: parseInt(n.slice(2, 4), 16) || 0,
+          b: parseInt(n.slice(4, 6), 16) || 0,
+        };
+      }
+
+      function mountVeilTuner() {
+        if (veilTunerOverlay) return veilTunerOverlay;
+        const style = document.createElement("style");
+        style.textContent = `
+        #veil-tuner {
+          position: absolute;
+          top: 12px;
+          left: 12px;
+          width: 268px;
+          padding: 10px 12px;
+          border-radius: 12px;
+          background: rgba(8, 8, 8, 0.88);
+          border: 1px solid rgba(255, 215, 0, 0.4);
+          color: #f5ead2;
+          font-family: "Crimson Text", serif;
+          font-size: 13px;
+          z-index: 220;
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.65);
+        }
+        #veil-tuner.hidden { display: none; }
+        #veil-tuner h3 {
+          font-size: 12px;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          margin-bottom: 8px;
+        }
+        #veil-tuner .row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 6px;
+          gap: 8px;
+        }
+        #veil-tuner label { flex: 1 1 auto; }
+        #veil-tuner .val {
+          min-width: 42px;
+          text-align: right;
+          font-variant-numeric: tabular-nums;
+          opacity: 0.85;
+          font-size: 12px;
+        }
+        #veil-tuner input[type="range"] { width: 112px; }
+        #veil-tuner input[type="color"] {
+          border: none;
+          width: 30px;
+          height: 22px;
+          padding: 0;
+          background: transparent;
+        }
+        #veil-tuner input[type="checkbox"] { accent-color: var(--gold); }
+        #veil-tuner button {
+          border: none;
+          background: var(--gold);
+          color: var(--dark);
+          padding: 6px 10px;
+          border-radius: 8px;
+          font-family: "Cinzel", serif;
+          cursor: pointer;
+          margin-top: 6px;
+          width: 100%;
+          font-size: 12px;
+          letter-spacing: 1px;
+        }
+        #veil-tuner button.ghost {
+          background: transparent;
+          color: var(--gold-lt);
+          border: 1px solid rgba(201, 168, 76, 0.45);
+        }
+        #veil-tuner pre {
+          margin: 6px 0 0;
+          padding: 6px;
+          font-size: 10px;
+          line-height: 1.35;
+          background: rgba(255, 255, 255, 0.06);
+          border-radius: 6px;
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
+        `;
+        document.head.appendChild(style);
+
+        const overlay = document.createElement("div");
+        overlay.id = "veil-tuner";
+        overlay.innerHTML = `
+        <h3>Velo negozi (dev)</h3>
+        <div class="row">
+          <label for="veil-preview">Anteprima su tutti</label>
+          <input type="checkbox" id="veil-preview">
+        </div>
+        <div class="row">
+          <label for="veil-color">Colore</label>
+          <input type="color" id="veil-color" value="#718398">
+        </div>
+        <div class="row">
+          <label for="veil-opacity">Opacità</label>
+          <input type="range" id="veil-opacity" min="0" max="0.5" step="0.005" value="0.06">
+          <span class="val" id="veil-opacity-val"></span>
+        </div>
+        <div class="row">
+          <label for="veil-gray">Grayscale</label>
+          <input type="range" id="veil-gray" min="0" max="1" step="0.01" value="0.12">
+          <span class="val" id="veil-gray-val"></span>
+        </div>
+        <div class="row">
+          <label for="veil-blur">Blur</label>
+          <input type="range" id="veil-blur" min="0" max="6" step="0.1" value="0.6">
+          <span class="val" id="veil-blur-val"></span>
+        </div>
+        <div class="row">
+          <label for="veil-bright">Brightness</label>
+          <input type="range" id="veil-bright" min="0.7" max="1.1" step="0.01" value="0.98">
+          <span class="val" id="veil-bright-val"></span>
+        </div>
+        <div class="row">
+          <label for="veil-radius">Raggio</label>
+          <input type="range" id="veil-radius" min="0" max="24" step="1" value="8">
+          <span class="val" id="veil-radius-val"></span>
+        </div>
+        <pre id="veil-css"></pre>
+        <button id="veil-copy" class="ghost" type="button">Copia CSS</button>
+        <button id="veil-close" type="button">Chiudi</button>
+        `;
+        document.body.appendChild(overlay);
+
+        const root = document.documentElement;
+        const preview = overlay.querySelector("#veil-preview");
+        const color = overlay.querySelector("#veil-color");
+        const opacity = overlay.querySelector("#veil-opacity");
+        const gray = overlay.querySelector("#veil-gray");
+        const blur = overlay.querySelector("#veil-blur");
+        const bright = overlay.querySelector("#veil-bright");
+        const radius = overlay.querySelector("#veil-radius");
+        const cssOut = overlay.querySelector("#veil-css");
+
+        function currentCss() {
+          const rgb = hexToRgbParts(color.value);
+          const op = Number(opacity.value);
+          const g = Number(gray.value);
+          const b = Number(blur.value);
+          const br = Number(bright.value);
+          const r = Number(radius.value);
+          return [
+            `.scorecard-dim-band {`,
+            `  border-radius: ${r}px;`,
+            `  background: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${op});`,
+            `  backdrop-filter: grayscale(${g}) blur(${b}px) brightness(${br});`,
+            `}`,
+          ].join("\n");
+        }
+
+        function applyVeil() {
+          const rgb = hexToRgbParts(color.value);
+          root.style.setProperty("--dim-r", String(rgb.r));
+          root.style.setProperty("--dim-g", String(rgb.g));
+          root.style.setProperty("--dim-b", String(rgb.b));
+          root.style.setProperty("--dim-opacity", opacity.value);
+          root.style.setProperty("--dim-gray", gray.value);
+          root.style.setProperty("--dim-blur", `${blur.value}px`);
+          root.style.setProperty("--dim-bright", bright.value);
+          root.style.setProperty("--dim-radius", `${radius.value}px`);
+          overlay.querySelector("#veil-opacity-val").textContent =
+            `${Math.round(Number(opacity.value) * 100)}%`;
+          overlay.querySelector("#veil-gray-val").textContent = Number(gray.value).toFixed(2);
+          overlay.querySelector("#veil-blur-val").textContent = `${Number(blur.value).toFixed(1)}px`;
+          overlay.querySelector("#veil-bright-val").textContent = Number(bright.value).toFixed(2);
+          overlay.querySelector("#veil-radius-val").textContent = `${radius.value}px`;
+          cssOut.textContent = currentCss();
+        }
+
+        [color, opacity, gray, blur, bright, radius].forEach((el) => {
+          el.addEventListener("input", applyVeil);
+        });
+
+        preview.addEventListener("change", () => {
+          veilTunerPreview = preview.checked;
+          updateScorecardFocusHighlight();
+        });
+
+        overlay.querySelector("#veil-copy").addEventListener("click", async () => {
+          const text = currentCss();
+          try {
+            await navigator.clipboard.writeText(text);
+            overlay.querySelector("#veil-copy").textContent = "Copiato";
+            setTimeout(() => {
+              overlay.querySelector("#veil-copy").textContent = "Copia CSS";
+            }, 900);
+          } catch (_err) {
+            window.prompt("Copia il CSS:", text);
+          }
+        });
+
+        overlay.querySelector("#veil-close").addEventListener("click", () => {
+          overlay.classList.add("hidden");
+          if (veilTunerPreview) {
+            veilTunerPreview = false;
+            preview.checked = false;
+            updateScorecardFocusHighlight();
+          }
+        });
+
+        applyVeil();
+        veilTunerOverlay = overlay;
+        return overlay;
+      }
+
+      window.toggleVeilTuner = () => {
+        if (!veilTunerOverlay) mountVeilTuner();
+        if (!veilTunerOverlay) return;
+        veilTunerOverlay.classList.toggle("hidden");
+      };
+
+      window.addEventListener("keydown", (evt) => {
+        if (!(evt.altKey && evt.shiftKey && evt.code === "KeyV")) return;
+        evt.preventDefault();
+        window.toggleVeilTuner();
+      });
+
+      if (
+        window.VEIL_TUNER_ENABLED === true ||
+        new URLSearchParams(location.search).has("veil")
+      ) {
+        mountVeilTuner();
+      }
 
       function mountLightTuner() {
         if (lightTunerOverlay) return lightTunerOverlay;
