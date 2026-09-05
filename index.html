@@ -280,7 +280,7 @@
         display: none;
       }
       #mode-setup {
-        display: flex;
+        display: none;
         position: absolute;
         inset: 0;
         background: rgba(10, 6, 2, 0.96);
@@ -301,6 +301,7 @@
         justify-content: center;
         z-index: 210;
         backdrop-filter: blur(8px);
+        overflow: hidden;
       }
       #scorecard-page.hidden {
         display: none;
@@ -585,6 +586,150 @@
         color: var(--gold-lt);
         min-width: 1.4em;
         text-align: center;
+      }
+      #scorecard-page.turn-mode .scorecard-toolbar,
+      #scorecard-page.turn-mode .scorecard-hint {
+        display: none;
+      }
+      #scorecard-page.turn-mode .scorecard-viewport-wrapper {
+        width: 100%;
+      }
+      #scorecard-page.turn-mode .scorecard-stage {
+        height: 100%;
+        width: auto;
+        aspect-ratio: 2374 / 1632;
+        flex-shrink: 0;
+        max-width: none;
+        max-height: none;
+        background-size: 100% 100%;
+      }
+      #scorecard-page.turn-mode .scorecard-pan-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 36px;
+        height: 80px;
+        background: rgba(10, 6, 2, 0.6);
+        border: 1px solid rgba(201, 168, 76, 0.55);
+        border-radius: 6px;
+        color: rgba(201, 168, 76, 0.95);
+        font-size: 20px;
+        z-index: 10;
+        cursor: pointer;
+        pointer-events: auto;
+      }
+      #scorecard-page.turn-mode .scorecard-pan-arrow-left {
+        left: 4px;
+      }
+      #scorecard-page.turn-mode .scorecard-pan-arrow-right {
+        right: 4px;
+      }
+      #scorecard-page.turn-mode .scorecard-pan-arrow:disabled {
+        opacity: 0.15;
+        pointer-events: none;
+      }
+      #scorecard-page.turn-mode .scorecard-scrollbar {
+        display: block;
+        width: calc(100% - 24px);
+        margin: 2px 12px 0;
+        height: 22px;
+        cursor: pointer;
+        accent-color: rgba(201, 168, 76, 0.9);
+        opacity: 0;
+        pointer-events: none;
+      }
+      #scorecard-page.turn-mode .scorecard-scrollbar[data-hidden="false"] {
+        opacity: 0.85;
+        pointer-events: auto;
+      }
+      #scorecard-choice {
+        display: none;
+        position: absolute;
+        inset: 0;
+        z-index: 30;
+        background: rgba(10, 6, 2, 0.88);
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+      #scorecard-choice.show {
+        display: flex;
+      }
+      #scorecard-choice .setup-card {
+        max-width: min(92vw, 520px);
+        width: 100%;
+        background: transparent;
+        border: none;
+        padding: 12px 8px;
+      }
+      #scorecard-choice .setup-card h2 {
+        margin-bottom: 18px;
+      }
+      #scorecard-choice .choice-btns {
+        display: flex;
+        flex-direction: row;
+        gap: 14px;
+        justify-content: center;
+        align-items: stretch;
+      }
+      #scorecard-choice .choice-tile {
+        flex: 1 1 0;
+        aspect-ratio: 1;
+        max-width: 220px;
+        min-width: 0;
+        padding: 0;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        cursor: pointer;
+        overflow: hidden;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+      #scorecard-choice .choice-tile img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        pointer-events: none;
+      }
+      #scorecard-choice .choice-tile:hover,
+      #scorecard-choice .choice-tile:focus-visible {
+        transform: scale(1.03);
+        box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45);
+        outline: none;
+      }
+      #scorecard-choice .choice-tile:active {
+        transform: scale(0.98);
+      }
+      .scorecard-hit[data-kind="building"] {
+        border-radius: 4px;
+      }
+      .scorecard-hit[data-kind="market"].is-disabled {
+        pointer-events: none;
+      }
+      .scorecard-hit.market-dest {
+        background: rgba(201, 168, 76, 0.22);
+        box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.88);
+        animation: market-dest-pulse 1.5s ease-in-out infinite;
+      }
+      .scorecard-hit.market-selected {
+        background: rgba(139, 26, 26, 0.3);
+        box-shadow: 0 0 0 3px rgba(139, 26, 26, 0.92);
+        animation: none;
+      }
+      @keyframes market-dest-pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.8);
+        }
+        50% {
+          box-shadow: 0 0 0 6px rgba(201, 168, 76, 0.2);
+        }
       }
 
       .setup-card {
@@ -1042,7 +1187,7 @@
     <div id="canvas-wrap">
       <canvas id="three-canvas"></canvas>
 
-      <div id="mode-setup">
+      <div id="mode-setup" class="hidden">
         <div class="setup-card">
           <h2>CORINTH</h2>
           <p>Scegli la modalità</p>
@@ -1221,6 +1366,29 @@
             Negozi / Oro / Capre / Turni: tocca per marcare, poi Conferma.
             Mercato ed Edifici: disegno libero come prima.
           </p>
+        </div>
+        <div id="scorecard-choice" aria-live="polite">
+          <div class="setup-card">
+            <h2>SCEGLI</h2>
+            <div class="choice-btns">
+              <button
+                type="button"
+                class="choice-tile"
+                onclick="chooseScorecardAction('qty')"
+                aria-label="Quantità"
+              >
+                <img src="bottone_personaggi.png" alt="" />
+              </button>
+              <button
+                type="button"
+                class="choice-tile"
+                onclick="chooseScorecardAction('distance')"
+                aria-label="Distanza"
+              >
+                <img src="bottone_mercato.png" alt="" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1620,7 +1788,7 @@
       </div>
 
       <!-- PLAYER SETUP -->
-      <div id="player-setup" class="hidden">
+      <div id="player-setup">
         <div class="setup-card">
           <h2>CORINTH</h2>
           <p>Quanti giocatori?</p>
@@ -2072,9 +2240,90 @@
        * ============================================================ */
       /* TODO(layout): conteggi/posizioni ricavati da cr_scoring_a4.png.
        * Se un simbolo non combacia a video, ricalibrare SCORECARD_SHEET_LAYOUT.
-       * Spesa oro/capre (barrare) e Mercato/Edifici strutturati: fuori scope. */
+       * Mercato: griglia 5×5 in SCORECARD_MARKET_LAYOUT. */
       const SCORECARD_DIGITAL_STORAGE_KEY = "corinth-scorecard-digital-v1";
-      const SCORECARD_SHEET_LAYOUT = {"districts":{"orange":{"bonus":null,"shops":[{"points":4,"symbols":[{"x":0.20177,"y":0.17525,"r":0.01471},{"x":0.20177,"y":0.22794,"r":0.01471}]},{"points":5,"symbols":[{"x":0.30834,"y":0.17525,"r":0.01471},{"x":0.30834,"y":0.22794,"r":0.01471}]},{"points":10,"symbols":[{"x":0.39975,"y":0.17525,"r":0.01471},{"x":0.42797,"y":0.17525,"r":0.01471},{"x":0.39975,"y":0.22794,"r":0.01471},{"x":0.42797,"y":0.22794,"r":0.01471}]}]},"blue":{"bonus":{"points":3,"x":0.04002,"y":0.31863,"r":0.01348},"shops":[{"points":3,"symbols":[{"x":0.20514,"y":0.36336,"r":0.01471},{"x":0.20514,"y":0.41422,"r":0.01471}]},{"points":5,"symbols":[{"x":0.31129,"y":0.36336,"r":0.01471},{"x":0.29739,"y":0.41422,"r":0.01471},{"x":0.32519,"y":0.41422,"r":0.01471}]},{"points":8,"symbols":[{"x":0.40396,"y":0.36336,"r":0.01471},{"x":0.42797,"y":0.36336,"r":0.01471},{"x":0.40396,"y":0.41422,"r":0.01471},{"x":0.42797,"y":0.41422,"r":0.01471}]}]},"purple":{"bonus":{"points":4,"x":0.04002,"y":0.50245,"r":0.01348},"shops":[{"points":2,"symbols":[{"x":0.20219,"y":0.55025,"r":0.01471},{"x":0.20219,"y":0.60049,"r":0.01471}]},{"points":3,"symbols":[{"x":0.27296,"y":0.55025,"r":0.01471},{"x":0.25864,"y":0.60049,"r":0.01471},{"x":0.28728,"y":0.60049,"r":0.01471}]},{"points":4,"symbols":[{"x":0.34372,"y":0.55025,"r":0.01471},{"x":0.3294,"y":0.60049,"r":0.01471},{"x":0.35805,"y":0.60049,"r":0.01471}]},{"points":6,"symbols":[{"x":0.40017,"y":0.55025,"r":0.01471},{"x":0.42881,"y":0.55025,"r":0.01471},{"x":0.40017,"y":0.60049,"r":0.01471},{"x":0.42881,"y":0.60049,"r":0.01471}]}]},"green":{"bonus":{"points":5,"x":0.04002,"y":0.68627,"r":0.01348},"shops":[{"points":1,"symbols":[{"x":0.17397,"y":0.73346,"r":0.01471},{"x":0.17397,"y":0.78493,"r":0.01471}]},{"points":2,"symbols":[{"x":0.24431,"y":0.73346,"r":0.01471},{"x":0.23041,"y":0.78493,"r":0.01471},{"x":0.25864,"y":0.78493,"r":0.01471}]},{"points":3,"symbols":[{"x":0.31592,"y":0.73346,"r":0.01471},{"x":0.3016,"y":0.78493,"r":0.01471},{"x":0.33024,"y":0.78493,"r":0.01471}]},{"points":6,"symbols":[{"x":0.38669,"y":0.73346,"r":0.01471},{"x":0.41533,"y":0.73346,"r":0.01471},{"x":0.37237,"y":0.78493,"r":0.01471},{"x":0.40101,"y":0.78493,"r":0.01471},{"x":0.42881,"y":0.78493,"r":0.01471}]}]}},"gold":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.50551,"r":0.01348},{"x":0.65543,"y":0.50551,"r":0.01348},{"x":0.68324,"y":0.50551,"r":0.01348},{"x":0.71104,"y":0.50551,"r":0.01348},{"x":0.73884,"y":0.50551,"r":0.01348},{"x":0.76664,"y":0.50551,"r":0.01348},{"x":0.79444,"y":0.50551,"r":0.01348},{"x":0.82224,"y":0.50551,"r":0.01348},{"x":0.85004,"y":0.50551,"r":0.01348},{"x":0.87784,"y":0.50551,"r":0.01348},{"x":0.90564,"y":0.50551,"r":0.01348},{"x":0.93345,"y":0.50551,"r":0.01348},{"x":0.62763,"y":0.55147,"r":0.01348},{"x":0.65543,"y":0.55147,"r":0.01348},{"x":0.68324,"y":0.55147,"r":0.01348},{"x":0.71104,"y":0.55147,"r":0.01348},{"x":0.73884,"y":0.55147,"r":0.01348},{"x":0.76664,"y":0.55147,"r":0.01348},{"x":0.79444,"y":0.55147,"r":0.01348},{"x":0.82224,"y":0.55147,"r":0.01348},{"x":0.85004,"y":0.55147,"r":0.01348},{"x":0.87784,"y":0.55147,"r":0.01348},{"x":0.90564,"y":0.55147,"r":0.01348},{"x":0.93345,"y":0.55147,"r":0.01348}]},"goats":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.625,"r":0.01348},{"x":0.65543,"y":0.625,"r":0.01348},{"x":0.68324,"y":0.625,"r":0.01348},{"x":0.71104,"y":0.625,"r":0.01348},{"x":0.73884,"y":0.625,"r":0.01348},{"x":0.76664,"y":0.625,"r":0.01348},{"x":0.79444,"y":0.625,"r":0.01348},{"x":0.82224,"y":0.625,"r":0.01348},{"x":0.85004,"y":0.625,"r":0.01348},{"x":0.87784,"y":0.625,"r":0.01348},{"x":0.90564,"y":0.625,"r":0.01348},{"x":0.93345,"y":0.625,"r":0.01348},{"x":0.62763,"y":0.67402,"r":0.01348},{"x":0.65543,"y":0.67402,"r":0.01348},{"x":0.68324,"y":0.67402,"r":0.01348},{"x":0.71104,"y":0.67402,"r":0.01348},{"x":0.73884,"y":0.67402,"r":0.01348},{"x":0.76664,"y":0.67402,"r":0.01348},{"x":0.79444,"y":0.67402,"r":0.01348},{"x":0.82224,"y":0.67402,"r":0.01348},{"x":0.85004,"y":0.67402,"r":0.01348},{"x":0.87784,"y":0.67402,"r":0.01348},{"x":0.90564,"y":0.67402,"r":0.01348},{"x":0.93345,"y":0.67402,"r":0.01348}]},"turns":{"count":6,"slots":[{"x":0.09309,"y":0.93076,"r":0.02206},{"x":0.15459,"y":0.93076,"r":0.02206},{"x":0.22199,"y":0.93076,"r":0.02206},{"x":0.28391,"y":0.93076,"r":0.02206},{"x":0.34541,"y":0.93076,"r":0.02206},{"x":0.40733,"y":0.93076,"r":0.02206}]},"freehandRegions":{"mercato":{"x":0.46335,"y":0.02451,"w":0.52233,"h":0.31863},"edifici":{"x":0.46335,"y":0.68627,"w":0.52233,"h":0.29412}}};
+      const SCORECARD_SHEET_LAYOUT = {"districts":{"orange":{"bonus":null,"shops":[{"points":4,"symbols":[{"x":0.20177,"y":0.17525,"r":0.01471},{"x":0.20177,"y":0.22794,"r":0.01471}]},{"points":5,"symbols":[{"x":0.30834,"y":0.17525,"r":0.01471},{"x":0.30834,"y":0.22794,"r":0.01471}]},{"points":10,"symbols":[{"x":0.39975,"y":0.17525,"r":0.01471},{"x":0.42797,"y":0.17525,"r":0.01471},{"x":0.39975,"y":0.22794,"r":0.01471},{"x":0.42797,"y":0.22794,"r":0.01471}]}]},"blue":{"bonus":{"points":3,"x":0.04002,"y":0.31863,"r":0.01348},"shops":[{"points":3,"symbols":[{"x":0.20514,"y":0.36336,"r":0.01471},{"x":0.20514,"y":0.41422,"r":0.01471}]},{"points":5,"symbols":[{"x":0.31129,"y":0.36336,"r":0.01471},{"x":0.29739,"y":0.41422,"r":0.01471},{"x":0.32519,"y":0.41422,"r":0.01471}]},{"points":8,"symbols":[{"x":0.40396,"y":0.36336,"r":0.01471},{"x":0.42797,"y":0.36336,"r":0.01471},{"x":0.40396,"y":0.41422,"r":0.01471},{"x":0.42797,"y":0.41422,"r":0.01471}]}]},"purple":{"bonus":{"points":4,"x":0.04002,"y":0.50245,"r":0.01348},"shops":[{"points":2,"symbols":[{"x":0.20219,"y":0.55025,"r":0.01471},{"x":0.20219,"y":0.60049,"r":0.01471}]},{"points":3,"symbols":[{"x":0.27296,"y":0.55025,"r":0.01471},{"x":0.25864,"y":0.60049,"r":0.01471},{"x":0.28728,"y":0.60049,"r":0.01471}]},{"points":4,"symbols":[{"x":0.34372,"y":0.55025,"r":0.01471},{"x":0.3294,"y":0.60049,"r":0.01471},{"x":0.35805,"y":0.60049,"r":0.01471}]},{"points":6,"symbols":[{"x":0.40017,"y":0.55025,"r":0.01471},{"x":0.42881,"y":0.55025,"r":0.01471},{"x":0.40017,"y":0.60049,"r":0.01471},{"x":0.42881,"y":0.60049,"r":0.01471}]}]},"green":{"bonus":{"points":5,"x":0.04002,"y":0.68627,"r":0.01348},"shops":[{"points":1,"symbols":[{"x":0.17397,"y":0.73346,"r":0.01471},{"x":0.17397,"y":0.78493,"r":0.01471}]},{"points":2,"symbols":[{"x":0.24431,"y":0.73346,"r":0.01471},{"x":0.23041,"y":0.78493,"r":0.01471},{"x":0.25864,"y":0.78493,"r":0.01471}]},{"points":3,"symbols":[{"x":0.31592,"y":0.73346,"r":0.01471},{"x":0.3016,"y":0.78493,"r":0.01471},{"x":0.33024,"y":0.78493,"r":0.01471}]},{"points":6,"symbols":[{"x":0.38669,"y":0.73346,"r":0.01471},{"x":0.41533,"y":0.73346,"r":0.01471},{"x":0.37237,"y":0.78493,"r":0.01471},{"x":0.40101,"y":0.78493,"r":0.01471},{"x":0.42881,"y":0.78493,"r":0.01471}]}]}},"gold":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.50551,"r":0.01348},{"x":0.65543,"y":0.50551,"r":0.01348},{"x":0.68324,"y":0.50551,"r":0.01348},{"x":0.71104,"y":0.50551,"r":0.01348},{"x":0.73884,"y":0.50551,"r":0.01348},{"x":0.76664,"y":0.50551,"r":0.01348},{"x":0.79444,"y":0.50551,"r":0.01348},{"x":0.82224,"y":0.50551,"r":0.01348},{"x":0.85004,"y":0.50551,"r":0.01348},{"x":0.87784,"y":0.50551,"r":0.01348},{"x":0.90564,"y":0.50551,"r":0.01348},{"x":0.93345,"y":0.50551,"r":0.01348},{"x":0.62763,"y":0.55147,"r":0.01348},{"x":0.65543,"y":0.55147,"r":0.01348},{"x":0.68324,"y":0.55147,"r":0.01348},{"x":0.71104,"y":0.55147,"r":0.01348},{"x":0.73884,"y":0.55147,"r":0.01348},{"x":0.76664,"y":0.55147,"r":0.01348},{"x":0.79444,"y":0.55147,"r":0.01348},{"x":0.82224,"y":0.55147,"r":0.01348},{"x":0.85004,"y":0.55147,"r":0.01348},{"x":0.87784,"y":0.55147,"r":0.01348},{"x":0.90564,"y":0.55147,"r":0.01348},{"x":0.93345,"y":0.55147,"r":0.01348}]},"goats":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.625,"r":0.01348},{"x":0.65543,"y":0.625,"r":0.01348},{"x":0.68324,"y":0.625,"r":0.01348},{"x":0.71104,"y":0.625,"r":0.01348},{"x":0.73884,"y":0.625,"r":0.01348},{"x":0.76664,"y":0.625,"r":0.01348},{"x":0.79444,"y":0.625,"r":0.01348},{"x":0.82224,"y":0.625,"r":0.01348},{"x":0.85004,"y":0.625,"r":0.01348},{"x":0.87784,"y":0.625,"r":0.01348},{"x":0.90564,"y":0.625,"r":0.01348},{"x":0.93345,"y":0.625,"r":0.01348},{"x":0.62763,"y":0.67402,"r":0.01348},{"x":0.65543,"y":0.67402,"r":0.01348},{"x":0.68324,"y":0.67402,"r":0.01348},{"x":0.71104,"y":0.67402,"r":0.01348},{"x":0.73884,"y":0.67402,"r":0.01348},{"x":0.76664,"y":0.67402,"r":0.01348},{"x":0.79444,"y":0.67402,"r":0.01348},{"x":0.82224,"y":0.67402,"r":0.01348},{"x":0.85004,"y":0.67402,"r":0.01348},{"x":0.87784,"y":0.67402,"r":0.01348},{"x":0.90564,"y":0.67402,"r":0.01348},{"x":0.93345,"y":0.67402,"r":0.01348}]},"turns":{"count":6,"slots":[{"x":0.09309,"y":0.93076,"r":0.02206},{"x":0.15459,"y":0.93076,"r":0.02206},{"x":0.22199,"y":0.93076,"r":0.02206},{"x":0.28391,"y":0.93076,"r":0.02206},{"x":0.34541,"y":0.93076,"r":0.02206},{"x":0.40733,"y":0.93076,"r":0.02206}]},"freehandRegions":{"mercato":{"x":0.46335,"y":0.02451,"w":0.52233,"h":0.31863},"edifici":{"x":0.46335,"y":0.68627,"w":0.52233,"h":0.29412}},"scoreDiamonds":{"orange":{"x":0.499,"y":0.1967,"r":0.028},"blue":{"x":0.499,"y":0.3793,"r":0.028},"purple":{"x":0.4988,"y":0.5613,"r":0.028},"green":{"x":0.4988,"y":0.7439,"r":0.028},"gold":{"x":0.499,"y":0.47,"r":0.028},"goats":{"x":0.499,"y":0.6526,"r":0.028},"market":{"x":0.4991,"y":0.8361,"r":0.028}},"scoreOctagon":{"x":0.499,"y":0.9353,"r":0.033},"buildings":[{"id":"temple","gold":3,"goats":3,"x":0.6213,"y":0.8211,"r":0.016},{"id":"warehouse","gold":4,"goats":4,"x":0.7178,"y":0.8211,"r":0.016},{"id":"stable","gold":2,"goats":1,"x":0.8142,"y":0.8211,"r":0.016},{"id":"store","gold":0,"goats":2,"x":0.9103,"y":0.8211,"r":0.016}],"resourceOval":{"rotationDeg":-22,"rxScale":1.38,"ryScale":1.58,"color":"#2a2520","lineWidthScale":0.38}};
+
+      const SCORECARD_MARKET_LAYOUT = (() => {
+        const ox = 0.76874;
+        const oy = 0.22978;
+        const spx = 0.05097;
+        const spy = 0.07169;
+        const r = 0.0164;
+        const specs = [
+          [
+            { t: "score", d: 0 },
+            { t: "die" },
+            { t: "goods", district: "blue", qty: 2 },
+            { t: "plus" },
+            { t: "score", d: 1 },
+          ],
+          [
+            { t: "goods", district: "orange", qty: 1 },
+            { t: "goods", district: "green", qty: 1 },
+            { t: "goats", qty: 2 },
+            { t: "die" },
+            { t: "goods", district: "green", qty: 2 },
+          ],
+          [
+            { t: "plus" },
+            { t: "goods", district: "purple", qty: 1 },
+            { t: "steward" },
+            { t: "gold", qty: 1 },
+            { t: "plus" },
+          ],
+          [
+            { t: "goods", district: "green", qty: 2 },
+            { t: "gold", qty: 2 },
+            { t: "die" },
+            { t: "goods", district: "purple", qty: 1 },
+            { t: "goods", district: "blue", qty: 2 },
+          ],
+          [
+            { t: "score", d: 2 },
+            { t: "goats", qty: 1 },
+            { t: "plus" },
+            { t: "goats", qty: 2 },
+            { t: "score", d: 3 },
+          ],
+        ];
+        const nodes = [];
+        const byId = {};
+        for (let row = 0; row < 5; row++) {
+          for (let col = 0; col < 5; col++) {
+            const node = {
+              id: `r${row}c${col}`,
+              row,
+              col,
+              x: ox + (col - 2) * spx,
+              y: oy + (row - 2) * spy,
+              r,
+              ...specs[row][col],
+            };
+            nodes.push(node);
+            byId[node.id] = node;
+          }
+        }
+        const corners = [
+          [0, 0, -1],
+          [0, 4, 1],
+          [4, 0, -1],
+          [4, 4, 1],
+        ];
+        const diamonds = corners.map(([row, col, dir]) => ({
+          x: ox + (col - 2) * spx + dir * 0.058,
+          y: oy + (row - 2) * spy,
+          r: 0.018,
+        }));
+        return { nodes, byId, diamonds, originId: "r2c2" };
+      })();
+      const MARKET_STABLE_BUILDING = 2;
+      const MARKET_DIRS = [
+        [0, 1],
+        [0, -1],
+        [1, 0],
+        [-1, 0],
+      ];
 
       /** @type {null|((info: object) => void)} Future multiplayer hook */
       let scorecardOnConfirm = null;
@@ -2088,6 +2337,47 @@
       let scorecardDigitalState = null;
       let scorecardPending = null; // { type, ... } editable until confirm
       let scorecardDigitalReady = false;
+      let scorecardTurn = null;
+
+      const DISTRICT_SHEET_ID = {
+        Spices: "orange",
+        Carpets: "blue",
+        Wine: "purple",
+        Oil: "green",
+      };
+
+      const SHOP_DISTRICT_KEYS = ["Spices", "Carpets", "Wine", "Oil"];
+
+      function emptyMercatoState() {
+        return {
+          steward: SCORECARD_MARKET_LAYOUT.originId,
+          used: [],
+          circled: [],
+          moves: [],
+          diamonds: [null, null, null, null],
+          yellowDice: 0,
+        };
+      }
+
+      function normalizeMercatoState(state) {
+        if (!state) return;
+        const base = emptyMercatoState();
+        const src = state.mercato && typeof state.mercato === "object" ? state.mercato : {};
+        state.mercato = {
+          steward: src.steward || base.steward,
+          used: Array.isArray(src.used) ? src.used.slice() : [],
+          circled: Array.isArray(src.circled) ? src.circled.slice() : [],
+          moves: Array.isArray(src.moves) ? src.moves.map((m) => ({
+            path: Array.isArray(m.path) ? m.path.slice() : [],
+          })) : [],
+          diamonds: Array.isArray(src.diamonds)
+            ? [0, 1, 2, 3].map((i) =>
+                src.diamonds[i] == null ? null : Number(src.diamonds[i]),
+              )
+            : [null, null, null, null],
+          yellowDice: Math.max(0, Math.min(3, Number(src.yellowDice) || 0)),
+        };
+      }
 
       function createEmptyDigitalState() {
         const districts = {};
@@ -2114,9 +2404,9 @@
             spent: 0,
           },
           turns: { marked: 0 },
-          // Placeholder hooks for future structured Mercato / Edifici
-          mercato: { mode: "freehand" },
-          edifici: { mode: "freehand" },
+          buildings: SCORECARD_SHEET_LAYOUT.buildings.map(() => false),
+          mercato: emptyMercatoState(),
+          edifici: { mode: "structured" },
         };
       }
 
@@ -2138,29 +2428,78 @@
       function effectiveDigitalView() {
         // Merge confirmed state with pending edits for rendering / rules checks
         const base = cloneDigitalState(scorecardDigitalState);
-        if (!scorecardPending) return base;
+        if (!base.buildings) {
+          base.buildings = SCORECARD_SHEET_LAYOUT.buildings.map(() => false);
+        }
         const p = scorecardPending;
-        if (p.type === "shop") {
-          const shop = base.districts[p.districtId].shops[p.shopIndex];
-          shop.marked = p.marked.slice();
-        } else if (p.type === "bonus") {
-          base.districts[p.districtId].bonus = p.bonus;
-        } else if (p.type === "gold") {
-          base.gold.circled = p.circled;
-        } else if (p.type === "goats") {
-          base.goats.circled = p.circled;
-        } else if (p.type === "turns") {
-          base.turns.marked = p.marked;
+        if (p) {
+          if (p.type === "shop") {
+            const shop = base.districts[p.districtId].shops[p.shopIndex];
+            shop.marked = p.marked.slice();
+          } else if (p.type === "shop-turn") {
+            p.shops.forEach((marked, i) => {
+              base.districts[p.districtId].shops[i].marked = marked.slice();
+            });
+          } else if (p.type === "bonus") {
+            base.districts[p.districtId].bonus = p.bonus;
+          } else if (p.type === "gold") {
+            base.gold.circled = p.circled;
+          } else if (p.type === "goats") {
+            base.goats.circled = p.circled;
+          } else if (p.type === "turns") {
+            base.turns.marked = p.marked;
+          } else if (p.type === "market-move" && p.goldCost) {
+            base.gold.spent = (base.gold.spent || 0) + p.goldCost;
+          }
+        }
+        if (scorecardTurn && scorecardTurn.pendingBuildings) {
+          for (const idx of scorecardTurn.pendingBuildings) {
+            const def = SCORECARD_SHEET_LAYOUT.buildings[idx];
+            if (!def || base.buildings[idx]) continue;
+            base.buildings[idx] = true;
+            base.gold.spent = (base.gold.spent || 0) + def.gold;
+            base.goats.spent = (base.goats.spent || 0) + def.goats;
+          }
         }
         return base;
       }
 
       function getActiveShopIndex(districtId, state) {
+        const incomplete = getIncompleteShopIndex(districtId, state);
+        if (incomplete >= 0) return incomplete;
         const shops = state.districts[districtId].shops;
         for (let i = 0; i < shops.length; i++) {
-          if (!shops[i].marked.every(Boolean)) return i;
+          if (!shopIsComplete(shops[i].marked)) return i;
         }
-        return -1; // all complete
+        return -1;
+      }
+
+      function shopIsComplete(marked) {
+        return marked.every(Boolean);
+      }
+
+      function shopIsEmpty(marked) {
+        return marked.every((v) => !v);
+      }
+
+      function shopIsStarted(marked) {
+        return !shopIsEmpty(marked) && !shopIsComplete(marked);
+      }
+
+      function getIncompleteShopIndex(districtId, state) {
+        const shops = state.districts[districtId].shops;
+        for (let i = 0; i < shops.length; i++) {
+          if (shopIsStarted(shops[i].marked)) return i;
+        }
+        return -1;
+      }
+
+      function canPlaceOnShop(districtId, shopIndex, state) {
+        const shop = state.districts[districtId].shops[shopIndex];
+        if (shopIsComplete(shop.marked)) return false;
+        const incomplete = getIncompleteShopIndex(districtId, state);
+        if (incomplete >= 0) return incomplete === shopIndex;
+        return true;
       }
 
       function isDistrictComplete(districtId, state) {
@@ -2269,6 +2608,455 @@
         ctx.stroke();
       }
 
+      function drawMarkOval(ctx, cx, cy, radius) {
+        const oval = SCORECARD_SHEET_LAYOUT.resourceOval;
+        const rx = radius * oval.rxScale;
+        const ry = radius * oval.ryScale;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate((oval.rotationDeg * Math.PI) / 180);
+        ctx.beginPath();
+        if (typeof ctx.ellipse === "function") {
+          ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+        } else {
+          ctx.scale(rx / ry, 1);
+          ctx.arc(0, 0, ry, 0, Math.PI * 2);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function remainingResource(state, key) {
+        const track = state[key];
+        return Math.max(0, (track.circled || 0) - (track.spent || 0));
+      }
+
+      function resourceVictoryPoints(count) {
+        return Math.floor(Math.max(0, count) / 2);
+      }
+
+      function districtCompletedPoints(districtId, state) {
+        const shops = state.districts[districtId].shops;
+        return shops.reduce(
+          (sum, shop) => sum + (shop.marked.every(Boolean) ? shop.points : 0),
+          0,
+        );
+      }
+
+      function liveDiamondScores(state) {
+        return {
+          orange: districtCompletedPoints("orange", state),
+          blue: districtCompletedPoints("blue", state),
+          purple: districtCompletedPoints("purple", state),
+          green: districtCompletedPoints("green", state),
+          gold: resourceVictoryPoints(remainingResource(state, "gold")),
+          goats: resourceVictoryPoints(remainingResource(state, "goats")),
+          market: marketDiamondTotal(state),
+        };
+      }
+
+      function liveOctagonTotal(scores) {
+        return Object.values(scores).reduce(
+          (sum, value) => sum + (Number(value) || 0),
+          0,
+        );
+      }
+
+      function canAffordBuilding(index, state) {
+        const def = SCORECARD_SHEET_LAYOUT.buildings[index];
+        if (!def || (state.buildings && state.buildings[index])) return false;
+        return (
+          remainingResource(state, "gold") >= def.gold &&
+          remainingResource(state, "goats") >= def.goats
+        );
+      }
+
+      function countNewShopMarks(pendingShops, confirmedShops) {
+        let n = 0;
+        pendingShops.forEach((marked, shopIndex) => {
+          marked.forEach((v, i) => {
+            if (v && !confirmedShops[shopIndex].marked[i]) n += 1;
+          });
+        });
+        return n;
+      }
+
+      function remainingUnmarkedInDistrict(districtId, state) {
+        return state.districts[districtId].shops.reduce(
+          (n, shop) => n + shop.marked.filter((m) => !m).length,
+          0,
+        );
+      }
+
+      function getMarketNode(id) {
+        return SCORECARD_MARKET_LAYOUT.byId[id] || null;
+      }
+
+      function marketDiamondTotal(state) {
+        const diamonds = (state && state.mercato && state.mercato.diamonds) || [];
+        return diamonds.reduce((sum, v) => sum + (Number(v) || 0), 0);
+      }
+
+      function marketUsedSet(state) {
+        const used = new Set();
+        const m = state && state.mercato;
+        if (!m) return used;
+        (m.used || []).forEach((id) => used.add(id));
+        (m.moves || []).forEach((move) => {
+          (move.path || []).forEach((id) => used.add(id));
+        });
+        return used;
+      }
+
+      function marketStewardId(state) {
+        const m = state && state.mercato;
+        return (m && m.steward) || SCORECARD_MARKET_LAYOUT.originId;
+      }
+
+      function hasMarketStable(state) {
+        return !!(state && state.buildings && state.buildings[MARKET_STABLE_BUILDING]);
+      }
+
+      function marketGoldCost(diceValue, steps, hasStable) {
+        const need = Math.abs(steps - diceValue);
+        const free = hasStable && need > 0 ? 1 : 0;
+        return Math.max(0, need - free);
+      }
+
+      function marketStepRange(state, diceValue) {
+        const gold = remainingResource(state, "gold");
+        const extra = gold + (hasMarketStable(state) ? 1 : 0);
+        return {
+          min: Math.max(1, diceValue - extra),
+          max: diceValue + extra,
+        };
+      }
+
+      function findMarketDestinations(startId, steps, usedSet) {
+        const dests = new Map();
+        const start = getMarketNode(startId);
+        if (!start || steps < 1) return dests;
+        const walk = (row, col, left, pathSet, path) => {
+          if (left === 0) {
+            const id = path[path.length - 1];
+            if (id === startId) return;
+            if (!dests.has(id)) dests.set(id, []);
+            dests.get(id).push(path.slice());
+            return;
+          }
+          for (let d = 0; d < MARKET_DIRS.length; d++) {
+            const nr = row + MARKET_DIRS[d][0];
+            const nc = col + MARKET_DIRS[d][1];
+            if (nr < 0 || nr > 4 || nc < 0 || nc > 4) continue;
+            const id = `r${nr}c${nc}`;
+            if (pathSet.has(id)) continue;
+            if (id !== startId && usedSet.has(id)) continue;
+            pathSet.add(id);
+            path.push(id);
+            walk(nr, nc, left - 1, pathSet, path);
+            path.pop();
+            pathSet.delete(id);
+          }
+        };
+        const pathSet = new Set([startId]);
+        walk(start.row, start.col, steps, pathSet, [startId]);
+        return dests;
+      }
+
+      function marketActionPossible(state, diceValue) {
+        const start = marketStewardId(state);
+        const used = marketUsedSet(state);
+        const range = marketStepRange(state, diceValue);
+        for (let steps = range.min; steps <= range.max; steps++) {
+          if (findMarketDestinations(start, steps, used).size) return true;
+        }
+        return false;
+      }
+
+      function syncYellowDiceSelect() {
+        const el = document.getElementById("yellow-dice");
+        if (!el || !scorecardDigitalState) return;
+        const owned = (scorecardDigitalState.mercato &&
+          scorecardDigitalState.mercato.yellowDice) || 0;
+        const cur = parseInt(el.value, 10) || 0;
+        el.value = String(Math.min(3, Math.max(cur, owned)));
+      }
+
+      function autoMarkDistrictGoods(districtId, qty, state) {
+        let left = qty;
+        while (left > 0) {
+          const shopIndex = getActiveShopIndex(districtId, state);
+          if (shopIndex < 0) break;
+          const marked = state.districts[districtId].shops[shopIndex].marked;
+          let progressed = false;
+          for (let i = 0; i < marked.length && left > 0; i++) {
+            if (!marked[i]) {
+              marked[i] = true;
+              left -= 1;
+              progressed = true;
+            }
+          }
+          if (!progressed) break;
+        }
+      }
+
+      function circleResourceTrack(state, key, qty) {
+        const layout = SCORECARD_SHEET_LAYOUT[key];
+        const track = state[key];
+        const room = layout.count - (track.circled || 0);
+        track.circled = (track.circled || 0) + Math.max(0, Math.min(qty, room));
+      }
+
+      function previousMarketScoreInfo(state) {
+        const moves = (state.mercato && state.mercato.moves) || [];
+        for (let i = moves.length - 1; i >= 0; i--) {
+          const path = moves[i].path || [];
+          const dest = path[path.length - 1];
+          const node = getMarketNode(dest);
+          if (node && node.t === "score") {
+            const value = state.mercato.diamonds[node.d];
+            return { moveIndex: i, diamond: node.d, value: Number(value) || 0 };
+          }
+        }
+        return null;
+      }
+
+      function computeMarketFlowerScore(state, destId) {
+        const destNode = getMarketNode(destId);
+        const circled = ((state.mercato && state.mercato.circled) || []).concat([
+          destId,
+        ]);
+        const plusCount = (ids) =>
+          ids.reduce((n, id) => {
+            const node = getMarketNode(id);
+            return n + (node && node.t === "plus" ? 1 : 0);
+          }, 0);
+        const prev = previousMarketScoreInfo(state);
+        if (!prev) {
+          return circled.length + plusCount(circled);
+        }
+        const moves = state.mercato.moves || [];
+        const newer = [];
+        for (let i = prev.moveIndex + 1; i < moves.length; i++) {
+          const path = moves[i].path || [];
+          newer.push(path[path.length - 1]);
+        }
+        newer.push(destId);
+        return prev.value + newer.length + plusCount(newer);
+      }
+
+      function applyMarketDestinationEffect(state, destId) {
+        const node = getMarketNode(destId);
+        if (!node) return;
+        if (node.t === "goods" && node.district) {
+          autoMarkDistrictGoods(node.district, node.qty || 1, state);
+        } else if (node.t === "gold") {
+          circleResourceTrack(state, "gold", node.qty || 1);
+        } else if (node.t === "goats") {
+          circleResourceTrack(state, "goats", node.qty || 1);
+        } else if (node.t === "die") {
+          state.mercato.yellowDice = Math.min(
+            3,
+            (state.mercato.yellowDice || 0) + 1,
+          );
+        } else if (node.t === "score") {
+          const pts = computeMarketFlowerScore(state, destId);
+          state.mercato.diamonds[node.d] = pts;
+        }
+      }
+
+      function startMarketMove() {
+        if (!scorecardTurn || !scorecardDigitalState) return false;
+        normalizeMercatoState(scorecardDigitalState);
+        const view = effectiveDigitalView();
+        const diceValue = scorecardTurn.diceValue || 1;
+        if (!marketActionPossible(view, diceValue)) {
+          return false;
+        }
+        const range = marketStepRange(view, diceValue);
+        const steps = Math.max(range.min, Math.min(range.max, diceValue));
+        const goldCost = marketGoldCost(diceValue, steps, hasMarketStable(view));
+        const start = marketStewardId(view);
+        const used = marketUsedSet(view);
+        const dests = findMarketDestinations(start, steps, used);
+        setScorecardPending({
+          type: "market-move",
+          steps,
+          goldCost,
+          dests: Array.from(dests.entries()).map(([id, paths]) => ({
+            id,
+            paths,
+          })),
+          selectedId: null,
+          selectedPath: null,
+          pathIndex: 0,
+        });
+        showScorecardHalf("right");
+        return true;
+      }
+
+      function refreshMarketMove(keepSelection) {
+        if (
+          !scorecardPending ||
+          scorecardPending.type !== "market-move" ||
+          !scorecardTurn
+        ) {
+          return;
+        }
+        const selectedId = keepSelection ? scorecardPending.selectedId : null;
+        const diceValue = scorecardTurn.diceValue || 1;
+        const probe = cloneDigitalState(scorecardDigitalState);
+        if (scorecardTurn.pendingBuildings) {
+          for (const idx of scorecardTurn.pendingBuildings) {
+            const def = SCORECARD_SHEET_LAYOUT.buildings[idx];
+            if (!def || probe.buildings[idx]) continue;
+            probe.buildings[idx] = true;
+            probe.gold.spent = (probe.gold.spent || 0) + def.gold;
+            probe.goats.spent = (probe.goats.spent || 0) + def.goats;
+          }
+        }
+        const range = marketStepRange(probe, diceValue);
+        let steps = scorecardPending.steps;
+        steps = Math.max(range.min, Math.min(range.max, steps));
+        const goldCost = marketGoldCost(
+          diceValue,
+          steps,
+          hasMarketStable(probe),
+        );
+        const start = marketStewardId(probe);
+        const used = marketUsedSet(probe);
+        const dests = findMarketDestinations(start, steps, used);
+        let selectedPath = null;
+        let pathIndex = 0;
+        if (selectedId && dests.has(selectedId)) {
+          const paths = dests.get(selectedId);
+          pathIndex = Math.min(
+            scorecardPending.pathIndex || 0,
+            paths.length - 1,
+          );
+          selectedPath = paths[pathIndex];
+        }
+        setScorecardPending({
+          type: "market-move",
+          steps,
+          goldCost,
+          dests: Array.from(dests.entries()).map(([id, paths]) => ({
+            id,
+            paths,
+          })),
+          selectedId: selectedPath ? selectedId : null,
+          selectedPath,
+          pathIndex,
+        });
+      }
+
+      function adjustMarketSteps(delta) {
+        if (!scorecardPending || scorecardPending.type !== "market-move") return;
+        scorecardPending.steps += delta;
+        refreshMarketMove(true);
+      }
+
+      function onMarketNodeHit(nodeId) {
+        if (!scorecardPending || scorecardPending.type !== "market-move") return;
+        const found = (scorecardPending.dests || []).find((d) => d.id === nodeId);
+        if (!found || !found.paths || !found.paths.length) return;
+        let pathIndex = 0;
+        if (scorecardPending.selectedId === nodeId) {
+          pathIndex = (scorecardPending.pathIndex || 0) + 1;
+          if (pathIndex >= found.paths.length) pathIndex = 0;
+        }
+        setScorecardPending({
+          ...scorecardPending,
+          selectedId: nodeId,
+          selectedPath: found.paths[pathIndex].slice(),
+          pathIndex,
+        });
+      }
+
+      function drawMarketPath(ctx, path, color, widthScale, dashed) {
+        if (!path || path.length < 2) return;
+        const pts = path
+          .map((id) => getMarketNode(id))
+          .filter(Boolean)
+          .map((node) => sheetToStage(node.x, node.y));
+        if (pts.length < 2) return;
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = Math.max(2.2, pts[0].scale * 0.007 * widthScale);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        if (dashed) ctx.setLineDash([6, 7]);
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function renderMarketOverlay(ctx, view, stroke, pendingStroke) {
+        const mercato = view.mercato || emptyMercatoState();
+        (mercato.moves || []).forEach((move) => {
+          drawMarketPath(ctx, move.path, stroke, 1.15, false);
+        });
+        (mercato.circled || []).forEach((id) => {
+          const node = getMarketNode(id);
+          if (!node) return;
+          const pt = sheetToStage(node.x, node.y);
+          const r = node.r * pt.scale;
+          ctx.lineWidth = Math.max(2.2, r * 0.28);
+          ctx.strokeStyle = stroke;
+          drawMarkCircle(ctx, pt.x, pt.y, r * 1.05);
+        });
+        SCORECARD_MARKET_LAYOUT.diamonds.forEach((diamond, i) => {
+          const value = mercato.diamonds && mercato.diamonds[i];
+          if (value == null) return;
+          const pt = sheetToStage(diamond.x, diamond.y);
+          const fontPx = Math.max(12, diamond.r * pt.scale * 1.45);
+          ctx.fillStyle = "rgba(22, 14, 6, 0.95)";
+          ctx.font = `700 ${fontPx}px Cinzel, Georgia, serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(String(value), pt.x, pt.y + fontPx * 0.04);
+        });
+
+        const p = scorecardPending;
+        if (!p || p.type !== "market-move") return;
+        const origin = getMarketNode(marketStewardId(view));
+        if (origin) {
+          const pt = sheetToStage(origin.x, origin.y);
+          const r = origin.r * pt.scale;
+          ctx.fillStyle = "rgba(201, 168, 76, 0.4)";
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, r * 0.55, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        const ghostEdges = new Set();
+        (p.dests || []).forEach((d) => {
+          (d.paths || (d.path ? [d.path] : [])).forEach((path) => {
+            for (let i = 1; i < path.length; i++) {
+              ghostEdges.add(`${path[i - 1]}>${path[i]}`);
+            }
+          });
+        });
+        ghostEdges.forEach((edge) => {
+          const [a, b] = edge.split(">");
+          drawMarketPath(ctx, [a, b], "rgba(201, 168, 76, 0.38)", 0.9, true);
+        });
+        if (p.selectedPath) {
+          drawMarketPath(ctx, p.selectedPath, pendingStroke, 1.45, false);
+        }
+        (p.dests || []).forEach((d) => {
+          const node = getMarketNode(d.id);
+          if (!node) return;
+          const pt = sheetToStage(node.x, node.y);
+          const r = node.r * pt.scale;
+          const selected = p.selectedId === d.id;
+          ctx.lineWidth = Math.max(2, r * (selected ? 0.38 : 0.24));
+          ctx.strokeStyle = selected ? pendingStroke : "rgba(201, 168, 76, 0.95)";
+          drawMarkCircle(ctx, pt.x, pt.y, r * (selected ? 1.18 : 1.08));
+        });
+      }
+
       function renderScorecardMarks() {
         if (!scorecardMarksCtx || !scorecardStage) return;
         const { w, h } = stageSize();
@@ -2282,9 +3070,11 @@
 
         const isPendingShop = (districtId, shopIndex) =>
           scorecardPending &&
-          scorecardPending.type === "shop" &&
-          scorecardPending.districtId === districtId &&
-          scorecardPending.shopIndex === shopIndex;
+          ((scorecardPending.type === "shop" &&
+            scorecardPending.districtId === districtId &&
+            scorecardPending.shopIndex === shopIndex) ||
+            (scorecardPending.type === "shop-turn" &&
+              scorecardPending.districtId === districtId));
 
         // Shops
         for (const [districtId, def] of Object.entries(
@@ -2320,7 +3110,7 @@
           }
         }
 
-        // Gold / goats — circle newly obtained (skip printed preCircled index 0)
+        const oval = SCORECARD_SHEET_LAYOUT.resourceOval;
         const renderTrack = (layoutTrack, stateTrack, pendingType) => {
           const pending =
             scorecardPending && scorecardPending.type === pendingType;
@@ -2329,12 +3119,13 @@
           layoutTrack.symbols.forEach((sym, i) => {
             const pt = sheetToStage(sym.x, sym.y);
             const r = sym.r * pt.scale;
-            ctx.lineWidth = Math.max(2, r * 0.25);
             if (i < circled && i >= layoutTrack.preCircled) {
-              ctx.strokeStyle = pending ? pendingStroke : stroke;
-              drawMarkCircle(ctx, pt.x, pt.y, r);
+              ctx.lineWidth = Math.max(2.2, r * oval.lineWidthScale);
+              ctx.strokeStyle = pending ? pendingStroke : oval.color;
+              drawMarkOval(ctx, pt.x, pt.y, r);
             }
             if (i < spent) {
+              ctx.lineWidth = Math.max(2, r * 0.25);
               ctx.strokeStyle = stroke;
               drawMarkX(ctx, pt.x, pt.y, r * 0.85);
             }
@@ -2355,6 +3146,47 @@
           ctx.strokeStyle = turnsPending ? pendingStroke : stroke;
           drawMarkX(ctx, pt.x, pt.y, r * 0.7);
         });
+
+        // Buildings
+        SCORECARD_SHEET_LAYOUT.buildings.forEach((b, i) => {
+          if (!view.buildings || !view.buildings[i]) return;
+          const pt = sheetToStage(b.x, b.y);
+          const r = b.r * pt.scale;
+          const pendingB =
+            scorecardTurn &&
+            scorecardTurn.pendingBuildings &&
+            scorecardTurn.pendingBuildings.includes(i);
+          ctx.lineWidth = Math.max(2.2, r * 0.28);
+          ctx.strokeStyle = pendingB ? pendingStroke : stroke;
+          drawMarkX(ctx, pt.x, pt.y, r);
+        });
+
+        renderMarketOverlay(ctx, view, stroke, pendingStroke);
+
+        // Live sector diamonds + octagon total
+        const scores = liveDiamondScores(view);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "rgba(22, 14, 6, 0.95)";
+        for (const [id, diamond] of Object.entries(
+          SCORECARD_SHEET_LAYOUT.scoreDiamonds,
+        )) {
+          const value = scores[id] || 0;
+          if (value <= 0) continue;
+          const pt = sheetToStage(diamond.x, diamond.y);
+          const fontPx = Math.max(14, diamond.r * pt.scale * 1.55);
+          ctx.font = `700 ${fontPx}px Cinzel, Georgia, serif`;
+          ctx.fillText(String(value), pt.x, pt.y + fontPx * 0.04);
+        }
+
+        const octagon = SCORECARD_SHEET_LAYOUT.scoreOctagon;
+        if (octagon) {
+          const octagonTotal = liveOctagonTotal(scores);
+          const pt = sheetToStage(octagon.x, octagon.y);
+          const fontPx = Math.max(16, octagon.r * pt.scale * 1.55);
+          ctx.font = `700 ${fontPx}px Cinzel, Georgia, serif`;
+          ctx.fillText(String(octagonTotal), pt.x, pt.y + fontPx * 0.04);
+        }
       }
 
       function buildScorecardHitLayer() {
@@ -2423,6 +3255,46 @@
             "data-index": i,
           }, `Turno ${i + 1}`);
         });
+
+        SCORECARD_SHEET_LAYOUT.buildings.forEach((b, i) => {
+          addHit(b.x, b.y, b.r, {
+            "data-kind": "building",
+            "data-index": i,
+          }, `Edificio ${i + 1}`);
+        });
+
+        SCORECARD_MARKET_LAYOUT.nodes.forEach((node) => {
+          if (node.t === "steward") return;
+          addHit(node.x, node.y, node.r, {
+            "data-kind": "market",
+            "data-node": node.id,
+          }, "Mercato");
+        });
+        updateMarketHitStates();
+      }
+
+      function updateMarketHitStates() {
+        if (!scorecardHitLayer) return;
+        const destIds = new Set();
+        const selectedId =
+          scorecardPending && scorecardPending.type === "market-move"
+            ? scorecardPending.selectedId
+            : null;
+        if (
+          scorecardTurn &&
+          scorecardTurn.choice === "distance" &&
+          scorecardPending &&
+          scorecardPending.type === "market-move"
+        ) {
+          (scorecardPending.dests || []).forEach((d) => destIds.add(d.id));
+        }
+        scorecardHitLayer.querySelectorAll('[data-kind="market"]').forEach((btn) => {
+          const id = btn.getAttribute("data-node");
+          const isDest = destIds.has(id);
+          btn.classList.toggle("is-disabled", !isDest);
+          btn.classList.toggle("market-dest", isDest && id !== selectedId);
+          btn.classList.toggle("market-selected", isDest && id === selectedId);
+        });
       }
 
       function updateScorecardActionBar() {
@@ -2430,10 +3302,76 @@
         const label = document.getElementById("scorecard-action-label");
         const qtyWrap = document.getElementById("scorecard-qty-controls");
         const qtyVal = document.getElementById("scorecard-qty-value");
+        const confirmBtn = document.getElementById("scorecard-action-confirm");
         if (!bar || !label) return;
+        if (qtyWrap) qtyWrap.hidden = true;
+
+        if (scorecardTurn) {
+          bar.classList.add("show");
+          const t = scorecardTurn;
+          if (!t.choice) {
+            label.textContent = "Scegli Quantità o Distanza";
+            if (confirmBtn) confirmBtn.disabled = true;
+            return;
+          }
+          if (t.choice === "distance") {
+            const p = scorecardPending;
+            if (qtyWrap) qtyWrap.hidden = false;
+            if (qtyVal && p && p.type === "market-move") {
+              qtyVal.textContent = String(p.steps);
+            }
+            const nDest =
+              p && p.type === "market-move" ? (p.dests || []).length : 0;
+            const goldCost =
+              p && p.type === "market-move" ? p.goldCost || 0 : 0;
+            const selected =
+              p && p.type === "market-move" && p.selectedId;
+            if (!nDest) {
+              label.textContent =
+                "Nessun percorso con questi passi. Usa ± (oro / scuderie) o Annulla.";
+            } else if (selected) {
+              const nPaths = (
+                (p.dests || []).find((d) => d.id === p.selectedId) || {}
+              ).paths;
+              const extra =
+                nPaths && nPaths.length > 1
+                  ? ` Tocca di nuovo per un altro percorso (${(p.pathIndex || 0) + 1}/${nPaths.length}).`
+                  : "";
+              label.textContent =
+                (goldCost > 0
+                  ? `Intendente: ${p.steps} passi (−${goldCost} oro). Conferma.`
+                  : `Intendente: ${p.steps} passi. Conferma.`) + extra;
+            } else {
+              label.textContent =
+                `Intendente: ${p.steps} passi (dado ${t.diceValue}). Tocca un arrivo. ± spende oro.`;
+            }
+            if (confirmBtn) confirmBtn.disabled = !selected;
+            return;
+          }
+          const p = scorecardPending;
+          if (p && (p.type === "gold" || p.type === "goats")) {
+            const name = p.type === "gold" ? "Oro" : "Capre";
+            label.textContent = `${name}: +${p.qty}. Puoi comprare edifici, poi Conferma. Frecce: cambia metà.`;
+            if (confirmBtn) confirmBtn.disabled = false;
+            return;
+          }
+          if (p && p.type === "shop-turn") {
+            const placed = countNewShopMarks(
+              p.shops,
+              scorecardDigitalState.districts[p.districtId].shops,
+            );
+            label.textContent = `Negozi: ${placed}/${p.quota}. Finisci il negozio iniziato prima di aprirne un altro. Frecce: cambia metà.`;
+            if (confirmBtn) confirmBtn.disabled = placed !== p.quota;
+            return;
+          }
+          label.textContent = "Puoi comprare edifici, poi Conferma.";
+          if (confirmBtn) confirmBtn.disabled = false;
+          return;
+        }
+
         if (!scorecardPending) {
           bar.classList.remove("show");
-          if (qtyWrap) qtyWrap.hidden = true;
+          if (confirmBtn) confirmBtn.disabled = false;
           return;
         }
         bar.classList.add("show");
@@ -2442,6 +3380,7 @@
         if ((p.type === "gold" || p.type === "goats") && qtyVal) {
           qtyVal.textContent = String(p.qty);
         }
+        if (confirmBtn) confirmBtn.disabled = false;
         if (p.type === "shop") {
           const n = p.marked.filter(Boolean).length;
           const total = p.marked.length;
@@ -2467,15 +3406,49 @@
       function setScorecardPending(pending) {
         scorecardPending = pending;
         updateScorecardActionBar();
+        updateMarketHitStates();
         renderScorecardMarks();
       }
 
       function cancelScorecardPending() {
+        if (scorecardTurn) {
+          if (scorecardTurn.pendingBuildings && scorecardTurn.pendingBuildings.length) {
+            scorecardTurn.pendingBuildings.pop();
+            if (scorecardTurn.choice === "distance") refreshMarketMove(true);
+            else {
+              updateScorecardActionBar();
+              renderScorecardMarks();
+            }
+            return;
+          }
+          if (scorecardTurn.choice) {
+            if (
+              scorecardPending &&
+              scorecardPending.type === "market-move" &&
+              scorecardPending.selectedId
+            ) {
+              scorecardPending.selectedId = null;
+              scorecardPending.selectedPath = null;
+              setScorecardPending({ ...scorecardPending });
+              return;
+            }
+            scorecardTurn.choice = null;
+            setScorecardPending(null);
+            showScorecardChoice(true);
+            showScorecardHalf("right");
+            return;
+          }
+          return;
+        }
         setScorecardPending(null);
       }
       window.cancelScorecardPending = cancelScorecardPending;
 
       function confirmScorecardPending() {
+        if (scorecardTurn) {
+          confirmScorecardTurn();
+          return;
+        }
         if (!scorecardPending || !scorecardDigitalState) return;
         const p = scorecardPending;
         const info = { type: p.type, payload: cloneDigitalState(p) };
@@ -2510,6 +3483,10 @@
 
       function adjustScorecardQty(delta) {
         if (!scorecardPending) return;
+        if (scorecardPending.type === "market-move") {
+          adjustMarketSteps(delta);
+          return;
+        }
         if (scorecardPending.type !== "gold" && scorecardPending.type !== "goats")
           return;
         const trackKey = scorecardPending.type;
@@ -2529,6 +3506,294 @@
       }
       window.adjustScorecardQty = adjustScorecardQty;
 
+      function showScorecardChoice(show) {
+        const el = document.getElementById("scorecard-choice");
+        if (el) el.classList.toggle("show", !!show);
+      }
+
+      function showScorecardHalf(side) {
+        const bounds = getScorecardPanBounds();
+        if (bounds.min === 0 && bounds.max === 0) return;
+        scorecardPanOffsetX = side === "left" ? bounds.max : bounds.min;
+        applyScorecardPanOffset();
+      }
+
+      function openScorecardForTurn(pick) {
+        scorecardTurn = {
+          player: pick.player,
+          districtKey: pick.districtKey,
+          diceCount: pick.diceCount,
+          diceValue: pick.diceValue,
+          choice: null,
+          pendingBuildings: [],
+        };
+        setScorecardPending(null);
+        const page = document.getElementById("scorecard-page");
+        page.classList.remove("hidden");
+        page.classList.add("turn-mode");
+        document.getElementById("player-setup").classList.add("hidden");
+        showScorecardChoice(true);
+        showScorecardHalf("right");
+        setBottomControlsVisible(false);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            resizeScorecardCanvas(true);
+            showScorecardHalf("right");
+            buildScorecardHitLayer();
+            renderScorecardMarks();
+            updateScorecardActionBar();
+          });
+        });
+      }
+
+      function closeScorecardTurnView() {
+        const page = document.getElementById("scorecard-page");
+        page.classList.add("hidden");
+        page.classList.remove("turn-mode");
+        showScorecardChoice(false);
+        scorecardTurn = null;
+        setScorecardPending(null);
+        setBottomControlsVisible(true);
+      }
+
+      function applyQtyActionForPick() {
+        const t = scorecardTurn;
+        const key = t.districtKey;
+        if (key === "Gold" || key === "Goats") {
+          const trackKey = key === "Gold" ? "gold" : "goats";
+          const layout = SCORECARD_SHEET_LAYOUT[trackKey];
+          const confirmed = scorecardDigitalState[trackKey].circled;
+          const qty = Math.min(t.diceCount, layout.count - confirmed);
+          setScorecardPending({
+            type: trackKey,
+            qty,
+            circled: confirmed + qty,
+          });
+          showScorecardHalf("right");
+          return;
+        }
+        const districtId = DISTRICT_SHEET_ID[key];
+        if (!districtId) return;
+        const confirmedShops = scorecardDigitalState.districts[districtId].shops;
+        const remaining = remainingUnmarkedInDistrict(
+          districtId,
+          scorecardDigitalState,
+        );
+        const quota = Math.min(t.diceCount, remaining);
+        setScorecardPending({
+          type: "shop-turn",
+          districtId,
+          shops: confirmedShops.map((s) => s.marked.slice()),
+          quota,
+        });
+        showScorecardHalf("left");
+      }
+
+      function chooseScorecardAction(choice) {
+        if (!scorecardTurn) return;
+        if (choice === "distance") {
+          scorecardTurn.choice = "distance";
+          showScorecardChoice(false);
+          if (!startMarketMove()) {
+            scorecardTurn.choice = null;
+            showScorecardChoice(true);
+            window.alert(
+              "Mossa nel mercato non possibile con i passi e l'oro disponibili.",
+            );
+          }
+          return;
+        }
+        scorecardTurn.choice = choice;
+        showScorecardChoice(false);
+        applyQtyActionForPick();
+      }
+      window.chooseScorecardAction = chooseScorecardAction;
+
+      function isScorecardTurnReady() {
+        if (!scorecardTurn || !scorecardTurn.choice) return false;
+        if (scorecardTurn.choice === "distance") {
+          const p = scorecardPending;
+          return !!(
+            p &&
+            p.type === "market-move" &&
+            p.selectedPath &&
+            p.selectedPath.length > 1
+          );
+        }
+        const p = scorecardPending;
+        if (p && p.type === "shop-turn") {
+          const placed = countNewShopMarks(
+            p.shops,
+            scorecardDigitalState.districts[p.districtId].shops,
+          );
+          return placed === p.quota;
+        }
+        return !!(p && (p.type === "gold" || p.type === "goats"));
+      }
+
+      function commitPendingActionToState() {
+        const p = scorecardPending;
+        if (!p) return;
+        if (p.type === "shop-turn") {
+          p.shops.forEach((marked, i) => {
+            scorecardDigitalState.districts[p.districtId].shops[i].marked =
+              marked.slice();
+          });
+        } else if (p.type === "gold") {
+          scorecardDigitalState.gold.circled = p.circled;
+        } else if (p.type === "goats") {
+          scorecardDigitalState.goats.circled = p.circled;
+        } else if (p.type === "market-move" && p.selectedPath) {
+          normalizeMercatoState(scorecardDigitalState);
+          const path = p.selectedPath.slice();
+          const destId = path[path.length - 1];
+          if (p.goldCost) {
+            scorecardDigitalState.gold.spent =
+              (scorecardDigitalState.gold.spent || 0) + p.goldCost;
+          }
+          applyMarketDestinationEffect(scorecardDigitalState, destId);
+          scorecardDigitalState.mercato.moves.push({ path });
+          scorecardDigitalState.mercato.circled.push(destId);
+          scorecardDigitalState.mercato.steward = destId;
+          scorecardDigitalState.mercato.used = Array.from(
+            marketUsedSet(scorecardDigitalState),
+          );
+          syncYellowDiceSelect();
+        }
+      }
+
+      function confirmScorecardTurn() {
+        if (!scorecardTurn || !isScorecardTurnReady()) return;
+        commitPendingActionToState();
+        if (scorecardTurn.pendingBuildings) {
+          for (const idx of scorecardTurn.pendingBuildings) {
+            const def = SCORECARD_SHEET_LAYOUT.buildings[idx];
+            if (!def || scorecardDigitalState.buildings[idx]) continue;
+            scorecardDigitalState.buildings[idx] = true;
+            scorecardDigitalState.gold.spent =
+              (scorecardDigitalState.gold.spent || 0) + def.gold;
+            scorecardDigitalState.goats.spent =
+              (scorecardDigitalState.goats.spent || 0) + def.goats;
+          }
+        }
+        const lastOfRound = pickIndex >= pickSequence.length - 1;
+        if (lastOfRound) markRoundTurnDie();
+        setScorecardPending(null);
+        saveDigitalScorecardState();
+        syncHudFromScorecard();
+        closeScorecardTurnView();
+
+        pickIndex += 1;
+        if (pickIndex < pickSequence.length) {
+          setTimeout(nextPlayerContext, 300);
+        } else {
+          document.getElementById("roll-btn").disabled = true;
+          document.getElementById("end-btn").disabled = false;
+          document.getElementById("end-btn").classList.add("active");
+        }
+      }
+
+      function syncHudFromScorecard() {
+        if (!scorecardDigitalState) return;
+        const view = effectiveDigitalView();
+        gold = remainingResource(view, "gold");
+        goats = remainingResource(view, "goats");
+        const scores = liveDiamondScores(view);
+        score = liveOctagonTotal(scores);
+        refreshHUD();
+      }
+
+      function onShopTurnHit(districtId, shopIndex, symIndex) {
+        const p = scorecardPending;
+        if (
+          !p ||
+          p.type !== "shop-turn" ||
+          p.districtId !== districtId
+        ) {
+          return;
+        }
+        const confirmed =
+          scorecardDigitalState.districts[districtId].shops;
+        if (confirmed[shopIndex].marked[symIndex]) return;
+
+        const shops = p.shops.map((m) => m.slice());
+        if (shops[shopIndex][symIndex]) {
+          shops[shopIndex][symIndex] = false;
+          const incomplete = shops.findIndex((marked) => shopIsStarted(marked));
+          if (incomplete >= 0) {
+            for (let i = 0; i < shops.length; i++) {
+              if (i === incomplete) continue;
+              shops[i] = confirmed[i].marked.slice();
+            }
+          }
+        } else {
+          const pendingView = {
+            districts: {
+              [districtId]: { shops: shops.map((marked) => ({ marked })) },
+            },
+          };
+          if (!canPlaceOnShop(districtId, shopIndex, pendingView)) return;
+          const placed = countNewShopMarks(shops, confirmed);
+          if (placed >= p.quota) return;
+          shops[shopIndex][symIndex] = true;
+        }
+        setScorecardPending({
+          type: "shop-turn",
+          districtId,
+          shops,
+          quota: p.quota,
+        });
+      }
+
+      function onBuildingHit(index) {
+        if (!scorecardTurn || !scorecardTurn.choice) return;
+        if (!scorecardDigitalState.buildings) {
+          scorecardDigitalState.buildings = SCORECARD_SHEET_LAYOUT.buildings.map(
+            () => false,
+          );
+        }
+        if (scorecardDigitalState.buildings[index]) return;
+        const pending = scorecardTurn.pendingBuildings || [];
+        const already = pending.indexOf(index);
+        if (already >= 0) {
+          scorecardTurn.pendingBuildings = pending.filter((i) => i !== index);
+          if (scorecardTurn.choice === "distance") refreshMarketMove(true);
+          else {
+            updateScorecardActionBar();
+            renderScorecardMarks();
+          }
+          return;
+        }
+        if (!isScorecardTurnReady() && scorecardTurn.choice === "qty") {
+          const p = scorecardPending;
+          if (p && p.type === "shop-turn") return;
+        }
+        const probe = cloneDigitalState(scorecardDigitalState);
+        if (scorecardPending && scorecardPending.type === "gold") {
+          probe.gold.circled = scorecardPending.circled;
+        }
+        if (scorecardPending && scorecardPending.type === "goats") {
+          probe.goats.circled = scorecardPending.circled;
+        }
+        if (scorecardPending && scorecardPending.type === "market-move") {
+          probe.gold.spent =
+            (probe.gold.spent || 0) + (scorecardPending.goldCost || 0);
+        }
+        for (const idx of pending) {
+          const def = SCORECARD_SHEET_LAYOUT.buildings[idx];
+          probe.buildings[idx] = true;
+          probe.gold.spent += def.gold;
+          probe.goats.spent += def.goats;
+        }
+        if (!canAffordBuilding(index, probe)) return;
+        scorecardTurn.pendingBuildings = pending.concat(index);
+        if (scorecardTurn.choice === "distance") refreshMarketMove(true);
+        else {
+          updateScorecardActionBar();
+          renderScorecardMarks();
+        }
+      }
+
       function onScorecardHitClick(evt) {
         const btn = evt.currentTarget;
         const kind = btn.getAttribute("data-kind");
@@ -2536,30 +3801,50 @@
         evt.preventDefault();
         evt.stopPropagation();
 
+        if (scorecardTurn) {
+          if (!scorecardTurn.choice) return;
+          if (kind === "building") {
+            onBuildingHit(Number(btn.getAttribute("data-index")));
+            return;
+          }
+          if (kind === "market" && scorecardTurn.choice === "distance") {
+            onMarketNodeHit(btn.getAttribute("data-node"));
+            return;
+          }
+          if (
+            kind === "shop-symbol" &&
+            scorecardTurn.choice === "qty" &&
+            scorecardPending &&
+            scorecardPending.type === "shop-turn"
+          ) {
+            onShopTurnHit(
+              btn.getAttribute("data-district"),
+              Number(btn.getAttribute("data-shop")),
+              Number(btn.getAttribute("data-symbol")),
+            );
+          }
+          return;
+        }
+
         if (kind === "shop-symbol") {
           const districtId = btn.getAttribute("data-district");
           const shopIndex = Number(btn.getAttribute("data-shop"));
           const symIndex = Number(btn.getAttribute("data-symbol"));
           const view = scorecardDigitalState;
-          const active = getActiveShopIndex(districtId, view);
-          // Allow edits only on active shop, or continue pending on same shop
-          if (
-            scorecardPending &&
-            scorecardPending.type === "shop" &&
-            (scorecardPending.districtId !== districtId ||
-              scorecardPending.shopIndex !== shopIndex)
-          ) {
-            // Switch only if cancelling implicit — require same pending shop
-            return;
-          }
-          if (active !== shopIndex) {
-            // Completed shops are locked; future shops blocked until previous done
-            return;
-          }
           const confirmed =
             view.districts[districtId].shops[shopIndex].marked.slice();
-          // Segni già confermati restano bloccati
           if (confirmed[symIndex]) return;
+
+          const pendingView = effectiveDigitalView();
+          const unmarkingPending =
+            scorecardPending &&
+            scorecardPending.type === "shop" &&
+            scorecardPending.districtId === districtId &&
+            scorecardPending.shopIndex === shopIndex &&
+            scorecardPending.marked[symIndex];
+          if (!unmarkingPending && !canPlaceOnShop(districtId, shopIndex, pendingView)) {
+            return;
+          }
 
           let marked;
           if (
@@ -2573,7 +3858,6 @@
             marked = confirmed.slice();
           }
           marked[symIndex] = !marked[symIndex];
-          // Se non resta nulla di nuovo rispetto al confermato, annulla pending
           const same =
             marked.length === confirmed.length &&
             marked.every((v, i) => v === confirmed[i]);
@@ -2630,6 +3914,11 @@
           return;
         }
 
+        if (kind === "building") {
+          onBuildingHit(Number(btn.getAttribute("data-index")));
+          return;
+        }
+
         if (kind === "turn") {
           const index = Number(btn.getAttribute("data-index"));
           const confirmed = scorecardDigitalState.turns.marked;
@@ -2671,6 +3960,15 @@
           const parsed = JSON.parse(raw);
           if (parsed && parsed.version === 1 && parsed.districts) {
             scorecardDigitalState = parsed;
+            if (
+              !Array.isArray(scorecardDigitalState.buildings) ||
+              scorecardDigitalState.buildings.length !==
+                SCORECARD_SHEET_LAYOUT.buildings.length
+            ) {
+              scorecardDigitalState.buildings =
+                SCORECARD_SHEET_LAYOUT.buildings.map(() => false);
+            }
+            normalizeMercatoState(scorecardDigitalState);
           }
         } catch (_err) {
           // keep empty
@@ -3175,9 +4473,9 @@
             y: evt.clientY,
           });
 
-          // Freehand only on Mercato / Edifici regions
+          // Freehand only on Mercato / Edifici regions, not during a guided turn
           const norm = getScorecardNormPoint(evt);
-          if (!isInFreehandRegion(norm.x, norm.y)) {
+          if (scorecardTurn || !isInFreehandRegion(norm.x, norm.y)) {
             return;
           }
 
@@ -3503,11 +4801,13 @@
       }
 
       function showMainModeSetup() {
-        document.getElementById("mode-setup").classList.remove("hidden");
-        document.getElementById("player-setup").classList.add("hidden");
+        document.getElementById("mode-setup").classList.add("hidden");
+        document.getElementById("player-setup").classList.remove("hidden");
         document.getElementById("scorecard-page").classList.add("hidden");
+        document.getElementById("scorecard-page").classList.remove("turn-mode");
         document.getElementById("scoreboard").classList.remove("show");
         document.getElementById("market-skip-modal").classList.remove("show");
+        showScorecardChoice(false);
         closeInstructionsModal();
         closeScoreSheetModal();
         closeHamburgerMenu();
@@ -3589,6 +4889,7 @@
         if (pickIndex < pickSequence.length) {
           setTimeout(nextPlayerContext, 300);
         } else {
+          markRoundTurnDie();
           // Tutti i giocatori hanno avuto il loro turno (anche con skip)
           document.getElementById("roll-btn").disabled = true;
           document.getElementById("end-btn").disabled = false;
@@ -3630,6 +4931,12 @@
         document.getElementById("player-setup").classList.add("hidden");
         document.getElementById("mode-setup").classList.add("hidden");
         document.getElementById("scorecard-page").classList.add("hidden");
+        document.getElementById("scorecard-page").classList.remove("turn-mode");
+        clearDigitalScorecardState();
+        if (n === 4) {
+          scorecardDigitalState.turns.marked = 2;
+          saveDigitalScorecardState();
+        }
         document.getElementById("roll-btn").disabled = false;
         document.getElementById("end-btn").disabled = true;
         document.getElementById("end-btn").classList.remove("active");
@@ -4006,6 +5313,15 @@
         });
       }
 
+      function markRoundTurnDie() {
+        if (!scorecardDigitalState) return;
+        const maxSlots = SCORECARD_SHEET_LAYOUT.turns.count;
+        if (scorecardDigitalState.turns.marked < maxSlots) {
+          scorecardDigitalState.turns.marked += 1;
+          saveDigitalScorecardState();
+        }
+      }
+
       function pickDistrict(key) {
         if (!currentGroups[key] || currentGroups[key].length === 0) return;
         if (pickedThisTurn.has(key)) return;
@@ -4013,27 +5329,8 @@
         hasPicked = true;
 
         const cnt = currentGroups[key].length;
+        const diceValue = currentGroups[key][0];
         const diceMixLabel = getDiceColorMixLabelForDistrict(key);
-
-        switch (key) {
-          case "Gold":
-            gold += cnt;
-            setStatus(`+${cnt} monete d'oro! Totale: ${gold}`);
-            break;
-          case "Goats":
-            goats += cnt;
-            setStatus(`+${cnt} capre! Totale: ${goats}`);
-            break;
-          default: {
-            const toDeliver = cnt;
-            const before = shopProgress[key];
-            const total = shopSlots[key].reduce((a, b) => a + b, 0);
-            shopProgress[key] = Math.min(shopProgress[key] + toDeliver, total);
-            const actual = shopProgress[key] - before;
-            scoreShops(key, before, shopProgress[key]);
-            setStatus(`+${actual} consegne in ${key}!`);
-          }
-        }
 
         // Rimpicciolisci e sposta i dadi di questo distretto a destra nella zona
         shrinkPickedDice(key);
@@ -4056,8 +5353,6 @@
         // Smorza la zona visiva per indicare che è stata scelta
         if (zoneOverlays[key]) zoneOverlays[key].material.opacity = 0.08;
 
-        refreshHUD();
-
         // Log per la tabella finale
         const _lt = currentGameTurn - 1;
         const _lp = getCurrentPlayer();
@@ -4067,19 +5362,18 @@
           district: key,
           cnt,
           mix: diceMixLabel,
+          face: diceValue,
         });
 
-        // Gestione multi-giocatore: avanza al prossimo giocatore
         playerHasPicked = true;
         setAllDistricts(false);
-        pickIndex++;
-        if (pickIndex < pickSequence.length) {
-          setTimeout(nextPlayerContext, 600);
-        } else {
-          document.getElementById("roll-btn").disabled = true;
-          document.getElementById("end-btn").disabled = false;
-          document.getElementById("end-btn").classList.add("active");
-        }
+
+        openScorecardForTurn({
+          player: _lp,
+          districtKey: key,
+          diceCount: cnt,
+          diceValue,
+        });
       }
 
       function shrinkPickedDice(key) {
@@ -4134,8 +5428,9 @@
         document.getElementById("end-btn").disabled = true;
         document.getElementById("end-btn").classList.remove("active");
         document.getElementById("roll-btn").disabled = true;
-        // Resetta selettore dadi gialli (sempre, anche a fine partita)
+        // I dadi gialli del mercato restano; si possono ancora comprare gli altri
         document.getElementById("yellow-dice").value = "0";
+        syncYellowDiceSelect();
 
         currentGameTurn++;
         turn = currentGameTurn;
@@ -4194,6 +5489,8 @@
         document.getElementById("scoreboard").classList.remove("show");
         document.getElementById("market-skip-modal").classList.remove("show");
         clearScorecardCanvas();
+        clearDigitalScorecardState();
+        scorecardTurn = null;
         showMainModeSetup();
         setStatus();
         refreshHUD();
