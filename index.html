@@ -1872,26 +1872,7 @@
         <input type="hidden" id="yellow-dice" value="0" />
       </div>
 
-      <div id="mode-setup">
-        <div class="setup-card">
-          <h2>CORINTH</h2>
-          <p>Partita in locale, oppure scheda libera</p>
-          <div class="player-btns">
-            <button
-              class="player-btn mode-btn"
-              onclick="chooseMainMode('board')"
-            >
-              PARTITA
-            </button>
-            <button
-              class="player-btn mode-btn"
-              onclick="chooseMainMode('scorecard')"
-            >
-              SCHEDE
-            </button>
-          </div>
-        </div>
-      </div>
+      <div id="mode-setup" class="hidden" aria-hidden="true"></div>
 
       <div id="scorecard-page" class="hidden">
         <div id="board-peek-bar" class="board-peek-bar">
@@ -7323,38 +7304,18 @@
         document.getElementById("scoreboard").classList.remove("show");
         document.getElementById("market-skip-modal").classList.remove("show");
 
-        if (mode === "board") {
-          playMode = "hotseat";
-          document.getElementById("scorecard-page").classList.add("hidden");
-          document.getElementById("scorecard-page").classList.remove(
-            "turn-mode",
-            "consult-mode",
-            "review-mode",
-          );
-          document.getElementById("player-setup").classList.remove("hidden");
-          const seat = document.getElementById("seat-setup");
-          if (seat) seat.classList.add("hidden");
-          document.getElementById("turn-info").textContent = "";
-        } else {
-          playMode = "practice";
-          engineState = null;
-          document.getElementById("player-setup").classList.add("hidden");
-          const seatPractice = document.getElementById("seat-setup");
-          if (seatPractice) seatPractice.classList.add("hidden");
-          document.getElementById("scorecard-page").classList.remove("hidden");
-          document.getElementById("turn-info").textContent = "Segnapunti";
-          showScorecardHalf("full");
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              resizeScorecardCanvas(true);
-              centerScorecardPanOffset();
-              if (scorecardDigitalReady) {
-                buildScorecardHitLayer();
-                renderScorecardMarks();
-              }
-            });
-          });
-        }
+        // Solo modalità partita: la scheda libera non è più selezionabile all'avvio.
+        playMode = "hotseat";
+        document.getElementById("scorecard-page").classList.add("hidden");
+        document.getElementById("scorecard-page").classList.remove(
+          "turn-mode",
+          "consult-mode",
+          "review-mode",
+        );
+        document.getElementById("player-setup").classList.remove("hidden");
+        const seat = document.getElementById("seat-setup");
+        if (seat) seat.classList.add("hidden");
+        document.getElementById("turn-info").textContent = "";
 
         setBottomControlsVisible(false);
         updateHeaderScorecardBtn();
@@ -7365,8 +7326,7 @@
         engineState = null;
         localSeat = 0;
         viewingSeat = 0;
-        document.getElementById("mode-setup").classList.remove("hidden");
-        document.getElementById("player-setup").classList.add("hidden");
+        document.getElementById("mode-setup").classList.add("hidden");
         const seat = document.getElementById("seat-setup");
         if (seat) seat.classList.add("hidden");
         document.getElementById("scorecard-page").classList.add("hidden");
@@ -7385,6 +7345,8 @@
         document.getElementById("turn-info").textContent = "";
         setBottomControlsVisible(false);
         updateHeaderScorecardBtn();
+        // Avvio diretto in partita (scelta numero giocatori).
+        chooseMainMode("board");
       }
 
       function resetFromMenu() {
