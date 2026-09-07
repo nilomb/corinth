@@ -996,39 +996,33 @@
         pointer-events: auto;
       }
       #scorecard-page.calibrating .scorecard-hit {
-        /* Markers only: drag/scale happens on the layer box + handles. */
+        /* Pallini guida: drag/scale sul riquadro + maniglie laterali. */
         pointer-events: none;
         cursor: default;
         touch-action: none;
-        opacity: 0.9;
+        outline: none !important;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="bonus"] {
-        background: rgba(210, 70, 170, 0.06);
-        outline: 1.5px solid rgba(210, 70, 170, 0.7);
+        background: rgba(210, 70, 170, 0.9);
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="shops"] {
-        background: rgba(80, 180, 255, 0.05);
-        outline: 1.5px solid rgba(80, 180, 255, 0.7);
+        background: rgba(80, 180, 255, 0.9);
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="turns"] {
-        background: rgba(255, 140, 70, 0.06);
-        outline: 1.5px solid rgba(255, 140, 70, 0.7);
+        background: rgba(255, 140, 70, 0.9);
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="market"] {
-        background: rgba(201, 168, 76, 0.06);
-        outline: 1.5px solid rgba(201, 168, 76, 0.7);
+        background: rgba(201, 168, 76, 0.92);
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="gold"] {
-        background: rgba(240, 200, 50, 0.06);
-        outline: 1.5px solid rgba(240, 200, 50, 0.7);
+        background: rgba(240, 200, 50, 0.92);
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="goats"] {
-        background: rgba(120, 170, 70, 0.06);
-        outline: 1.5px solid rgba(120, 170, 70, 0.7);
+        background: rgba(120, 170, 70, 0.9);
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="buildings"] {
-        background: rgba(190, 90, 50, 0.06);
-        outline: 1.5px solid rgba(190, 90, 50, 0.7);
+        background: rgba(190, 90, 50, 0.9);
       }
       #scorecard-page.calibrating .scorecard-hit.is-disabled {
         pointer-events: none;
@@ -1052,30 +1046,45 @@
       }
       .cal-handle {
         position: absolute;
-        width: 28px;
-        height: 28px;
-        margin: -14px 0 0 -14px;
-        border-radius: 50%;
-        background: rgba(26, 16, 8, 0.92);
-        border: 2px solid rgba(245, 230, 200, 0.95);
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
         z-index: 3;
         touch-action: none;
         pointer-events: auto;
+        background: rgba(245, 230, 200, 0.95);
+        border: 1.5px solid rgba(26, 16, 8, 0.7);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
       }
-      .cal-handle-nw { left: 0; top: 0; cursor: nwse-resize; }
-      .cal-handle-ne { left: 100%; top: 0; cursor: nesw-resize; }
-      .cal-handle-sw { left: 0; top: 100%; cursor: nesw-resize; }
-      .cal-handle-se { left: 100%; top: 100%; cursor: nwse-resize; }
-      .cal-handle-n { left: 50%; top: 0; cursor: ns-resize; }
-      .cal-handle-s { left: 50%; top: 100%; cursor: ns-resize; }
-      .cal-handle-w { left: 0; top: 50%; cursor: ew-resize; }
-      .cal-handle-e { left: 100%; top: 50%; cursor: ew-resize; }
+      .cal-handle-w,
+      .cal-handle-e {
+        width: 14px;
+        height: 30px;
+        margin: -15px 0 0 -7px;
+        border-radius: 8px;
+        cursor: ew-resize;
+      }
+      .cal-handle-n,
+      .cal-handle-s {
+        width: 30px;
+        height: 14px;
+        margin: -7px 0 0 -15px;
+        border-radius: 8px;
+        cursor: ns-resize;
+      }
+      .cal-handle-n { left: 50%; top: 0; }
+      .cal-handle-s { left: 50%; top: 100%; }
+      .cal-handle-w { left: 0; top: 50%; }
+      .cal-handle-e { left: 100%; top: 50%; }
       @media (max-width: 900px) {
-        .cal-handle {
-          width: 34px;
-          height: 34px;
-          margin: -17px 0 0 -17px;
+        .cal-handle-w,
+        .cal-handle-e {
+          width: 18px;
+          height: 36px;
+          margin: -18px 0 0 -9px;
+        }
+        .cal-handle-n,
+        .cal-handle-s {
+          width: 36px;
+          height: 18px;
+          margin: -9px 0 0 -18px;
         }
       }
       .cal-layer-box[data-layer="bonus"] {
@@ -1107,76 +1116,75 @@
         background: rgba(190, 90, 50, 0.07);
       }
       .cal-tabs {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-      .scorecard-calibrator .cal-tabs button {
-        padding: 5px 8px;
-      }
-      .cal-tabs button.is-active {
-        background: rgba(201, 168, 76, 0.28);
-        color: var(--parch);
+        display: none;
       }
       #scorecard-page.calibrating #scorecard-choice {
+        display: none !important;
+      }
+      #scorecard-page.calibrating .scorecard-action-bar {
         display: none !important;
       }
       .scorecard-calibrator {
         display: none;
         width: min(100%, 560px);
         flex-shrink: 0;
-        padding: 8px 10px;
+        padding: 6px 8px;
         background: rgba(26, 16, 8, 0.94);
         border: 1px solid rgba(201, 168, 76, 0.45);
         border-radius: 10px;
         color: var(--parch);
-        font-size: 12px;
-        gap: 8px;
+        font-size: 11px;
+        gap: 6px;
         flex-direction: column;
       }
       #scorecard-page.calibrating .scorecard-calibrator {
         display: flex;
       }
       .scorecard-calibrator .cal-help {
-        line-height: 1.35;
+        line-height: 1.3;
+        color: rgba(232, 213, 168, 0.85);
       }
-      @media (max-width: 900px) {
-        #scorecard-page.calibrating .scorecard-calibrator {
-          max-height: 34vh;
-          overflow-y: auto;
-          -webkit-overflow-scrolling: touch;
-          padding: 6px 8px;
-          gap: 6px;
-          font-size: 11px;
-        }
-        .scorecard-calibrator .cal-help {
-          font-size: 11px;
-        }
-        .scorecard-calibrator .cal-row label {
-          width: 58px;
-        }
-        .scorecard-calibrator .cal-val {
-          width: 44px;
-        }
+      .scorecard-calibrator .cal-layer-select {
+        width: 100%;
+        font-family: "Cinzel", serif;
+        font-size: 12px;
+        letter-spacing: 0.3px;
+        color: var(--parch);
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(201, 168, 76, 0.45);
+        border-radius: 6px;
+        padding: 6px 8px;
+        accent-color: rgba(201, 168, 76, 0.95);
+      }
+      .scorecard-calibrator .cal-sliders {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px 10px;
       }
       .scorecard-calibrator .cal-row {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 4px;
+        min-width: 0;
       }
       .scorecard-calibrator label {
-        width: 72px;
+        width: 54px;
         flex-shrink: 0;
+        font-size: 10px;
         color: var(--gold-lt);
       }
       .scorecard-calibrator input[type="range"] {
         flex: 1;
         min-width: 0;
+        height: 14px;
+        margin: 0;
         accent-color: rgba(201, 168, 76, 0.95);
       }
       .scorecard-calibrator .cal-val {
-        width: 52px;
+        width: 38px;
+        flex-shrink: 0;
         text-align: right;
+        font-size: 10px;
         font-family: "Cinzel", serif;
         color: var(--gold-lt);
       }
@@ -1192,7 +1200,7 @@
         letter-spacing: 0.4px;
         border-radius: 6px;
         border: 1px solid rgba(201, 168, 76, 0.45);
-        padding: 6px 10px;
+        padding: 5px 9px;
         cursor: pointer;
         background: rgba(255, 255, 255, 0.06);
         color: var(--gold-lt);
@@ -1201,6 +1209,13 @@
         margin-left: auto;
         background: rgba(201, 168, 76, 0.22);
         color: var(--parch);
+      }
+      @media (max-width: 900px) {
+        #scorecard-page.calibrating .scorecard-calibrator {
+          max-height: 32vh;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+        }
       }
       @keyframes scorecard-focus-pulse {
         0%,
@@ -2103,133 +2118,97 @@
 
           <div id="scorecard-calibrator" class="scorecard-calibrator">
             <div class="cal-help">
-              Trascina il riquadro per spostare. Maniglie (o pinch) per la scala —
-              anche sul mercato. I pallini restano solo come guida. Chiudi o Esc
-              per uscire.
+              Scegli il gruppo e usa gli slider. Trascina il riquadro; maniglie
+              ai lati (o pinch) per la scala. I pallini sono solo guida.
+              Esc/Chiudi per uscire.
             </div>
-            <div class="cal-tabs">
-              <button
-                type="button"
-                data-cal-layer="bonus"
-                onclick="setScorecardCalibrateLayer('bonus')"
-              >
-                Solo bonus
-              </button>
-              <button
-                type="button"
-                data-cal-layer="shops"
-                class="is-active"
-                onclick="setScorecardCalibrateLayer('shops')"
-              >
-                Solo negozi
-              </button>
-              <button
-                type="button"
-                data-cal-layer="turns"
-                onclick="setScorecardCalibrateLayer('turns')"
-              >
-                Solo dadi turno
-              </button>
-              <button
-                type="button"
-                data-cal-layer="market"
-                onclick="setScorecardCalibrateLayer('market')"
-              >
-                Solo mercato
-              </button>
-              <button
-                type="button"
-                data-cal-layer="gold"
-                onclick="setScorecardCalibrateLayer('gold')"
-              >
-                Solo monete
-              </button>
-              <button
-                type="button"
-                data-cal-layer="goats"
-                onclick="setScorecardCalibrateLayer('goats')"
-              >
-                Solo capre
-              </button>
-              <button
-                type="button"
-                data-cal-layer="buildings"
-                onclick="setScorecardCalibrateLayer('buildings')"
-              >
-                Solo edifici
-              </button>
-            </div>
-            <div class="cal-row">
-              <label for="cal-offset-x">Offset X</label>
-              <input
-                id="cal-offset-x"
-                type="range"
-                min="-80"
-                max="80"
-                value="0"
-                oninput="onScorecardCalibratorInput()"
-              />
-              <span class="cal-val" id="cal-offset-x-val">0.0%</span>
-            </div>
-            <div class="cal-row">
-              <label for="cal-offset-y">Offset Y</label>
-              <input
-                id="cal-offset-y"
-                type="range"
-                min="-80"
-                max="80"
-                value="0"
-                oninput="onScorecardCalibratorInput()"
-              />
-              <span class="cal-val" id="cal-offset-y-val">0.0%</span>
-            </div>
-            <div class="cal-row">
-              <label for="cal-scale-x">Scala X</label>
-              <input
-                id="cal-scale-x"
-                type="range"
-                min="40"
-                max="400"
-                value="100"
-                oninput="onScorecardCalibratorInput()"
-              />
-              <span class="cal-val" id="cal-scale-x-val">100%</span>
-            </div>
-            <div class="cal-row">
-              <label for="cal-scale-y">Scala Y</label>
-              <input
-                id="cal-scale-y"
-                type="range"
-                min="40"
-                max="400"
-                value="100"
-                oninput="onScorecardCalibratorInput()"
-              />
-              <span class="cal-val" id="cal-scale-y-val">100%</span>
-            </div>
-            <div class="cal-row">
-              <label for="cal-split-left">Rombi sx</label>
-              <input
-                id="cal-split-left"
-                type="range"
-                min="400"
-                max="500"
-                value="438"
-                oninput="onScorecardCalibratorInput()"
-              />
-              <span class="cal-val" id="cal-split-left-val">43.8%</span>
-            </div>
-            <div class="cal-row">
-              <label for="cal-split-right">Rombi dx</label>
-              <input
-                id="cal-split-right"
-                type="range"
-                min="490"
-                max="560"
-                value="532"
-                oninput="onScorecardCalibratorInput()"
-              />
-              <span class="cal-val" id="cal-split-right-val">53.2%</span>
+            <select
+              id="cal-layer-select"
+              class="cal-layer-select"
+              aria-label="Gruppo da calibrare"
+              onchange="setScorecardCalibrateLayer(this.value)"
+            >
+              <option value="bonus">Solo bonus</option>
+              <option value="shops" selected>Solo negozi</option>
+              <option value="turns">Solo dadi turno</option>
+              <option value="market">Solo mercato</option>
+              <option value="gold">Solo monete</option>
+              <option value="goats">Solo capre</option>
+              <option value="buildings">Solo edifici</option>
+            </select>
+            <div class="cal-sliders">
+              <div class="cal-row">
+                <label for="cal-offset-x">Offset X</label>
+                <input
+                  id="cal-offset-x"
+                  type="range"
+                  min="-80"
+                  max="80"
+                  value="0"
+                  oninput="onScorecardCalibratorInput()"
+                />
+                <span class="cal-val" id="cal-offset-x-val">0.0%</span>
+              </div>
+              <div class="cal-row">
+                <label for="cal-offset-y">Offset Y</label>
+                <input
+                  id="cal-offset-y"
+                  type="range"
+                  min="-80"
+                  max="80"
+                  value="0"
+                  oninput="onScorecardCalibratorInput()"
+                />
+                <span class="cal-val" id="cal-offset-y-val">0.0%</span>
+              </div>
+              <div class="cal-row">
+                <label for="cal-scale-x">Scala X</label>
+                <input
+                  id="cal-scale-x"
+                  type="range"
+                  min="40"
+                  max="400"
+                  value="100"
+                  oninput="onScorecardCalibratorInput()"
+                />
+                <span class="cal-val" id="cal-scale-x-val">100%</span>
+              </div>
+              <div class="cal-row">
+                <label for="cal-scale-y">Scala Y</label>
+                <input
+                  id="cal-scale-y"
+                  type="range"
+                  min="40"
+                  max="400"
+                  value="100"
+                  oninput="onScorecardCalibratorInput()"
+                />
+                <span class="cal-val" id="cal-scale-y-val">100%</span>
+              </div>
+              <div class="cal-row">
+                <label for="cal-split-left">Rombi sx</label>
+                <input
+                  id="cal-split-left"
+                  type="range"
+                  min="400"
+                  max="500"
+                  value="438"
+                  oninput="onScorecardCalibratorInput()"
+                />
+                <span class="cal-val" id="cal-split-left-val">43.8%</span>
+              </div>
+              <div class="cal-row">
+                <label for="cal-split-right">Rombi dx</label>
+                <input
+                  id="cal-split-right"
+                  type="range"
+                  min="490"
+                  max="560"
+                  value="532"
+                  oninput="onScorecardCalibratorInput()"
+                />
+                <span class="cal-val" id="cal-split-right-val">53.2%</span>
+              </div>
             </div>
             <div class="cal-actions">
               <button type="button" onclick="nudgeScorecardAlign(-1, 0)">←</button>
@@ -3987,7 +3966,7 @@
         const calibrating = isScorecardCalibrating();
         // During calib keep markers small so the printed sheet stays readable.
         const size = calibrating
-          ? Math.max(8, Math.min(18, nr * pt.scale * 1.15))
+          ? Math.max(6, Math.min(12, nr * pt.scale * 0.95))
           : Math.max(30, nr * pt.scale * 2.4);
         btn.style.width = `${size}px`;
         btn.style.height = `${size}px`;
@@ -4026,8 +4005,22 @@
       }
 
       function ensureCalibHandles(el) {
-        if (!el || el.querySelector(".cal-handle")) return;
-        ["nw", "n", "ne", "w", "e", "sw", "s", "se"].forEach((dir) => {
+        if (!el) return;
+        const existing = el.querySelectorAll(".cal-handle");
+        if (existing.length) {
+          // Drop corner handles from older builds; keep only side grips.
+          existing.forEach((h) => {
+            const dir = h.dataset.handle;
+            if (dir !== "n" && dir !== "s" && dir !== "w" && dir !== "e") {
+              h.remove();
+            }
+          });
+          if (el.querySelector(".cal-handle-w") && el.querySelector(".cal-handle-e")) {
+            return;
+          }
+        }
+        ["n", "s", "w", "e"].forEach((dir) => {
+          if (el.querySelector(`.cal-handle-${dir}`)) return;
           const handle = document.createElement("div");
           handle.className = `cal-handle cal-handle-${dir}`;
           handle.dataset.handle = dir;
@@ -6821,14 +6814,10 @@
         if (syv) syv.textContent = formatCalScale(layer.scaleY);
         if (lv) lv.textContent = formatCalPct(getScorecardSplitLeft());
         if (rv) rv.textContent = formatCalPct(getScorecardSplitRight());
-        document
-          .querySelectorAll("#scorecard-calibrator [data-cal-layer]")
-          .forEach((btn) => {
-            btn.classList.toggle(
-              "is-active",
-              btn.getAttribute("data-cal-layer") === scorecardCalibrateLayer,
-            );
-          });
+        const layerSelect = document.getElementById("cal-layer-select");
+        if (layerSelect && layerSelect.value !== scorecardCalibrateLayer) {
+          layerSelect.value = scorecardCalibrateLayer;
+        }
       }
 
       function applyScorecardAlignLive(rebuildCrop) {
@@ -7171,12 +7160,14 @@
           page.classList.add("calibrating");
           showScorecardHalf("full");
           syncScorecardCalibratorUi();
+          updateScorecardActionBar();
         } else {
           page.classList.remove("calibrating");
           if (scorecardCalibratorOpenedPage && !scorecardTurn) {
             page.classList.add("hidden");
           }
           scorecardCalibratorOpenedPage = false;
+          updateScorecardActionBar();
         }
         requestAnimationFrame(() => {
           resizeScorecardCanvas(true);
