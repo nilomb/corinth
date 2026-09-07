@@ -996,40 +996,42 @@
         pointer-events: auto;
       }
       #scorecard-page.calibrating .scorecard-hit {
-        pointer-events: auto;
-        cursor: grab;
+        /* Markers only: drag/scale happens on the layer box + handles. */
+        pointer-events: none;
+        cursor: default;
         touch-action: none;
+        opacity: 0.9;
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="bonus"] {
-        background: rgba(210, 70, 170, 0.22);
-        outline: 2px solid rgba(210, 70, 170, 0.95);
+        background: rgba(210, 70, 170, 0.06);
+        outline: 1.5px solid rgba(210, 70, 170, 0.7);
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="shops"] {
-        background: rgba(80, 180, 255, 0.2);
-        outline: 2px solid rgba(80, 180, 255, 0.95);
+        background: rgba(80, 180, 255, 0.05);
+        outline: 1.5px solid rgba(80, 180, 255, 0.7);
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="turns"] {
-        background: rgba(255, 140, 70, 0.22);
-        outline: 2px solid rgba(255, 140, 70, 0.95);
+        background: rgba(255, 140, 70, 0.06);
+        outline: 1.5px solid rgba(255, 140, 70, 0.7);
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="market"] {
-        background: rgba(201, 168, 76, 0.22);
-        outline: 2px solid rgba(201, 168, 76, 0.95);
+        background: rgba(201, 168, 76, 0.06);
+        outline: 1.5px solid rgba(201, 168, 76, 0.7);
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="gold"] {
-        background: rgba(240, 200, 50, 0.24);
-        outline: 2px solid rgba(240, 200, 50, 0.95);
+        background: rgba(240, 200, 50, 0.06);
+        outline: 1.5px solid rgba(240, 200, 50, 0.7);
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="goats"] {
-        background: rgba(120, 170, 70, 0.22);
-        outline: 2px solid rgba(120, 170, 70, 0.95);
+        background: rgba(120, 170, 70, 0.06);
+        outline: 1.5px solid rgba(120, 170, 70, 0.7);
       }
       #scorecard-page.calibrating .scorecard-hit[data-layer="buildings"] {
-        background: rgba(190, 90, 50, 0.22);
-        outline: 2px solid rgba(190, 90, 50, 0.95);
+        background: rgba(190, 90, 50, 0.06);
+        outline: 1.5px solid rgba(190, 90, 50, 0.7);
       }
       #scorecard-page.calibrating .scorecard-hit.is-disabled {
-        pointer-events: auto;
+        pointer-events: none;
       }
       #scorecard-page.calibrating .scorecard-hit:not(.is-cal-active) {
         visibility: hidden;
@@ -1038,7 +1040,7 @@
       .cal-layer-box {
         display: none;
         position: absolute;
-        z-index: 1;
+        z-index: 2;
         border-radius: 14px;
         pointer-events: auto;
         cursor: grab;
@@ -1047,6 +1049,34 @@
       #scorecard-page.calibrating .cal-layer-box.is-selected {
         display: block;
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+      }
+      .cal-handle {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        margin: -14px 0 0 -14px;
+        border-radius: 50%;
+        background: rgba(26, 16, 8, 0.92);
+        border: 2px solid rgba(245, 230, 200, 0.95);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+        z-index: 3;
+        touch-action: none;
+        pointer-events: auto;
+      }
+      .cal-handle-nw { left: 0; top: 0; cursor: nwse-resize; }
+      .cal-handle-ne { left: 100%; top: 0; cursor: nesw-resize; }
+      .cal-handle-sw { left: 0; top: 100%; cursor: nesw-resize; }
+      .cal-handle-se { left: 100%; top: 100%; cursor: nwse-resize; }
+      .cal-handle-n { left: 50%; top: 0; cursor: ns-resize; }
+      .cal-handle-s { left: 50%; top: 100%; cursor: ns-resize; }
+      .cal-handle-w { left: 0; top: 50%; cursor: ew-resize; }
+      .cal-handle-e { left: 100%; top: 50%; cursor: ew-resize; }
+      @media (max-width: 900px) {
+        .cal-handle {
+          width: 34px;
+          height: 34px;
+          margin: -17px 0 0 -17px;
+        }
       }
       .cal-layer-box[data-layer="bonus"] {
         border: 2px dashed rgba(210, 70, 170, 0.8);
@@ -1106,6 +1136,28 @@
       }
       #scorecard-page.calibrating .scorecard-calibrator {
         display: flex;
+      }
+      .scorecard-calibrator .cal-help {
+        line-height: 1.35;
+      }
+      @media (max-width: 900px) {
+        #scorecard-page.calibrating .scorecard-calibrator {
+          max-height: 34vh;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          padding: 6px 8px;
+          gap: 6px;
+          font-size: 11px;
+        }
+        .scorecard-calibrator .cal-help {
+          font-size: 11px;
+        }
+        .scorecard-calibrator .cal-row label {
+          width: 58px;
+        }
+        .scorecard-calibrator .cal-val {
+          width: 44px;
+        }
       }
       .scorecard-calibrator .cal-row {
         display: flex;
@@ -2050,10 +2102,10 @@
 
 
           <div id="scorecard-calibrator" class="scorecard-calibrator">
-            <div>
-              Ogni bottone mostra e sposta solo quel gruppo. I rombi restano
-              fermi. Trascina i cerchi, oppure usa gli slider. Scala X / Scala Y
-              ingrandiscono dal centro (fino al 400%). Chiudi (o Esc) per uscire.
+            <div class="cal-help">
+              Trascina il riquadro per spostare. Maniglie (o pinch) per la scala —
+              anche sul mercato. I pallini restano solo come guida. Chiudi o Esc
+              per uscire.
             </div>
             <div class="cal-tabs">
               <button
@@ -3932,14 +3984,18 @@
           return;
         }
         const pt = sheetToStage(nx, ny, btn.dataset.layer || null);
-        const size = Math.max(30, nr * pt.scale * 2.4);
+        const calibrating = isScorecardCalibrating();
+        // During calib keep markers small so the printed sheet stays readable.
+        const size = calibrating
+          ? Math.max(8, Math.min(18, nr * pt.scale * 1.15))
+          : Math.max(30, nr * pt.scale * 2.4);
         btn.style.width = `${size}px`;
         btn.style.height = `${size}px`;
         btn.style.left = `${pt.x - size / 2}px`;
         btn.style.top = `${pt.y - size / 2}px`;
         btn.classList.toggle(
           "is-cal-active",
-          isScorecardCalibrating() && btn.dataset.layer === scorecardCalibrateLayer,
+          calibrating && btn.dataset.layer === scorecardCalibrateLayer,
         );
       }
 
@@ -3969,6 +4025,17 @@
         return pts;
       }
 
+      function ensureCalibHandles(el) {
+        if (!el || el.querySelector(".cal-handle")) return;
+        ["nw", "n", "ne", "w", "e", "sw", "s", "se"].forEach((dir) => {
+          const handle = document.createElement("div");
+          handle.className = `cal-handle cal-handle-${dir}`;
+          handle.dataset.handle = dir;
+          handle.dataset.layer = el.dataset.layer || "";
+          el.appendChild(handle);
+        });
+      }
+
       function appendCalibLayerBox(layer) {
         if (!scorecardHitLayer || !isScorecardCalibrating()) return;
         const pts = calibLayerNormPoints(layer);
@@ -3985,6 +4052,7 @@
         el.style.top = `${tl.y}px`;
         el.style.width = `${Math.max(0, br.x - tl.x)}px`;
         el.style.height = `${Math.max(0, br.y - tl.y)}px`;
+        ensureCalibHandles(el);
         scorecardHitLayer.appendChild(el);
       }
 
@@ -4004,6 +4072,7 @@
             el.style.width = `${Math.max(0, br.x - tl.x)}px`;
             el.style.height = `${Math.max(0, br.y - tl.y)}px`;
             el.classList.toggle("is-selected", layer === scorecardCalibrateLayer);
+            ensureCalibHandles(el);
           });
         }
         renderScorecardMarks();
@@ -6843,42 +6912,183 @@
         };
       }
 
-      function onCalibPointerDown(evt) {
-        if (!isScorecardCalibrating()) return;
-        const target = evt.target.closest("[data-layer]");
-        if (!target || !scorecardHitLayer.contains(target)) return;
-        const layerKey = target.dataset.layer;
-        if (!isCalLayer(layerKey)) return;
+      function calibLayerCenterNorm(layerKey, align) {
+        const o = layerScaleOrigin(layerKey);
+        return {
+          x: o.x + (align.offsetX || 0),
+          y: o.y + (align.offsetY || 0),
+        };
+      }
+
+      function pointerDistance(a, b) {
+        const dx = a.clientX - b.clientX;
+        const dy = a.clientY - b.clientY;
+        return Math.hypot(dx, dy);
+      }
+
+      function beginCalibMoveDrag(evt, layerKey) {
         if (!scorecardAlign[layerKey]) {
           scorecardAlign[layerKey] = emptyLayerAlign();
         }
+        const origin = { ...scorecardAlign[layerKey] };
+        const { sx, sy } = layerScaleXY(origin);
+        origin.scaleX = sx;
+        origin.scaleY = sy;
+        scorecardCalibDrag = {
+          mode: "move",
+          pointerId: evt.pointerId,
+          layer: layerKey,
+          start: getStageNormPoint(evt),
+          origin,
+          pointers: new Map([[evt.pointerId, evt]]),
+        };
+      }
+
+      function beginCalibResizeDrag(evt, layerKey, handle) {
+        if (!scorecardAlign[layerKey]) {
+          scorecardAlign[layerKey] = emptyLayerAlign();
+        }
+        const origin = { ...scorecardAlign[layerKey] };
+        const { sx, sy } = layerScaleXY(origin);
+        origin.scaleX = sx;
+        origin.scaleY = sy;
+        const start = getStageNormPoint(evt);
+        const center = calibLayerCenterNorm(layerKey, origin);
+        scorecardCalibDrag = {
+          mode: "resize",
+          pointerId: evt.pointerId,
+          layer: layerKey,
+          handle,
+          start,
+          center,
+          startRelX: start.x - center.x,
+          startRelY: start.y - center.y,
+          origin,
+          pointers: new Map([[evt.pointerId, evt]]),
+        };
+      }
+
+      function beginCalibPinchDrag(evt, existing) {
+        const pointers = existing.pointers || new Map();
+        pointers.set(evt.pointerId, evt);
+        if (pointers.size < 2) return false;
+        const pts = [...pointers.values()];
+        const dist = pointerDistance(pts[0], pts[1]);
+        if (!(dist > 8)) return false;
+        const layer = scorecardAlign[existing.layer] || existing.origin;
+        const { sx, sy } = layerScaleXY(layer);
+        scorecardCalibDrag = {
+          mode: "pinch",
+          pointerId: existing.pointerId,
+          layer: existing.layer,
+          origin: {
+            ...layer,
+            scaleX: sx,
+            scaleY: sy,
+          },
+          startDist: dist,
+          pointers,
+        };
+        return true;
+      }
+
+      function onCalibPointerDown(evt) {
+        if (!isScorecardCalibrating()) return;
+        const handleEl = evt.target.closest(".cal-handle");
+        const target = handleEl || evt.target.closest(".cal-layer-box[data-layer]");
+        if (!target || !scorecardHitLayer.contains(target)) return;
+        const layerKey = target.dataset.layer;
+        if (!isCalLayer(layerKey)) return;
+
+        // Second finger on the active layer → pinch scale.
+        if (
+          scorecardCalibDrag &&
+          scorecardCalibDrag.layer === layerKey &&
+          scorecardCalibDrag.pointers &&
+          !scorecardCalibDrag.pointers.has(evt.pointerId)
+        ) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          beginCalibPinchDrag(evt, scorecardCalibDrag);
+          return;
+        }
+
         evt.preventDefault();
         evt.stopPropagation();
         setScorecardCalibrateLayer(layerKey);
-        const start = getStageNormPoint(evt);
-        const origin = { ...scorecardAlign[layerKey] };
-        scorecardCalibDrag = {
-          pointerId: evt.pointerId,
-          layer: layerKey,
-          start,
-          origin,
-        };
-        if (scorecardHitLayer.setPointerCapture) {
-          try {
-            target.setPointerCapture(evt.pointerId);
-          } catch (_err) {
-            // no-op
-          }
+        if (handleEl && handleEl.dataset.handle) {
+          beginCalibResizeDrag(evt, layerKey, handleEl.dataset.handle);
+        } else {
+          beginCalibMoveDrag(evt, layerKey);
+        }
+        try {
+          target.setPointerCapture(evt.pointerId);
+        } catch (_err) {
+          // no-op
         }
       }
 
       function onCalibPointerMove(evt) {
-        if (!scorecardCalibDrag || evt.pointerId !== scorecardCalibDrag.pointerId) {
+        if (!scorecardCalibDrag) return;
+        if (scorecardCalibDrag.pointers) {
+          scorecardCalibDrag.pointers.set(evt.pointerId, evt);
+        }
+        if (
+          scorecardCalibDrag.mode !== "pinch" &&
+          evt.pointerId !== scorecardCalibDrag.pointerId
+        ) {
           return;
         }
         evt.preventDefault();
-        const now = getStageNormPoint(evt);
         const layer = scorecardAlign[scorecardCalibDrag.layer];
+        if (!layer) return;
+
+        if (scorecardCalibDrag.mode === "pinch") {
+          const pts = [...scorecardCalibDrag.pointers.values()];
+          if (pts.length < 2 || !(scorecardCalibDrag.startDist > 0)) return;
+          const factor = pointerDistance(pts[0], pts[1]) / scorecardCalibDrag.startDist;
+          layer.scaleX = clampScorecardScale(
+            scorecardCalibDrag.origin.scaleX * factor,
+          );
+          layer.scaleY = clampScorecardScale(
+            scorecardCalibDrag.origin.scaleY * factor,
+          );
+          applyScorecardAlignLive(false);
+          return;
+        }
+
+        if (scorecardCalibDrag.mode === "resize") {
+          const now = getStageNormPoint(evt);
+          const handle = scorecardCalibDrag.handle || "";
+          const affectX = /e|w/.test(handle);
+          const affectY = /n|s/.test(handle);
+          const eps = 0.004;
+          if (affectX) {
+            const startRel = scorecardCalibDrag.startRelX;
+            const nowRel = now.x - scorecardCalibDrag.center.x;
+            if (Math.abs(startRel) > eps) {
+              const ratio = Math.abs(nowRel) / Math.abs(startRel);
+              layer.scaleX = clampScorecardScale(
+                scorecardCalibDrag.origin.scaleX * Math.max(0.05, ratio),
+              );
+            }
+          }
+          if (affectY) {
+            const startRel = scorecardCalibDrag.startRelY;
+            const nowRel = now.y - scorecardCalibDrag.center.y;
+            if (Math.abs(startRel) > eps) {
+              const ratio = Math.abs(nowRel) / Math.abs(startRel);
+              layer.scaleY = clampScorecardScale(
+                scorecardCalibDrag.origin.scaleY * Math.max(0.05, ratio),
+              );
+            }
+          }
+          applyScorecardAlignLive(false);
+          return;
+        }
+
+        // move
+        const now = getStageNormPoint(evt);
         layer.offsetX = clampScorecardAlign(
           scorecardCalibDrag.origin.offsetX + (now.x - scorecardCalibDrag.start.x),
         );
@@ -6889,9 +7099,37 @@
       }
 
       function onCalibPointerUp(evt) {
-        if (!scorecardCalibDrag || evt.pointerId !== scorecardCalibDrag.pointerId) {
+        if (!scorecardCalibDrag) return;
+        if (scorecardCalibDrag.pointers) {
+          scorecardCalibDrag.pointers.delete(evt.pointerId);
+        }
+        if (scorecardCalibDrag.mode === "pinch") {
+          if (scorecardCalibDrag.pointers && scorecardCalibDrag.pointers.size >= 2) {
+            const pts = [...scorecardCalibDrag.pointers.values()];
+            scorecardCalibDrag.startDist = pointerDistance(pts[0], pts[1]);
+            const layer = scorecardAlign[scorecardCalibDrag.layer];
+            if (layer) {
+              scorecardCalibDrag.origin = { ...layer };
+            }
+            return;
+          }
+          // Fall back to move with the remaining finger.
+          if (scorecardCalibDrag.pointers && scorecardCalibDrag.pointers.size === 1) {
+            const remaining = [...scorecardCalibDrag.pointers.values()][0];
+            const layer = scorecardAlign[scorecardCalibDrag.layer];
+            beginCalibMoveDrag(remaining, scorecardCalibDrag.layer);
+            if (layer) {
+              scorecardCalibDrag.origin = { ...layer };
+              const { sx, sy } = layerScaleXY(layer);
+              scorecardCalibDrag.origin.scaleX = sx;
+              scorecardCalibDrag.origin.scaleY = sy;
+            }
+            return;
+          }
+          scorecardCalibDrag = null;
           return;
         }
+        if (evt.pointerId !== scorecardCalibDrag.pointerId) return;
         scorecardCalibDrag = null;
         const el = evt.target;
         if (el && el.releasePointerCapture) {
