@@ -22,6 +22,7 @@
         --teal: #1a5c5c;
         --olive: #4a5c1a;
         --purple: #3d1a5c;
+        /* Velo negozi — profilo browser (desktop / >900px) */
         --dim-r: 113;
         --dim-g: 131;
         --dim-b: 152;
@@ -30,6 +31,19 @@
         --dim-blur: 0.6px;
         --dim-bright: 0.98;
         --dim-radius: 8px;
+      }
+      /* Velo negozi — profilo iPhone / mobile (≤900px), indipendente dal browser */
+      @media (max-width: 900px) {
+        :root {
+          --dim-r: 113;
+          --dim-g: 131;
+          --dim-b: 152;
+          --dim-opacity: 0.06;
+          --dim-gray: 0.12;
+          --dim-blur: 0.6px;
+          --dim-bright: 0.98;
+          --dim-radius: 8px;
+        }
       }
 
       * {
@@ -194,25 +208,32 @@
       /* ---- BARRA INFERIORE ---- */
       #bottom-controls {
         display: flex;
+        align-items: center;
         flex-shrink: 0;
-        height: 52px;
+        min-height: 52px;
         padding: 6px 8px;
         gap: 6px;
         background: linear-gradient(to top, #0d0804, #1a1008);
         border-top: 1px solid #4a3010;
       }
+      #bottom-controls #player-rail {
+        flex-shrink: 0;
+      }
       #roll-btn {
-        flex: 3;
+        flex: 1 1 auto;
+        min-width: 0;
         font-family: "Cinzel", serif;
-        font-size: 15px;
+        font-size: 12px;
         font-weight: 600;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
         color: var(--dark);
         background: linear-gradient(to bottom, var(--gold-lt), var(--gold));
         border: none;
         border-radius: 8px;
         cursor: pointer;
         transition: all 0.15s;
+        padding: 0 8px;
+        white-space: nowrap;
       }
       #roll-btn:active {
         transform: scale(0.97);
@@ -223,15 +244,17 @@
         transform: none;
       }
       #end-btn {
-        flex: 1;
+        flex: 0 0 auto;
+        min-width: 72px;
         font-family: "Cinzel", serif;
-        font-size: 13px;
+        font-size: 12px;
         color: var(--parch);
         background: rgba(255, 255, 255, 0.06);
         border: 1px solid #4a3010;
         border-radius: 8px;
         cursor: pointer;
         transition: all 0.15s;
+        padding: 0 10px;
       }
       #end-btn:disabled {
         opacity: 0.3;
@@ -334,6 +357,9 @@
         text-align: right;
         letter-spacing: 0.5px;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
       }
       #player-rail {
         display: flex;
@@ -795,12 +821,38 @@
         width: 100%;
       }
       #scorecard-page.turn-mode .scorecard-crop {
+        /* Gioco / negozi: scheda a tutta altezza (scroll orizzontale se serve) */
         height: 100%;
         width: auto;
         aspect-ratio: var(--scorecard-crop-aspect);
         flex-shrink: 0;
         max-width: none;
         max-height: none;
+      }
+      /* Consulto schede (G1/Tu/G2): su browser intera nello schermo;
+         su mobile (≤900px) a tutta larghezza — vedi media sotto */
+      #scorecard-page.consult-mode .scorecard-crop {
+        height: min(100%, calc((100vw - 48px) / var(--scorecard-crop-aspect)));
+        width: auto;
+        max-width: min(100%, calc(100vw - 48px));
+        max-height: 100%;
+        border-radius: 8px;
+      }
+      #scorecard-page.consult-mode .scorecard-pan-viewport {
+        justify-content: center;
+        align-items: center;
+      }
+      @media (max-width: 900px) {
+        #scorecard-page.consult-mode .scorecard-crop {
+          width: 100%;
+          height: auto;
+          max-width: 100%;
+          max-height: none;
+          border-radius: 0;
+        }
+        #scorecard-page.consult-mode .scorecard-pan-viewport {
+          align-items: flex-start;
+        }
       }
       #scorecard-page.turn-mode .scorecard-pan-arrow {
         display: flex;
@@ -848,15 +900,8 @@
         flex-direction: column;
         align-items: stretch;
         justify-content: flex-start;
-        transform: translate3d(
-          0,
-          calc(var(--board-peek) * (100% - var(--peek-bar-h))),
-          0
-        );
-        transition: transform 0.28s ease;
-      }
-      #scorecard-page.turn-mode.peek-dragging {
-        transition: none;
+        background: transparent;
+        backdrop-filter: none;
       }
       #scorecard-page.turn-mode.peeked {
         pointer-events: none;
@@ -868,10 +913,18 @@
         flex: 1;
         height: auto;
         min-height: 0;
-        padding-top: 4px;
+        padding: 4px 0 0;
+        gap: 4px;
+        background: rgba(10, 6, 2, 0.96);
+        backdrop-filter: blur(8px);
+        transform: translate3d(0, calc(var(--board-peek) * 100%), 0);
+        transition: transform 0.28s ease;
+      }
+      #scorecard-page.turn-mode.peek-dragging .scorecard-wrap {
+        transition: none;
       }
       #scorecard-page.turn-mode #scorecard-choice {
-        top: var(--peek-bar-h);
+        bottom: var(--peek-bar-h);
       }
       #scorecard-page.consult-mode #board-peek-slider {
         display: none;
@@ -894,8 +947,8 @@
         padding: 6px 12px 8px;
         align-items: center;
         gap: 10px;
-        background: linear-gradient(to bottom, #2a1808, #1a1008);
-        border-bottom: 1px solid rgba(201, 168, 76, 0.45);
+        background: linear-gradient(to top, #2a1808, #1a1008);
+        border-top: 1px solid rgba(201, 168, 76, 0.45);
         z-index: 40;
         position: relative;
       }
@@ -906,7 +959,13 @@
         display: flex;
         flex-direction: column;
         min-width: 0;
-        flex: 0 1 170px;
+        flex: 0 1 220px;
+      }
+      .board-peek-heading {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
       }
       .board-peek-copy button {
         font-family: "Cinzel", serif;
@@ -921,6 +980,17 @@
         cursor: pointer;
         width: fit-content;
         max-width: 100%;
+        flex-shrink: 0;
+      }
+      .board-peek-player {
+        font-family: "Cinzel", serif;
+        font-size: 13px;
+        letter-spacing: 0.4px;
+        color: rgba(240, 208, 128, 0.95);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
       }
       .board-peek-hint {
         font-size: 11px;
@@ -1318,16 +1388,17 @@
         min-height: 1.2em;
       }
       #scorecard-choice .choice-btns {
-        display: flex;
-        flex-direction: row;
-        gap: 14px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
         justify-content: center;
         align-items: stretch;
+        max-width: min(92vw, 420px);
+        margin: 0 auto;
       }
       #scorecard-choice .choice-tile {
-        flex: 1 1 0;
         aspect-ratio: 1;
-        max-width: 220px;
+        width: 100%;
         min-width: 0;
         padding: 0;
         border: none;
@@ -1336,7 +1407,7 @@
         cursor: pointer;
         overflow: hidden;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
-        transition: transform 0.12s ease, box-shadow 0.12s ease;
+        transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
         -webkit-tap-highlight-color: transparent;
       }
       #scorecard-choice .choice-tile img {
@@ -1354,6 +1425,12 @@
       }
       #scorecard-choice .choice-tile:active {
         transform: scale(0.98);
+      }
+      #scorecard-choice .choice-tile:disabled {
+        opacity: 0.35;
+        cursor: default;
+        transform: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       }
       .scorecard-hit[data-kind="building"] {
         border-radius: 4px;
@@ -1943,7 +2020,6 @@
         <h1>CORINTH</h1>
       </div>
       <div id="header-right">
-        <div id="player-rail" hidden></div>
         <div id="turn-info"></div>
         <button
           type="button"
@@ -1991,32 +2067,6 @@
       <div id="mode-setup" class="hidden" aria-hidden="true"></div>
 
       <div id="scorecard-page" class="hidden">
-        <div id="board-peek-bar" class="board-peek-bar">
-          <div class="board-peek-copy">
-            <button
-              type="button"
-              id="board-peek-toggle"
-              onclick="toggleBoardPeek()"
-            >
-              Plancia
-            </button>
-            <span id="board-peek-hint" class="board-peek-hint"
-              >Scorri per vedere i dadi</span
-            >
-          </div>
-          <input
-            type="range"
-            id="board-peek-slider"
-            min="0"
-            max="100"
-            value="0"
-            aria-label="Scorri per vedere la plancia"
-            oninput="onBoardPeekSliderInput(this.value)"
-            onpointerup="snapBoardPeek()"
-            onpointercancel="snapBoardPeek()"
-            onchange="snapBoardPeek()"
-          />
-        </div>
         <div class="scorecard-wrap">
           <div class="scorecard-toolbar">
             <button
@@ -2316,21 +2366,70 @@
               <button
                 type="button"
                 class="choice-tile"
+                data-choice="gold"
                 onclick="chooseScorecardAction('qty')"
-                aria-label="Quantità"
+                aria-label="Oro"
+              >
+                <img src="bottone_oro.png" alt="" />
+              </button>
+              <button
+                type="button"
+                class="choice-tile"
+                data-choice="goats"
+                onclick="chooseScorecardAction('qty')"
+                aria-label="Capre"
+              >
+                <img src="bottone_capra.png" alt="" />
+              </button>
+              <button
+                type="button"
+                class="choice-tile"
+                data-choice="qty"
+                onclick="chooseScorecardAction('qty')"
+                aria-label="Personaggi"
               >
                 <img src="bottone_personaggi.png" alt="" />
               </button>
               <button
                 type="button"
                 class="choice-tile"
+                data-choice="distance"
                 onclick="chooseScorecardAction('distance')"
-                aria-label="Distanza"
+                aria-label="Mercato"
               >
                 <img src="bottone_mercato.png" alt="" />
               </button>
             </div>
           </div>
+        </div>
+        <div id="board-peek-bar" class="board-peek-bar">
+          <div class="board-peek-copy">
+            <div class="board-peek-heading">
+              <button
+                type="button"
+                id="board-peek-toggle"
+                onclick="toggleBoardPeek()"
+              >
+                Plancia
+              </button>
+              <span id="board-peek-player" class="board-peek-player"></span>
+            </div>
+            <span id="board-peek-hint" class="board-peek-hint"
+              >Scorri per vedere i dadi</span
+            >
+          </div>
+          <input
+            type="range"
+            id="board-peek-slider"
+            min="0"
+            max="100"
+            value="0"
+            aria-label="Scorri per vedere la plancia"
+            oninput="onBoardPeekSliderInput(this.value)"
+            onpointerup="snapBoardPeek()"
+            onpointercancel="snapBoardPeek()"
+            onchange="snapBoardPeek()"
+          />
         </div>
       </div>
 
@@ -2784,6 +2883,7 @@
     </div>
     <!-- Barra controlli sotto la plancia -->
     <div id="bottom-controls">
+      <div id="player-rail" hidden></div>
       <button id="roll-btn" onclick="rollDice()" disabled>
         🎲 Lancia i dadi
       </button>
@@ -3440,7 +3540,7 @@
        * Se un simbolo non combacia a video, ricalibrare SCORECARD_SHEET_LAYOUT.
        * Mercato: griglia 5×5 in SCORECARD_MARKET_LAYOUT. */
       const SCORECARD_DIGITAL_STORAGE_KEY = "corinth-scorecard-digital-v1";
-      const SCORECARD_SHEET_LAYOUT = {"districts":{"orange":{"bonus":null,"shops":[{"points":4,"symbols":[{"x":0.20177,"y":0.17525,"r":0.01471},{"x":0.20177,"y":0.22794,"r":0.01471}]},{"points":5,"symbols":[{"x":0.30834,"y":0.17525,"r":0.01471},{"x":0.30834,"y":0.22794,"r":0.01471}]},{"points":10,"symbols":[{"x":0.39975,"y":0.17525,"r":0.01471},{"x":0.42797,"y":0.17525,"r":0.01471},{"x":0.39975,"y":0.22794,"r":0.01471},{"x":0.42797,"y":0.22794,"r":0.01471}]}]},"blue":{"bonus":{"points":3,"x":0.04002,"y":0.31863,"r":0.01348},"shops":[{"points":3,"symbols":[{"x":0.20514,"y":0.36336,"r":0.01471},{"x":0.20514,"y":0.41422,"r":0.01471}]},{"points":5,"symbols":[{"x":0.31129,"y":0.36336,"r":0.01471},{"x":0.29739,"y":0.41422,"r":0.01471},{"x":0.32519,"y":0.41422,"r":0.01471}]},{"points":8,"symbols":[{"x":0.40396,"y":0.36336,"r":0.01471},{"x":0.42797,"y":0.36336,"r":0.01471},{"x":0.40396,"y":0.41422,"r":0.01471},{"x":0.42797,"y":0.41422,"r":0.01471}]}]},"purple":{"bonus":{"points":4,"x":0.04002,"y":0.50245,"r":0.01348},"shops":[{"points":2,"symbols":[{"x":0.20219,"y":0.55025,"r":0.01471},{"x":0.20219,"y":0.60049,"r":0.01471}]},{"points":3,"symbols":[{"x":0.27296,"y":0.55025,"r":0.01471},{"x":0.25864,"y":0.60049,"r":0.01471},{"x":0.28728,"y":0.60049,"r":0.01471}]},{"points":4,"symbols":[{"x":0.34372,"y":0.55025,"r":0.01471},{"x":0.3294,"y":0.60049,"r":0.01471},{"x":0.35805,"y":0.60049,"r":0.01471}]},{"points":6,"symbols":[{"x":0.40017,"y":0.55025,"r":0.01471},{"x":0.42881,"y":0.55025,"r":0.01471},{"x":0.40017,"y":0.60049,"r":0.01471},{"x":0.42881,"y":0.60049,"r":0.01471}]}]},"green":{"bonus":{"points":5,"x":0.04002,"y":0.68627,"r":0.01348},"shops":[{"points":1,"symbols":[{"x":0.17397,"y":0.73346,"r":0.01471},{"x":0.17397,"y":0.78493,"r":0.01471}]},{"points":2,"symbols":[{"x":0.24431,"y":0.73346,"r":0.01471},{"x":0.23041,"y":0.78493,"r":0.01471},{"x":0.25864,"y":0.78493,"r":0.01471}]},{"points":3,"symbols":[{"x":0.31592,"y":0.73346,"r":0.01471},{"x":0.3016,"y":0.78493,"r":0.01471},{"x":0.33024,"y":0.78493,"r":0.01471}]},{"points":6,"symbols":[{"x":0.38669,"y":0.73346,"r":0.01471},{"x":0.41533,"y":0.73346,"r":0.01471},{"x":0.37237,"y":0.78493,"r":0.01471},{"x":0.40101,"y":0.78493,"r":0.01471},{"x":0.42881,"y":0.78493,"r":0.01471}]}]}},"gold":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.50551,"r":0.01348},{"x":0.65543,"y":0.50551,"r":0.01348},{"x":0.68324,"y":0.50551,"r":0.01348},{"x":0.71104,"y":0.50551,"r":0.01348},{"x":0.73884,"y":0.50551,"r":0.01348},{"x":0.76664,"y":0.50551,"r":0.01348},{"x":0.79444,"y":0.50551,"r":0.01348},{"x":0.82224,"y":0.50551,"r":0.01348},{"x":0.85004,"y":0.50551,"r":0.01348},{"x":0.87784,"y":0.50551,"r":0.01348},{"x":0.90564,"y":0.50551,"r":0.01348},{"x":0.93345,"y":0.50551,"r":0.01348},{"x":0.62763,"y":0.55147,"r":0.01348},{"x":0.65543,"y":0.55147,"r":0.01348},{"x":0.68324,"y":0.55147,"r":0.01348},{"x":0.71104,"y":0.55147,"r":0.01348},{"x":0.73884,"y":0.55147,"r":0.01348},{"x":0.76664,"y":0.55147,"r":0.01348},{"x":0.79444,"y":0.55147,"r":0.01348},{"x":0.82224,"y":0.55147,"r":0.01348},{"x":0.85004,"y":0.55147,"r":0.01348},{"x":0.87784,"y":0.55147,"r":0.01348},{"x":0.90564,"y":0.55147,"r":0.01348},{"x":0.93345,"y":0.55147,"r":0.01348}]},"goats":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.625,"r":0.01348},{"x":0.65543,"y":0.625,"r":0.01348},{"x":0.68324,"y":0.625,"r":0.01348},{"x":0.71104,"y":0.625,"r":0.01348},{"x":0.73884,"y":0.625,"r":0.01348},{"x":0.76664,"y":0.625,"r":0.01348},{"x":0.79444,"y":0.625,"r":0.01348},{"x":0.82224,"y":0.625,"r":0.01348},{"x":0.85004,"y":0.625,"r":0.01348},{"x":0.87784,"y":0.625,"r":0.01348},{"x":0.90564,"y":0.625,"r":0.01348},{"x":0.93345,"y":0.625,"r":0.01348},{"x":0.62763,"y":0.67402,"r":0.01348},{"x":0.65543,"y":0.67402,"r":0.01348},{"x":0.68324,"y":0.67402,"r":0.01348},{"x":0.71104,"y":0.67402,"r":0.01348},{"x":0.73884,"y":0.67402,"r":0.01348},{"x":0.76664,"y":0.67402,"r":0.01348},{"x":0.79444,"y":0.67402,"r":0.01348},{"x":0.82224,"y":0.67402,"r":0.01348},{"x":0.85004,"y":0.67402,"r":0.01348},{"x":0.87784,"y":0.67402,"r":0.01348},{"x":0.90564,"y":0.67402,"r":0.01348},{"x":0.93345,"y":0.67402,"r":0.01348}]},"turns":{"count":6,"slots":[{"x":0.09309,"y":0.93076,"r":0.02206},{"x":0.15459,"y":0.93076,"r":0.02206},{"x":0.22199,"y":0.93076,"r":0.02206},{"x":0.28391,"y":0.93076,"r":0.02206},{"x":0.34541,"y":0.93076,"r":0.02206},{"x":0.40733,"y":0.93076,"r":0.02206}]},"freehandRegions":{"mercato":{"x":0.46335,"y":0.02451,"w":0.52233,"h":0.31863},"edifici":{"x":0.46335,"y":0.68627,"w":0.52233,"h":0.29412}},"scoreDiamonds":{"orange":{"x":0.499,"y":0.1967,"r":0.028},"market":{"x":0.499,"y":0.3793,"r":0.028},"blue":{"x":0.499,"y":0.47,"r":0.028},"gold":{"x":0.4988,"y":0.5613,"r":0.028},"purple":{"x":0.499,"y":0.6526,"r":0.028},"goats":{"x":0.4988,"y":0.7439,"r":0.028},"green":{"x":0.4991,"y":0.8361,"r":0.028}},"scoreOctagon":{"x":0.499,"y":0.9353,"r":0.033},"buildings":[{"id":"temple","gold":3,"goats":3,"x":0.6213,"y":0.8211,"r":0.016},{"id":"warehouse","gold":4,"goats":4,"x":0.7178,"y":0.8211,"r":0.016},{"id":"stable","gold":2,"goats":1,"x":0.8142,"y":0.8211,"r":0.016},{"id":"store","gold":0,"goats":2,"x":0.9103,"y":0.8211,"r":0.016}],"resourceOval":{"rotationDeg":-22,"rxScale":1.38,"ryScale":1.58,"color":"#2a2520","lineWidthScale":0.38}};
+      const SCORECARD_SHEET_LAYOUT = {"districts":{"orange":{"bonus":null,"shops":[{"points":4,"symbols":[{"x":0.20177,"y":0.17525,"r":0.01471},{"x":0.20177,"y":0.22794,"r":0.01471}]},{"points":5,"symbols":[{"x":0.30834,"y":0.17525,"r":0.01471},{"x":0.30834,"y":0.22794,"r":0.01471}]},{"points":10,"symbols":[{"x":0.39975,"y":0.17525,"r":0.01471},{"x":0.42797,"y":0.17525,"r":0.01471},{"x":0.39975,"y":0.22794,"r":0.01471},{"x":0.42797,"y":0.22794,"r":0.01471}]}]},"blue":{"bonus":{"points":3,"x":0.04002,"y":0.31863,"r":0.01348},"shops":[{"points":3,"symbols":[{"x":0.20514,"y":0.36336,"r":0.01471},{"x":0.20514,"y":0.41422,"r":0.01471}]},{"points":5,"symbols":[{"x":0.31129,"y":0.36336,"r":0.01471},{"x":0.29739,"y":0.41422,"r":0.01471},{"x":0.32519,"y":0.41422,"r":0.01471}]},{"points":8,"symbols":[{"x":0.40396,"y":0.36336,"r":0.01471},{"x":0.42797,"y":0.36336,"r":0.01471},{"x":0.40396,"y":0.41422,"r":0.01471},{"x":0.42797,"y":0.41422,"r":0.01471}]}]},"purple":{"bonus":{"points":4,"x":0.04002,"y":0.50245,"r":0.01348},"shops":[{"points":2,"symbols":[{"x":0.20219,"y":0.55025,"r":0.01471},{"x":0.20219,"y":0.60049,"r":0.01471}]},{"points":3,"symbols":[{"x":0.27296,"y":0.55025,"r":0.01471},{"x":0.25864,"y":0.60049,"r":0.01471},{"x":0.28728,"y":0.60049,"r":0.01471}]},{"points":4,"symbols":[{"x":0.34372,"y":0.55025,"r":0.01471},{"x":0.3294,"y":0.60049,"r":0.01471},{"x":0.35805,"y":0.60049,"r":0.01471}]},{"points":6,"symbols":[{"x":0.40017,"y":0.55025,"r":0.01471},{"x":0.42881,"y":0.55025,"r":0.01471},{"x":0.40017,"y":0.60049,"r":0.01471},{"x":0.42881,"y":0.60049,"r":0.01471}]}]},"green":{"bonus":{"points":5,"x":0.04002,"y":0.68627,"r":0.01348},"shops":[{"points":1,"symbols":[{"x":0.17397,"y":0.73346,"r":0.01471},{"x":0.17397,"y":0.78493,"r":0.01471}]},{"points":2,"symbols":[{"x":0.24431,"y":0.73346,"r":0.01471},{"x":0.23041,"y":0.78493,"r":0.01471},{"x":0.25864,"y":0.78493,"r":0.01471}]},{"points":3,"symbols":[{"x":0.31592,"y":0.73346,"r":0.01471},{"x":0.3016,"y":0.78493,"r":0.01471},{"x":0.33024,"y":0.78493,"r":0.01471}]},{"points":6,"symbols":[{"x":0.38669,"y":0.73346,"r":0.01471},{"x":0.41533,"y":0.73346,"r":0.01471},{"x":0.37237,"y":0.78493,"r":0.01471},{"x":0.40101,"y":0.78493,"r":0.01471},{"x":0.42881,"y":0.78493,"r":0.01471}]}]}},"gold":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.50551,"r":0.01348},{"x":0.65543,"y":0.50551,"r":0.01348},{"x":0.68324,"y":0.50551,"r":0.01348},{"x":0.71104,"y":0.50551,"r":0.01348},{"x":0.73884,"y":0.50551,"r":0.01348},{"x":0.76664,"y":0.50551,"r":0.01348},{"x":0.79444,"y":0.50551,"r":0.01348},{"x":0.82224,"y":0.50551,"r":0.01348},{"x":0.85004,"y":0.50551,"r":0.01348},{"x":0.87784,"y":0.50551,"r":0.01348},{"x":0.90564,"y":0.50551,"r":0.01348},{"x":0.93345,"y":0.50551,"r":0.01348},{"x":0.62763,"y":0.55147,"r":0.01348},{"x":0.65543,"y":0.55147,"r":0.01348},{"x":0.68324,"y":0.55147,"r":0.01348},{"x":0.71104,"y":0.55147,"r":0.01348},{"x":0.73884,"y":0.55147,"r":0.01348},{"x":0.76664,"y":0.55147,"r":0.01348},{"x":0.79444,"y":0.55147,"r":0.01348},{"x":0.82224,"y":0.55147,"r":0.01348},{"x":0.85004,"y":0.55147,"r":0.01348},{"x":0.87784,"y":0.55147,"r":0.01348},{"x":0.90564,"y":0.55147,"r":0.01348},{"x":0.93345,"y":0.55147,"r":0.01348}]},"goats":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.625,"r":0.01348},{"x":0.65543,"y":0.625,"r":0.01348},{"x":0.68324,"y":0.625,"r":0.01348},{"x":0.71104,"y":0.625,"r":0.01348},{"x":0.73884,"y":0.625,"r":0.01348},{"x":0.76664,"y":0.625,"r":0.01348},{"x":0.79444,"y":0.625,"r":0.01348},{"x":0.82224,"y":0.625,"r":0.01348},{"x":0.85004,"y":0.625,"r":0.01348},{"x":0.87784,"y":0.625,"r":0.01348},{"x":0.90564,"y":0.625,"r":0.01348},{"x":0.93345,"y":0.625,"r":0.01348},{"x":0.62763,"y":0.67402,"r":0.01348},{"x":0.65543,"y":0.67402,"r":0.01348},{"x":0.68324,"y":0.67402,"r":0.01348},{"x":0.71104,"y":0.67402,"r":0.01348},{"x":0.73884,"y":0.67402,"r":0.01348},{"x":0.76664,"y":0.67402,"r":0.01348},{"x":0.79444,"y":0.67402,"r":0.01348},{"x":0.82224,"y":0.67402,"r":0.01348},{"x":0.85004,"y":0.67402,"r":0.01348},{"x":0.87784,"y":0.67402,"r":0.01348},{"x":0.90564,"y":0.67402,"r":0.01348},{"x":0.93345,"y":0.67402,"r":0.01348}]},"turns":{"count":6,"slots":[{"x":0.09309,"y":0.93076,"r":0.02206},{"x":0.15459,"y":0.93076,"r":0.02206},{"x":0.22199,"y":0.93076,"r":0.02206},{"x":0.28391,"y":0.93076,"r":0.02206},{"x":0.34541,"y":0.93076,"r":0.02206},{"x":0.40733,"y":0.93076,"r":0.02206}]},"freehandRegions":{"mercato":{"x":0.46335,"y":0.02451,"w":0.52233,"h":0.31863},"edifici":{"x":0.46335,"y":0.68627,"w":0.52233,"h":0.29412}},"scoreDiamonds":{"orange":{"x":0.499,"y":0.1924,"r":0.028},"market":{"x":0.499,"y":0.2843,"r":0.028},"blue":{"x":0.499,"y":0.375,"r":0.028},"gold":{"x":0.4988,"y":0.4663,"r":0.028},"purple":{"x":0.499,"y":0.5576,"r":0.028},"goats":{"x":0.4988,"y":0.6489,"r":0.028},"green":{"x":0.4991,"y":0.7396,"r":0.028}},"scoreOctagon":{"x":0.499,"y":0.9353,"r":0.033},"buildings":[{"id":"temple","gold":3,"goats":3,"x":0.6213,"y":0.8211,"r":0.016},{"id":"warehouse","gold":4,"goats":4,"x":0.7178,"y":0.8211,"r":0.016},{"id":"stable","gold":2,"goats":1,"x":0.8142,"y":0.8211,"r":0.016},{"id":"store","gold":0,"goats":2,"x":0.9103,"y":0.8211,"r":0.016}],"resourceOval":{"rotationDeg":-22,"rxScale":1.38,"ryScale":1.58,"color":"#2a2520","lineWidthScale":0.38}};
 
       const SCORECARD_MARKET_LAYOUT = (() => {
         const ox = 0.76874;
@@ -5181,7 +5281,7 @@
           bar.classList.add("show");
           const t = scorecardTurn;
           if (!t.choice) {
-            label.textContent = "Scegli Quantità o Distanza";
+            label.textContent = "Scegli un'azione";
             if (confirmBtn) confirmBtn.disabled = true;
             return;
           }
@@ -5542,6 +5642,13 @@
         });
       }
 
+      function getViewingPlayerLabel() {
+        if (!engineState || viewingSeat == null || viewingSeat < 0) return "";
+        if (viewingSeat === localSeat) return "Tu";
+        const player = engineState.players.find((p) => p.id === viewingSeat);
+        return player?.name || `G${viewingSeat + 1}`;
+      }
+
       function setBoardPeek(amount, options) {
         const snap = options && options.snap;
         boardPeek = Math.max(0, Math.min(1, Number(amount) || 0));
@@ -5558,6 +5665,9 @@
         }
         const toggle = document.getElementById("board-peek-toggle");
         const hint = document.getElementById("board-peek-hint");
+        const playerLabel = document.getElementById("board-peek-player");
+        const viewingLabel = getViewingPlayerLabel();
+        if (playerLabel) playerLabel.textContent = viewingLabel;
         if (toggle) {
           if (isGameOver()) toggle.textContent = "Classifica";
           else
@@ -5566,16 +5676,14 @@
         }
         if (hint) {
           if (isGameOver()) {
-            const player = engineState.players.find((p) => p.id === viewingSeat);
-            hint.textContent = player
-              ? `Plancia di ${player.name}`
+            hint.textContent = viewingLabel
+              ? `Plancia di ${viewingLabel}`
               : "Plancia";
           } else if (consulting) {
-            const n = viewingSeat + 1;
             const mine = viewingSeat === localSeat;
             hint.textContent = mine
               ? "La tua scheda — sola lettura finché non è il tuo turno"
-              : `Scheda G${n} — sola lettura`;
+              : `${viewingLabel} — sola lettura`;
           } else {
             hint.textContent =
               boardPeek > 0.5
@@ -5656,18 +5764,29 @@
         const el = document.getElementById("scorecard-choice");
         if (el) el.classList.toggle("show", !!show);
         const districtEl = document.getElementById("scorecard-choice-district");
-        if (!districtEl) return;
-        if (
-          show &&
-          scorecardTurn &&
-          DISTRICT_NAMES_IT[scorecardTurn.districtKey]
-        ) {
-          const name = DISTRICT_NAMES_IT[scorecardTurn.districtKey];
-          const n = scorecardTurn.diceCount;
-          districtEl.textContent = `Distretto ${name} · ${n} ${n === 1 ? "dado" : "dadi"}`;
-        } else {
-          districtEl.textContent = "";
+        const key = scorecardTurn && scorecardTurn.districtKey;
+        if (districtEl) {
+          if (show && key && DISTRICT_NAMES_IT[key]) {
+            const name = DISTRICT_NAMES_IT[key];
+            const n = scorecardTurn.diceCount;
+            districtEl.textContent = `Distretto ${name} · ${n} ${n === 1 ? "dado" : "dadi"}`;
+          } else {
+            districtEl.textContent = "";
+          }
         }
+        if (!el) return;
+        const enableGold = key === "Gold";
+        const enableGoats = key === "Goats";
+        const enableQty = !!key && key !== "Gold" && key !== "Goats";
+        el.querySelectorAll(".choice-tile").forEach((btn) => {
+          const choice = btn.getAttribute("data-choice");
+          let enabled = true;
+          if (choice === "gold") enabled = enableGold;
+          else if (choice === "goats") enabled = enableGoats;
+          else if (choice === "qty") enabled = enableQty;
+          else if (choice === "distance") enabled = true;
+          btn.disabled = !show || !enabled;
+        });
       }
 
       function getScorecardSplitLeft() {
@@ -8797,6 +8916,7 @@
       let lightTunerOverlay = null;
       let lightTunerRefreshToggleText = () => {};
       let veilTunerOverlay = null;
+      let refreshVeilTunerPreview = null;
 
       function hexToRgbParts(hex) {
         const n = String(hex || "").replace("#", "");
@@ -8857,6 +8977,30 @@
           background: transparent;
         }
         #veil-tuner input[type="checkbox"] { accent-color: var(--gold); }
+        #veil-tuner .profile-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 6px;
+          margin-bottom: 8px;
+        }
+        #veil-tuner .profile-row button {
+          margin-top: 0;
+          width: 100%;
+          background: transparent;
+          color: var(--gold-lt);
+          border: 1px solid rgba(201, 168, 76, 0.45);
+        }
+        #veil-tuner .profile-row button.is-active {
+          background: var(--gold);
+          color: var(--dark);
+          border-color: var(--gold);
+        }
+        #veil-tuner .profile-hint {
+          font-size: 11px;
+          opacity: 0.75;
+          margin: -2px 0 8px;
+          line-height: 1.3;
+        }
         #veil-tuner button {
           border: none;
           background: var(--gold);
@@ -8884,14 +9028,41 @@
           border-radius: 6px;
           white-space: pre-wrap;
           word-break: break-word;
+          max-height: 140px;
+          overflow: auto;
         }
         `;
         document.head.appendChild(style);
+
+        const liveStyle = document.createElement("style");
+        liveStyle.id = "veil-live-profiles";
+        document.head.appendChild(liveStyle);
+
+        const defaultProfile = () => ({
+          color: "#718398",
+          opacity: 0.06,
+          gray: 0.12,
+          blur: 0.6,
+          bright: 0.98,
+          radius: 8,
+        });
+        const profiles = {
+          desktop: defaultProfile(),
+          mobile: defaultProfile(),
+        };
+        const isMobileViewport = () =>
+          window.matchMedia("(max-width: 900px)").matches;
+        let activeProfile = isMobileViewport() ? "mobile" : "desktop";
 
         const overlay = document.createElement("div");
         overlay.id = "veil-tuner";
         overlay.innerHTML = `
         <h3>Velo negozi (dev)</h3>
+        <div class="profile-row">
+          <button type="button" id="veil-profile-desktop" data-profile="desktop">Browser</button>
+          <button type="button" id="veil-profile-mobile" data-profile="mobile">iPhone</button>
+        </div>
+        <p class="profile-hint" id="veil-profile-hint"></p>
         <div class="row">
           <label for="veil-preview">Anteprima su tutti</label>
           <input type="checkbox" id="veil-preview">
@@ -8940,45 +9111,170 @@
         const bright = overlay.querySelector("#veil-bright");
         const radius = overlay.querySelector("#veil-radius");
         const cssOut = overlay.querySelector("#veil-css");
+        const hint = overlay.querySelector("#veil-profile-hint");
+        const btnDesktop = overlay.querySelector("#veil-profile-desktop");
+        const btnMobile = overlay.querySelector("#veil-profile-mobile");
+
+        function profileBlock(p) {
+          const rgb = hexToRgbParts(p.color);
+          return [
+            `  --dim-r: ${rgb.r};`,
+            `  --dim-g: ${rgb.g};`,
+            `  --dim-b: ${rgb.b};`,
+            `  --dim-opacity: ${p.opacity};`,
+            `  --dim-gray: ${p.gray};`,
+            `  --dim-blur: ${p.blur}px;`,
+            `  --dim-bright: ${p.bright};`,
+            `  --dim-radius: ${p.radius}px;`,
+          ].join("\n");
+        }
 
         function currentCss() {
-          const rgb = hexToRgbParts(color.value);
-          const op = Number(opacity.value);
-          const g = Number(gray.value);
-          const b = Number(blur.value);
-          const br = Number(bright.value);
-          const r = Number(radius.value);
           return [
-            `.scorecard-dim-band {`,
-            `  border-radius: ${r}px;`,
-            `  background: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${op});`,
-            `  backdrop-filter: grayscale(${g}) blur(${b}px) brightness(${br});`,
+            `/* Browser */`,
+            `:root {`,
+            profileBlock(profiles.desktop),
+            `}`,
+            `/* iPhone / mobile ≤900px */`,
+            `@media (max-width: 900px) {`,
+            `  :root {`,
+            profileBlock(profiles.mobile).replace(/^/gm, "  "),
+            `  }`,
             `}`,
           ].join("\n");
         }
 
+        function readSlidersIntoProfile() {
+          const p = profiles[activeProfile];
+          p.color = color.value;
+          p.opacity = Number(opacity.value);
+          p.gray = Number(gray.value);
+          p.blur = Number(blur.value);
+          p.bright = Number(bright.value);
+          p.radius = Number(radius.value);
+        }
+
+        function writeProfileToSliders() {
+          const p = profiles[activeProfile];
+          color.value = p.color;
+          opacity.value = String(p.opacity);
+          gray.value = String(p.gray);
+          blur.value = String(p.blur);
+          bright.value = String(p.bright);
+          radius.value = String(p.radius);
+        }
+
+        function clearInlineDim() {
+          [
+            "--dim-r",
+            "--dim-g",
+            "--dim-b",
+            "--dim-opacity",
+            "--dim-gray",
+            "--dim-blur",
+            "--dim-bright",
+            "--dim-radius",
+          ].forEach((k) => root.style.removeProperty(k));
+        }
+
+        function syncLiveStyle(forceActivePreview) {
+          const d = profiles.desktop;
+          const m = profiles.mobile;
+          const rgbD = hexToRgbParts(d.color);
+          const rgbM = hexToRgbParts(m.color);
+          let css = `
+:root {
+  --dim-r: ${rgbD.r};
+  --dim-g: ${rgbD.g};
+  --dim-b: ${rgbD.b};
+  --dim-opacity: ${d.opacity};
+  --dim-gray: ${d.gray};
+  --dim-blur: ${d.blur}px;
+  --dim-bright: ${d.bright};
+  --dim-radius: ${d.radius}px;
+}
+@media (max-width: 900px) {
+  :root {
+    --dim-r: ${rgbM.r};
+    --dim-g: ${rgbM.g};
+    --dim-b: ${rgbM.b};
+    --dim-opacity: ${m.opacity};
+    --dim-gray: ${m.gray};
+    --dim-blur: ${m.blur}px;
+    --dim-bright: ${m.bright};
+    --dim-radius: ${m.radius}px;
+  }
+}`;
+          if (forceActivePreview) {
+            const p = profiles[activeProfile];
+            const rgb = hexToRgbParts(p.color);
+            css += `
+html.veil-force-preview {
+  --dim-r: ${rgb.r} !important;
+  --dim-g: ${rgb.g} !important;
+  --dim-b: ${rgb.b} !important;
+  --dim-opacity: ${p.opacity} !important;
+  --dim-gray: ${p.gray} !important;
+  --dim-blur: ${p.blur}px !important;
+  --dim-bright: ${p.bright} !important;
+  --dim-radius: ${p.radius}px !important;
+}`;
+            root.classList.add("veil-force-preview");
+          } else {
+            root.classList.remove("veil-force-preview");
+          }
+          liveStyle.textContent = css;
+        }
+
+        function updateHint() {
+          const editingMobile = activeProfile === "mobile";
+          const onMobile = isMobileViewport();
+          if (editingMobile === onMobile) {
+            hint.textContent = editingMobile
+              ? "Profilo iPhone — anteprima reale su questo schermo."
+              : "Profilo browser — anteprima reale su questo schermo.";
+          } else {
+            hint.textContent = editingMobile
+              ? "Profilo iPhone — anteprima forzata (sei su browser)."
+              : "Profilo browser — anteprima forzata (sei su mobile).";
+          }
+          btnDesktop.classList.toggle("is-active", activeProfile === "desktop");
+          btnMobile.classList.toggle("is-active", activeProfile === "mobile");
+        }
+
         function applyVeil() {
-          const rgb = hexToRgbParts(color.value);
-          root.style.setProperty("--dim-r", String(rgb.r));
-          root.style.setProperty("--dim-g", String(rgb.g));
-          root.style.setProperty("--dim-b", String(rgb.b));
-          root.style.setProperty("--dim-opacity", opacity.value);
-          root.style.setProperty("--dim-gray", gray.value);
-          root.style.setProperty("--dim-blur", `${blur.value}px`);
-          root.style.setProperty("--dim-bright", bright.value);
-          root.style.setProperty("--dim-radius", `${radius.value}px`);
+          readSlidersIntoProfile();
+          clearInlineDim();
+          const tunerOpen = !overlay.classList.contains("hidden");
+          const mismatch =
+            (activeProfile === "mobile") !== isMobileViewport();
+          syncLiveStyle(tunerOpen && mismatch);
           overlay.querySelector("#veil-opacity-val").textContent =
             `${Math.round(Number(opacity.value) * 100)}%`;
-          overlay.querySelector("#veil-gray-val").textContent = Number(gray.value).toFixed(2);
-          overlay.querySelector("#veil-blur-val").textContent = `${Number(blur.value).toFixed(1)}px`;
-          overlay.querySelector("#veil-bright-val").textContent = Number(bright.value).toFixed(2);
-          overlay.querySelector("#veil-radius-val").textContent = `${radius.value}px`;
+          overlay.querySelector("#veil-gray-val").textContent =
+            Number(gray.value).toFixed(2);
+          overlay.querySelector("#veil-blur-val").textContent =
+            `${Number(blur.value).toFixed(1)}px`;
+          overlay.querySelector("#veil-bright-val").textContent =
+            Number(bright.value).toFixed(2);
+          overlay.querySelector("#veil-radius-val").textContent =
+            `${radius.value}px`;
           cssOut.textContent = currentCss();
+          updateHint();
+        }
+
+        function setActiveProfile(next) {
+          readSlidersIntoProfile();
+          activeProfile = next === "mobile" ? "mobile" : "desktop";
+          writeProfileToSliders();
+          applyVeil();
         }
 
         [color, opacity, gray, blur, bright, radius].forEach((el) => {
           el.addEventListener("input", applyVeil);
         });
+        btnDesktop.addEventListener("click", () => setActiveProfile("desktop"));
+        btnMobile.addEventListener("click", () => setActiveProfile("mobile"));
 
         preview.addEventListener("change", () => {
           veilTunerPreview = preview.checked;
@@ -8986,6 +9282,7 @@
         });
 
         overlay.querySelector("#veil-copy").addEventListener("click", async () => {
+          readSlidersIntoProfile();
           const text = currentCss();
           try {
             await navigator.clipboard.writeText(text);
@@ -9000,6 +9297,8 @@
 
         overlay.querySelector("#veil-close").addEventListener("click", () => {
           overlay.classList.add("hidden");
+          root.classList.remove("veil-force-preview");
+          syncLiveStyle(false);
           if (veilTunerPreview) {
             veilTunerPreview = false;
             preview.checked = false;
@@ -9007,7 +9306,9 @@
           }
         });
 
+        writeProfileToSliders();
         applyVeil();
+        refreshVeilTunerPreview = applyVeil;
         veilTunerOverlay = overlay;
         return overlay;
       }
@@ -9016,6 +9317,12 @@
         if (!veilTunerOverlay) mountVeilTuner();
         if (!veilTunerOverlay) return;
         veilTunerOverlay.classList.toggle("hidden");
+        if (typeof refreshVeilTunerPreview === "function") {
+          refreshVeilTunerPreview();
+        }
+        if (veilTunerOverlay.classList.contains("hidden")) {
+          document.documentElement.classList.remove("veil-force-preview");
+        }
       };
 
       window.addEventListener("keydown", (evt) => {
