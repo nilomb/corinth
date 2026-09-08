@@ -97,7 +97,7 @@ var MARKET_GRID = [
   [
     { t: "score", d: 0 },
     { t: "die" },
-    { t: "goods", district: "blue", qty: 2 },
+    { t: "goods", district: "blue", qty: 1 },
     { t: "plus" },
     { t: "score", d: 1 }
   ],
@@ -120,7 +120,7 @@ var MARKET_GRID = [
     { t: "gold", qty: 2 },
     { t: "die" },
     { t: "goods", district: "purple", qty: 1 },
-    { t: "goods", district: "blue", qty: 2 }
+    { t: "goods", district: "blue", qty: 1 }
   ],
   [
     { t: "score", d: 2 },

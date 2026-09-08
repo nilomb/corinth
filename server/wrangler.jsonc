@@ -1,0 +1,19 @@
+{
+  "name": "corinth",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-11-01",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "GameRoom",
+        "class_name": "GameRoom"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["GameRoom"]
+    }
+  ]
+}
