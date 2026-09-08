@@ -157,6 +157,6 @@ export const MARKET_GRID = [
     { t: "goats", qty: 1 },
     { t: "plus" },
     { t: "goats", qty: 2 },
-    { t: "score", d: 3 },
+    { t: "goods", district: "orange", qty: 1 },
   ],
 ] as const;

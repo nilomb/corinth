@@ -14,6 +14,7 @@ import {
 import {
   commitMarketPath,
   findMarketDestinations,
+  getMarketNode,
   isOrthogonalPath,
   marketGoldCost,
   marketUsedSet,
@@ -28,6 +29,7 @@ import type {
   PickDistrictMove,
   QuantityAction,
   RollMove,
+  ShopMark,
   StartGameMove,
   TurnAction,
 } from "./moves";
@@ -40,6 +42,7 @@ import {
   goodsQuota,
   maybeClaimDistrictBonus,
   remainingResource,
+  remainingUnmarked,
   sheetDistrictFor,
 } from "./sheet";
 import { createInitialState, emptyHarbor, pickQueueForRound, playerId } from "./state";
@@ -239,6 +242,31 @@ function applyQuantity(
   return applyShopMarks(sheet, districtId, action.shopMarks, quota);
 }
 
+function applyGoodsFromMarketDestination(
+  sheet: Player["sheet"],
+  destId: string,
+  shopMarks: ShopMark[] | undefined,
+): string | null {
+  const node = getMarketNode(destId);
+  if (!node || node.effect.t !== "goods") {
+    if (shopMarks && shopMarks.length > 0) {
+      return "shop marks only for goods destinations";
+    }
+    return null;
+  }
+  const need = node.effect.qty;
+  const room = remainingUnmarked(sheet, node.effect.district);
+  const quota = Math.min(need, room);
+  if (quota <= 0) {
+    if (shopMarks && shopMarks.length > 0) {
+      return "no room for market goods";
+    }
+    return null;
+  }
+  if (shopMarks === undefined) return "shop marks required for market goods";
+  return applyShopMarks(sheet, node.effect.district, shopMarks, quota);
+}
+
 function applyMarketAction(
   sheet: Player["sheet"],
   pick: NonNullable<GameState["activePick"]>,
@@ -269,7 +297,7 @@ function applyMarketAction(
     return "illegal market path";
   }
   commitMarketPath(sheet, action.path, cost);
-  return null;
+  return applyGoodsFromMarketDestination(sheet, dest, action.shopMarks);
 }
 
 function applyCompensationAction(
@@ -295,7 +323,7 @@ function applyCompensationAction(
     return "illegal compensation step";
   }
   commitMarketPath(sheet, action.path, 0);
-  return null;
+  return applyGoodsFromMarketDestination(sheet, dest, action.shopMarks);
 }
 
 function applyAction(

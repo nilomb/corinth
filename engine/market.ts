@@ -7,7 +7,7 @@ import {
   MAX_YELLOW_DICE,
 } from "./constants";
 import type { MarketNodeId, ScoreSheet } from "./types";
-import { autoMarkDistrictGoods, remainingResource } from "./sheet";
+import { remainingResource } from "./sheet";
 
 export interface MarketNode {
   id: MarketNodeId;
@@ -187,9 +187,8 @@ export function applyMarketDestinationEffect(
   const node = getMarketNode(destId);
   if (!node) return;
   const e = node.effect;
-  if (e.t === "goods") {
-    autoMarkDistrictGoods(sheet, e.district, e.qty);
-  } else if (e.t === "gold") {
+  // Goods are placed manually by the player (shopMarks on the market action).
+  if (e.t === "gold") {
     const room = GOLD_TRACK - sheet.gold.circled;
     sheet.gold.circled += Math.min(e.qty, Math.max(0, room));
   } else if (e.t === "goats") {

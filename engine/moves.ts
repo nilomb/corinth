@@ -95,11 +95,15 @@ export interface MarketAction {
   kind: "market";
   path: MarketNodeId[];
   extraGold: number;
+  /** Required when the destination is a goods cell; count must match the cell qty (capped by room). */
+  shopMarks?: ShopMark[];
 }
 
 export interface CompensationAction {
   kind: "compensation";
   path: MarketNodeId[];
+  /** Required when the destination is a goods cell. */
+  shopMarks?: ShopMark[];
 }
 
 /** Decline the optional 1-step market move on a compensation turn. */

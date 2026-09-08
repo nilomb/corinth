@@ -243,32 +243,6 @@
         cursor: default;
         transform: none;
       }
-      #end-btn {
-        flex: 0 0 auto;
-        min-width: 72px;
-        font-family: "Cinzel", serif;
-        font-size: 12px;
-        color: var(--parch);
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid #4a3010;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.15s;
-        padding: 0 10px;
-      }
-      #end-btn:disabled {
-        opacity: 0.3;
-        cursor: default;
-      }
-      #end-btn:not(:disabled):active {
-        background: rgba(255, 255, 255, 0.12);
-      }
-      #end-btn.active {
-        background: linear-gradient(to bottom, var(--gold-lt), var(--gold));
-        color: var(--dark);
-        border-color: var(--gold-lt);
-        font-weight: 700;
-      }
       #yellow-buy-tray {
         position: absolute;
         top: auto;
@@ -743,6 +717,9 @@
         color: var(--parch);
         line-height: 1.25;
       }
+      .scorecard-action-bar .action-label:empty {
+        display: none;
+      }
       .scorecard-action-bar .action-btns {
         display: flex;
         flex-wrap: wrap;
@@ -812,6 +789,19 @@
         color: var(--gold-lt);
         min-width: 1.4em;
         text-align: center;
+      }
+      .scorecard-quota-count {
+        font-family: "Cinzel", serif;
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        color: var(--gold-lt);
+        margin-right: 4px;
+        line-height: 1;
+        white-space: nowrap;
+      }
+      .scorecard-quota-count[hidden] {
+        display: none;
       }
       #scorecard-page.turn-mode .scorecard-toolbar,
       #scorecard-page.turn-mode .scorecard-hint {
@@ -2003,6 +1993,9 @@
       <button class="menu-item" onclick="toggleScorecardCalibrator()">
         Calibra scheda
       </button>
+      <button class="menu-item" onclick="openVeilTunerFromMenu()">
+        Regola velo
+      </button>
       <div class="menu-separator"></div>
       <button class="menu-item reset" onclick="resetFromMenu()">RESET</button>
     </nav>
@@ -2338,6 +2331,7 @@
           <div id="scorecard-action-bar" class="scorecard-action-bar" aria-live="polite">
             <div class="action-label" id="scorecard-action-label"></div>
             <div class="action-btns">
+              <span id="scorecard-quota-count" class="scorecard-quota-count" hidden></span>
               <div class="scorecard-qty" id="scorecard-qty-controls" hidden>
                 <button type="button" id="scorecard-qty-minus" aria-label="Diminuisci">−</button>
                 <span id="scorecard-qty-value">1</span>
@@ -2887,7 +2881,6 @@
       <button id="roll-btn" onclick="rollDice()" disabled>
         🎲 Lancia i dadi
       </button>
-      <button id="end-btn" onclick="endTurn()" disabled>Fine →</button>
     </div>
 
     <!-- THREE.JS + CANNON.JS -->
@@ -3414,9 +3407,7 @@
         if (engineState.phase === "draft") {
           setTimeout(nextPlayerContext, 300);
         } else if (engineState.phase === "supply") {
-          document.getElementById("roll-btn").disabled = true;
-          document.getElementById("end-btn").disabled = false;
-          document.getElementById("end-btn").classList.add("active");
+          endTurn();
         } else if (engineState.phase === "over") {
           endGame();
         }
@@ -3469,7 +3460,6 @@
       window.rollDice = rollDice;
       window.adjustYellowDice = adjustYellowDice;
       window.toggleYellowDieSlot = toggleYellowDieSlot;
-      window.endTurn = endTurn;
       window.restartGame = restartGame;
       window.closeMarketSkipModal = closeMarketSkipModal;
 
@@ -3582,7 +3572,7 @@
             { t: "goats", qty: 1 },
             { t: "plus" },
             { t: "goats", qty: 2 },
-            { t: "score", d: 3 },
+            { t: "goods", district: "orange", qty: 1 },
           ],
         ];
         const nodes = [];
@@ -3889,6 +3879,26 @@
             base.gold.spent = (base.gold.spent || 0) + p.goldCost;
           }
         }
+        // Percorso mercato già confermato, in attesa del premio (oro/capre/merce)
+        if (
+          pendingOnThisSheet &&
+          scorecardTurn &&
+          scorecardTurn.lockedMarket &&
+          scorecardTurn.lockedMarket.path &&
+          scorecardTurn.lockedMarket.path.length > 1
+        ) {
+          normalizeMercatoState(base);
+          const locked = scorecardTurn.lockedMarket;
+          if (locked.goldCost) {
+            base.gold.spent = (base.gold.spent || 0) + locked.goldCost;
+          }
+          const destId = locked.path[locked.path.length - 1];
+          base.mercato.moves = (base.mercato.moves || []).concat([
+            { path: locked.path.slice() },
+          ]);
+          base.mercato.circled = (base.mercato.circled || []).concat([destId]);
+          base.mercato.steward = destId;
+        }
         const yellowSpend = pendingYellowGoldSpend();
         if (
           yellowSpend > 0 &&
@@ -3971,7 +3981,7 @@
         return incomplete >= 0 && incomplete !== shopIndex;
       }
 
-      function showScorecardToast(message) {
+      function showScorecardToast(message, durationMs) {
         const el = document.getElementById("scorecard-toast");
         if (!el) return;
         el.textContent = message;
@@ -3980,7 +3990,39 @@
         scorecardToastTimer = window.setTimeout(() => {
           el.classList.remove("show");
           scorecardToastTimer = null;
-        }, 2000);
+        }, durationMs || 2000);
+      }
+
+      let appToastTimer = null;
+      function showAppToast(message, durationMs) {
+        const page = document.getElementById("scorecard-page");
+        if (page && !page.classList.contains("hidden")) {
+          showScorecardToast(message, durationMs || 3200);
+          return;
+        }
+        let el = document.getElementById("app-toast");
+        if (!el) {
+          el = document.createElement("div");
+          el.id = "app-toast";
+          el.setAttribute("role", "status");
+          el.setAttribute("aria-live", "polite");
+          el.style.cssText =
+            "position:fixed;left:50%;top:18%;z-index:400;max-width:min(86vw,360px);" +
+            "padding:12px 18px;border-radius:10px;border:1px solid var(--gold);" +
+            "background:linear-gradient(to bottom,#2a1808,#1a1008);" +
+            "box-shadow:0 8px 24px rgba(0,0,0,.55);color:var(--parch);" +
+            "font-family:Cinzel,serif;font-size:14px;letter-spacing:.4px;" +
+            "line-height:1.35;text-align:center;pointer-events:none;" +
+            "transform:translate(-50%,0);opacity:0;transition:opacity .22s ease;";
+          document.body.appendChild(el);
+        }
+        el.textContent = message;
+        el.style.opacity = "1";
+        if (appToastTimer) window.clearTimeout(appToastTimer);
+        appToastTimer = window.setTimeout(() => {
+          el.style.opacity = "0";
+          appToastTimer = null;
+        }, durationMs || 3200);
       }
 
       function warnIfOtherShopBlocked(districtId, shopIndex, state) {
@@ -4461,6 +4503,8 @@
         ) {
           return false;
         }
+        // Quota dal mercato: fissata dalla casella, non dai dadi del gruppo.
+        if (scorecardPending.fromMarket) return false;
         const quota = computeShopTurnQuota(
           scorecardPending.districtId,
           scorecardTurn.diceCount,
@@ -4471,12 +4515,18 @@
           districtId: scorecardPending.districtId,
           shops: scorecardPending.shops,
           quota,
+          fromMarket: scorecardPending.fromMarket,
         });
         return true;
       }
 
       function afterPendingBuildingsChanged() {
         if (scorecardTurn && scorecardTurn.choice === "distance") {
+          if (isMarketRewardPending(scorecardPending)) {
+            updateScorecardActionBar();
+            renderScorecardMarks();
+            return;
+          }
           refreshMarketMove(true);
           return;
         }
@@ -4822,9 +4872,8 @@
       function applyMarketDestinationEffect(state, destId) {
         const node = getMarketNode(destId);
         if (!node) return;
-        if (node.t === "goods" && node.district) {
-          autoMarkDistrictGoods(node.district, node.qty || 1, state);
-        } else if (node.t === "gold") {
+        // Merci: piazzamento manuale dopo la conferma del percorso.
+        if (node.t === "gold") {
           circleResourceTrack(state, "gold", node.qty || 1);
         } else if (node.t === "goats") {
           circleResourceTrack(state, "goats", node.qty || 1);
@@ -4837,6 +4886,123 @@
           const pts = computeMarketFlowerScore(state, destId);
           state.mercato.diamonds[node.d] = pts;
         }
+      }
+
+      function marketRewardNeedsFollowUp(destId) {
+        const node = getMarketNode(destId);
+        return !!(
+          node &&
+          (node.t === "gold" || node.t === "goats" || node.t === "goods")
+        );
+      }
+
+      function marketRewardMeta(p) {
+        if (p && p.fromMarket) return p.fromMarket;
+        if (scorecardTurn && scorecardTurn.lockedMarket) {
+          return scorecardTurn.lockedMarket;
+        }
+        return null;
+      }
+
+      function isMarketRewardPending(p) {
+        return !!(
+          p &&
+          marketRewardMeta(p) &&
+          (p.type === "gold" || p.type === "goats" || p.type === "shop-turn")
+        );
+      }
+
+      function beginMarketRewardStep(path, goldCost) {
+        const destId = path[path.length - 1];
+        const node = getMarketNode(destId);
+        if (!node || !scorecardTurn) return false;
+
+        scorecardTurn.marketDraft = scorecardPending
+          ? {
+              type: "market-move",
+              steps: scorecardPending.steps,
+              goldCost: scorecardPending.goldCost,
+              dests: scorecardPending.dests,
+              selectedId: scorecardPending.selectedId,
+              selectedPath: scorecardPending.selectedPath
+                ? scorecardPending.selectedPath.slice()
+                : null,
+              pathIndex: scorecardPending.pathIndex || 0,
+            }
+          : null;
+        scorecardTurn.lockedMarket = {
+          path: path.slice(),
+          goldCost: goldCost || 0,
+        };
+
+        if (node.t === "gold" || node.t === "goats") {
+          const trackKey = node.t;
+          const layout = SCORECARD_SHEET_LAYOUT[trackKey];
+          const confirmed = scorecardDigitalState[trackKey].circled;
+          const qty = Math.min(node.qty || 1, layout.count - confirmed);
+          setScorecardPending({
+            type: trackKey,
+            qty,
+            circled: confirmed + qty,
+            fromMarket: { path: path.slice(), goldCost: goldCost || 0 },
+          });
+          // Resta sulla metà destra (mercato / tracce oro-capre)
+          showScorecardHalf("right");
+          return true;
+        }
+
+        if (node.t === "goods" && node.district) {
+          const districtId = node.district;
+          const remaining = remainingUnmarkedInDistrict(
+            districtId,
+            scorecardDigitalState,
+          );
+          const quota = Math.min(node.qty || 1, remaining);
+          if (quota <= 0) {
+            // Nessuno spazio nei negozi: chiudi senza secondo passo merce
+            scorecardTurn.lockedMarket = null;
+            scorecardTurn.marketDraft = null;
+            return false;
+          }
+          const confirmedShops =
+            scorecardDigitalState.districts[districtId].shops;
+          setScorecardPending({
+            type: "shop-turn",
+            districtId,
+            shops: confirmedShops.map((s) => s.marked.slice()),
+            quota,
+            fromMarket: { path: path.slice(), goldCost: goldCost || 0 },
+          });
+          showScorecardHalf("left");
+          return true;
+        }
+
+        scorecardTurn.lockedMarket = null;
+        scorecardTurn.marketDraft = null;
+        return false;
+      }
+
+      function restoreMarketMoveFromDraft() {
+        if (!scorecardTurn) return;
+        const draft = scorecardTurn.marketDraft;
+        scorecardTurn.lockedMarket = null;
+        scorecardTurn.marketDraft = null;
+        if (draft && draft.type === "market-move") {
+          setScorecardPending({
+            type: "market-move",
+            steps: draft.steps,
+            goldCost: draft.goldCost,
+            dests: draft.dests,
+            selectedId: draft.selectedId,
+            selectedPath: draft.selectedPath
+              ? draft.selectedPath.slice()
+              : null,
+            pathIndex: draft.pathIndex || 0,
+          });
+          showScorecardHalf("right");
+          return;
+        }
+        startMarketMove();
       }
 
       function startMarketMove() {
@@ -5273,9 +5439,14 @@
         const label = document.getElementById("scorecard-action-label");
         const qtyWrap = document.getElementById("scorecard-qty-controls");
         const qtyVal = document.getElementById("scorecard-qty-value");
+        const quotaCount = document.getElementById("scorecard-quota-count");
         const confirmBtn = document.getElementById("scorecard-action-confirm");
         if (!bar || !label) return;
         if (qtyWrap) qtyWrap.hidden = true;
+        if (quotaCount) {
+          quotaCount.hidden = true;
+          quotaCount.textContent = "";
+        }
 
         if (scorecardTurn) {
           bar.classList.add("show");
@@ -5287,6 +5458,31 @@
           }
           if (t.choice === "distance") {
             const p = scorecardPending;
+            if (isMarketRewardPending(p)) {
+              if (qtyWrap) qtyWrap.hidden = true;
+              if (p.type === "gold" || p.type === "goats") {
+                const name = p.type === "gold" ? "Oro" : "Capre";
+                label.textContent =
+                  p.qty > 0
+                    ? `${name}: +${p.qty} cerchiat${p.qty === 1 ? "o" : "i"}. Conferma o Annulla.`
+                    : `${name}: traccia piena. Conferma o Annulla.`;
+                if (confirmBtn) confirmBtn.disabled = false;
+                return;
+              }
+              if (p.type === "shop-turn") {
+                const placed = countNewShopMarks(
+                  p.shops,
+                  scorecardDigitalState.districts[p.districtId].shops,
+                );
+                label.textContent = "";
+                if (quotaCount) {
+                  quotaCount.hidden = false;
+                  quotaCount.textContent = `${placed}/${p.quota}`;
+                }
+                if (confirmBtn) confirmBtn.disabled = placed !== p.quota;
+                return;
+              }
+            }
             if (qtyWrap) qtyWrap.hidden = false;
             if (qtyVal && p && p.type === "market-move") {
               qtyVal.textContent = String(p.steps);
@@ -5337,14 +5533,11 @@
               p.shops,
               scorecardDigitalState.districts[p.districtId].shops,
             );
-            const key = districtKeyFromSheetId(p.districtId);
-            const name = DISTRICT_NAMES_IT[key] || p.districtId;
-            const extraNote =
-              scorecardTurn &&
-              p.quota > (scorecardTurn.diceCount || 0)
-                ? " (Magazzino +1)"
-                : "";
-            label.textContent = `${name}: ${placed}/${p.quota} X nel riquadro${extraNote}. Finisci il negozio iniziato prima di aprirne un altro.`;
+            label.textContent = "";
+            if (quotaCount) {
+              quotaCount.hidden = false;
+              quotaCount.textContent = `${placed}/${p.quota}`;
+            }
             if (confirmBtn) confirmBtn.disabled = placed !== p.quota;
             return;
           }
@@ -5392,20 +5585,33 @@
         updateScorecardActionBar();
         updateMarketHitStates();
         renderScorecardMarks();
+        if (typeof window.closeVeilTunerIfWrongSector === "function") {
+          window.closeVeilTunerIfWrongSector();
+        }
       }
 
       function cancelScorecardPending() {
         if (scorecardTurn) {
           if (scorecardTurn.pendingBuildings && scorecardTurn.pendingBuildings.length) {
             scorecardTurn.pendingBuildings.pop();
-            if (scorecardTurn.choice === "distance") refreshMarketMove(true);
-            else {
+            if (scorecardTurn.choice === "distance") {
+              if (isMarketRewardPending(scorecardPending)) {
+                updateScorecardActionBar();
+                renderScorecardMarks();
+              } else {
+                refreshMarketMove(true);
+              }
+            } else {
               updateScorecardActionBar();
               renderScorecardMarks();
             }
             return;
           }
           if (scorecardTurn.choice) {
+            if (isMarketRewardPending(scorecardPending)) {
+              restoreMarketMoveFromDraft();
+              return;
+            }
             if (
               scorecardPending &&
               scorecardPending.type === "market-move" &&
@@ -5432,6 +5638,8 @@
               return;
             }
             scorecardTurn.choice = null;
+            scorecardTurn.lockedMarket = null;
+            scorecardTurn.marketDraft = null;
             setScorecardPending(null);
             showScorecardChoice(true);
             showScorecardHalf("full");
@@ -5487,6 +5695,7 @@
           return;
         }
         if (isHotseat()) return;
+        if (scorecardPending.fromMarket) return;
         if (scorecardPending.type !== "gold" && scorecardPending.type !== "goats")
           return;
         const trackKey = scorecardPending.type;
@@ -5862,6 +6071,8 @@
           choice: pick.compensation ? "distance" : null,
           pendingBuildings: [],
           compensation: !!pick.compensation,
+          lockedMarket: null,
+          marketDraft: null,
         };
         setScorecardPending(null);
         const page = document.getElementById("scorecard-page");
@@ -5979,6 +6190,17 @@
         if (!scorecardTurn || !scorecardTurn.choice) return false;
         if (scorecardTurn.choice === "distance") {
           const p = scorecardPending;
+          if (isMarketRewardPending(p)) {
+            if (p.type === "gold" || p.type === "goats") return true;
+            if (p.type === "shop-turn") {
+              const placed = countNewShopMarks(
+                p.shops,
+                scorecardDigitalState.districts[p.districtId].shops,
+              );
+              return placed === p.quota;
+            }
+            return false;
+          }
           return !!(
             p &&
             p.type === "market-move" &&
@@ -6005,10 +6227,71 @@
             scorecardDigitalState.districts[p.districtId].shops[i].marked =
               marked.slice();
           });
+          const marketMeta = marketRewardMeta(p);
+          if (marketMeta && marketMeta.path) {
+            normalizeMercatoState(scorecardDigitalState);
+            const path = marketMeta.path.slice();
+            const destId = path[path.length - 1];
+            if (marketMeta.goldCost) {
+              scorecardDigitalState.gold.spent =
+                (scorecardDigitalState.gold.spent || 0) + marketMeta.goldCost;
+            }
+            applyMarketDestinationEffect(scorecardDigitalState, destId);
+            scorecardDigitalState.mercato.moves.push({ path });
+            scorecardDigitalState.mercato.circled.push(destId);
+            scorecardDigitalState.mercato.steward = destId;
+            scorecardDigitalState.mercato.used = Array.from(
+              marketUsedSet(scorecardDigitalState),
+            );
+            syncYellowDiceSelect();
+          }
         } else if (p.type === "gold") {
           scorecardDigitalState.gold.circled = p.circled;
+          const marketMeta = marketRewardMeta(p);
+          if (marketMeta && marketMeta.path) {
+            normalizeMercatoState(scorecardDigitalState);
+            const path = marketMeta.path.slice();
+            const destId = path[path.length - 1];
+            if (marketMeta.goldCost) {
+              scorecardDigitalState.gold.spent =
+                (scorecardDigitalState.gold.spent || 0) + marketMeta.goldCost;
+            }
+            // Oro già applicato da p.circled; solo movimento mercato (+ die/score N/A)
+            const node = getMarketNode(destId);
+            if (node && node.t !== "gold") {
+              applyMarketDestinationEffect(scorecardDigitalState, destId);
+            }
+            scorecardDigitalState.mercato.moves.push({ path });
+            scorecardDigitalState.mercato.circled.push(destId);
+            scorecardDigitalState.mercato.steward = destId;
+            scorecardDigitalState.mercato.used = Array.from(
+              marketUsedSet(scorecardDigitalState),
+            );
+            syncYellowDiceSelect();
+          }
         } else if (p.type === "goats") {
           scorecardDigitalState.goats.circled = p.circled;
+          const marketMeta = marketRewardMeta(p);
+          if (marketMeta && marketMeta.path) {
+            normalizeMercatoState(scorecardDigitalState);
+            const path = marketMeta.path.slice();
+            const destId = path[path.length - 1];
+            if (marketMeta.goldCost) {
+              scorecardDigitalState.gold.spent =
+                (scorecardDigitalState.gold.spent || 0) + marketMeta.goldCost;
+            }
+            const node = getMarketNode(destId);
+            if (node && node.t !== "goats") {
+              applyMarketDestinationEffect(scorecardDigitalState, destId);
+            }
+            scorecardDigitalState.mercato.moves.push({ path });
+            scorecardDigitalState.mercato.circled.push(destId);
+            scorecardDigitalState.mercato.steward = destId;
+            scorecardDigitalState.mercato.used = Array.from(
+              marketUsedSet(scorecardDigitalState),
+            );
+            syncYellowDiceSelect();
+          }
         } else if (p.type === "market-move" && p.selectedPath) {
           normalizeMercatoState(scorecardDigitalState);
           const path = p.selectedPath.slice();
@@ -6028,13 +6311,86 @@
         }
       }
 
+      function finishScorecardTurnAfterCommit() {
+        if (scorecardTurn) {
+          scorecardTurn.lockedMarket = null;
+          scorecardTurn.marketDraft = null;
+        }
+        if (scorecardTurn && scorecardTurn.pendingBuildings) {
+          for (const idx of scorecardTurn.pendingBuildings) {
+            const def = SCORECARD_SHEET_LAYOUT.buildings[idx];
+            if (!def || scorecardDigitalState.buildings[idx]) continue;
+            scorecardDigitalState.buildings[idx] = true;
+            scorecardDigitalState.gold.spent =
+              (scorecardDigitalState.gold.spent || 0) + def.gold;
+            scorecardDigitalState.goats.spent =
+              (scorecardDigitalState.goats.spent || 0) + def.goats;
+          }
+        }
+        const lastOfRound = pickIndex >= pickSequence.length - 1;
+        if (lastOfRound) markRoundTurnDie();
+        setScorecardPending(null);
+        saveDigitalScorecardState();
+        syncHudFromScorecard();
+        closeScorecardTurnView();
+
+        pickIndex += 1;
+        if (pickIndex < pickSequence.length) {
+          setTimeout(nextPlayerContext, 300);
+        } else {
+          endTurn();
+        }
+      }
+
       function confirmScorecardTurn() {
         if (!scorecardTurn || !isScorecardTurnReady()) return;
+
+        // Prima conferma percorso → eventuale secondo passo premio
+        if (
+          scorecardTurn.choice === "distance" &&
+          scorecardPending &&
+          scorecardPending.type === "market-move" &&
+          scorecardPending.selectedPath
+        ) {
+          const path = scorecardPending.selectedPath.slice();
+          const destId = path[path.length - 1];
+          if (marketRewardNeedsFollowUp(destId)) {
+            if (beginMarketRewardStep(path, scorecardPending.goldCost || 0)) {
+              return;
+            }
+            // Merce senza spazio: completa subito solo il percorso
+          }
+        }
+
         if (isHotseat()) {
           const playerId = enginePlayerId();
           const pending = scorecardPending;
           let action;
-          if (scorecardTurn.compensation) {
+          if (isMarketRewardPending(pending)) {
+            const meta = marketRewardMeta(pending);
+            const path = meta.path.slice();
+            const extraGold = meta.goldCost || 0;
+            if (scorecardTurn.compensation) {
+              action = {
+                kind: "compensation",
+                path,
+                shopMarks:
+                  pending.type === "shop-turn"
+                    ? shopMarksFromPending(pending)
+                    : undefined,
+              };
+            } else {
+              action = {
+                kind: "market",
+                path,
+                extraGold,
+                shopMarks:
+                  pending.type === "shop-turn"
+                    ? shopMarksFromPending(pending)
+                    : undefined,
+              };
+            }
+          } else if (scorecardTurn.compensation) {
             action = {
               kind: "compensation",
               path: pending.selectedPath.slice(),
@@ -6068,32 +6424,7 @@
           return;
         }
         commitPendingActionToState();
-        if (scorecardTurn.pendingBuildings) {
-          for (const idx of scorecardTurn.pendingBuildings) {
-            const def = SCORECARD_SHEET_LAYOUT.buildings[idx];
-            if (!def || scorecardDigitalState.buildings[idx]) continue;
-            scorecardDigitalState.buildings[idx] = true;
-            scorecardDigitalState.gold.spent =
-              (scorecardDigitalState.gold.spent || 0) + def.gold;
-            scorecardDigitalState.goats.spent =
-              (scorecardDigitalState.goats.spent || 0) + def.goats;
-          }
-        }
-        const lastOfRound = pickIndex >= pickSequence.length - 1;
-        if (lastOfRound) markRoundTurnDie();
-        setScorecardPending(null);
-        saveDigitalScorecardState();
-        syncHudFromScorecard();
-        closeScorecardTurnView();
-
-        pickIndex += 1;
-        if (pickIndex < pickSequence.length) {
-          setTimeout(nextPlayerContext, 300);
-        } else {
-          document.getElementById("roll-btn").disabled = true;
-          document.getElementById("end-btn").disabled = false;
-          document.getElementById("end-btn").classList.add("active");
-        }
+        finishScorecardTurnAfterCommit();
       }
 
       function syncHudFromScorecard() {
@@ -6148,6 +6479,7 @@
           districtId,
           shops,
           quota: p.quota,
+          fromMarket: p.fromMarket,
         });
       }
 
@@ -6176,6 +6508,10 @@
         if (scorecardPending && scorecardPending.type === "market-move") {
           probe.gold.spent =
             (probe.gold.spent || 0) + (scorecardPending.goldCost || 0);
+        }
+        if (scorecardTurn.lockedMarket && scorecardTurn.lockedMarket.goldCost) {
+          probe.gold.spent =
+            (probe.gold.spent || 0) + scorecardTurn.lockedMarket.goldCost;
         }
         for (const idx of pending) {
           const def = SCORECARD_SHEET_LAYOUT.buildings[idx];
@@ -6208,9 +6544,11 @@
           }
           if (
             kind === "shop-symbol" &&
-            scorecardTurn.choice === "qty" &&
             scorecardPending &&
-            scorecardPending.type === "shop-turn"
+            scorecardPending.type === "shop-turn" &&
+            (scorecardTurn.choice === "qty" ||
+              (scorecardTurn.choice === "distance" &&
+                (scorecardPending.fromMarket || scorecardTurn.lockedMarket)))
           ) {
             onShopTurnHit(
               btn.getAttribute("data-district"),
@@ -7907,9 +8245,7 @@
         } else {
           markRoundTurnDie();
           // Tutti i giocatori hanno avuto il loro turno (anche con skip)
-          document.getElementById("roll-btn").disabled = true;
-          document.getElementById("end-btn").disabled = false;
-          document.getElementById("end-btn").classList.add("active");
+          endTurn();
         }
       }
 
@@ -7965,8 +8301,6 @@
         loadEngineSheet(0);
         syncHudFromEngine();
         document.getElementById("roll-btn").disabled = true;
-        document.getElementById("end-btn").disabled = true;
-        document.getElementById("end-btn").classList.remove("active");
         document.getElementById("yellow-dice").value = "0";
         syncYellowDiceSelect();
         setBottomControlsVisible(false);
@@ -8543,8 +8877,6 @@
             document.getElementById("d-" + k).disabled = true;
             if (zoneOverlays[k]) zoneOverlays[k].visible = false;
           });
-          document.getElementById("end-btn").disabled = true;
-          document.getElementById("end-btn").classList.remove("active");
           document.getElementById("roll-btn").disabled = false;
           document.getElementById("yellow-dice").value = "0";
           loadEngineSheet(engineState.firstPlayerId);
@@ -8574,8 +8906,6 @@
           document.getElementById("d-" + k).disabled = true;
           if (zoneOverlays[k]) zoneOverlays[k].visible = false;
         });
-        document.getElementById("end-btn").disabled = true;
-        document.getElementById("end-btn").classList.remove("active");
         document.getElementById("roll-btn").disabled = true;
         // I dadi gialli del mercato restano; si possono ancora comprare gli altri
         document.getElementById("yellow-dice").value = "0";
@@ -8747,8 +9077,6 @@
         document.getElementById("scoreboard").classList.add("show");
         setBottomControlsVisible(false);
         document.getElementById("roll-btn").disabled = true;
-        document.getElementById("end-btn").disabled = true;
-        document.getElementById("end-btn").classList.remove("active");
         updateTurnInfo();
         if (isHotseat()) paintEndgameSheetPreviews();
       }
@@ -8789,8 +9117,6 @@
           if (zoneOverlays[k]) zoneOverlays[k].visible = false;
         });
         document.getElementById("roll-btn").disabled = true;
-        document.getElementById("end-btn").disabled = true;
-        document.getElementById("end-btn").classList.remove("active");
         document.getElementById("scoreboard").classList.remove("show");
         const endCard = document.querySelector("#scoreboard .score-card");
         if (endCard) endCard.classList.remove("endgame-compare");
@@ -8918,6 +9244,8 @@
       let veilTunerOverlay = null;
       let refreshVeilTunerPreview = null;
 
+      const VEIL_STORAGE_KEY = "corinth-veil-profiles-v1";
+
       function hexToRgbParts(hex) {
         const n = String(hex || "").replace("#", "");
         return {
@@ -8927,31 +9255,201 @@
         };
       }
 
-      function mountVeilTuner() {
+      function defaultVeilProfile() {
+        return {
+          color: "#718398",
+          opacity: 0.06,
+          gray: 0.12,
+          blur: 0.6,
+          bright: 0.98,
+          radius: 8,
+        };
+      }
+
+      function coerceVeilProfile(raw) {
+        const d = defaultVeilProfile();
+        if (!raw || typeof raw !== "object") return { ...d };
+        const color =
+          typeof raw.color === "string" && /^#[0-9a-fA-F]{6}$/.test(raw.color)
+            ? raw.color
+            : d.color;
+        const num = (v, min, max, fallback) => {
+          const n = Number(v);
+          if (!Number.isFinite(n)) return fallback;
+          return Math.min(max, Math.max(min, n));
+        };
+        return {
+          color,
+          opacity: num(raw.opacity, 0, 0.5, d.opacity),
+          gray: num(raw.gray, 0, 1, d.gray),
+          blur: num(raw.blur, 0, 6, d.blur),
+          bright: num(raw.bright, 0.7, 1.1, d.bright),
+          radius: num(raw.radius, 0, 24, d.radius),
+        };
+      }
+
+      function loadVeilProfilesFromStorage() {
+        try {
+          const raw = localStorage.getItem(VEIL_STORAGE_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          return {
+            desktop: coerceVeilProfile(parsed && parsed.desktop),
+            mobile: coerceVeilProfile(parsed && parsed.mobile),
+          };
+        } catch (_err) {
+          return null;
+        }
+      }
+
+      function saveVeilProfilesToStorage(profiles) {
+        try {
+          localStorage.setItem(
+            VEIL_STORAGE_KEY,
+            JSON.stringify({
+              desktop: coerceVeilProfile(profiles.desktop),
+              mobile: coerceVeilProfile(profiles.mobile),
+            }),
+          );
+        } catch (_err) {
+          // no-op: localStorage may be unavailable
+        }
+      }
+
+      function ensureVeilLiveStyleEl() {
+        let el = document.getElementById("veil-live-profiles");
+        if (!el) {
+          el = document.createElement("style");
+          el.id = "veil-live-profiles";
+          document.head.appendChild(el);
+        }
+        return el;
+      }
+
+      function buildVeilLiveCss(profiles, forceActivePreview, activeProfile) {
+        const d = profiles.desktop;
+        const m = profiles.mobile;
+        const rgbD = hexToRgbParts(d.color);
+        const rgbM = hexToRgbParts(m.color);
+        let css = `
+:root {
+  --dim-r: ${rgbD.r};
+  --dim-g: ${rgbD.g};
+  --dim-b: ${rgbD.b};
+  --dim-opacity: ${d.opacity};
+  --dim-gray: ${d.gray};
+  --dim-blur: ${d.blur}px;
+  --dim-bright: ${d.bright};
+  --dim-radius: ${d.radius}px;
+}
+@media (max-width: 900px) {
+  :root {
+    --dim-r: ${rgbM.r};
+    --dim-g: ${rgbM.g};
+    --dim-b: ${rgbM.b};
+    --dim-opacity: ${m.opacity};
+    --dim-gray: ${m.gray};
+    --dim-blur: ${m.blur}px;
+    --dim-bright: ${m.bright};
+    --dim-radius: ${m.radius}px;
+  }
+}`;
+        if (forceActivePreview && activeProfile) {
+          const p = profiles[activeProfile] || d;
+          const rgb = hexToRgbParts(p.color);
+          css += `
+html.veil-force-preview {
+  --dim-r: ${rgb.r} !important;
+  --dim-g: ${rgb.g} !important;
+  --dim-b: ${rgb.b} !important;
+  --dim-opacity: ${p.opacity} !important;
+  --dim-gray: ${p.gray} !important;
+  --dim-blur: ${p.blur}px !important;
+  --dim-bright: ${p.bright} !important;
+  --dim-radius: ${p.radius}px !important;
+}`;
+        }
+        return css;
+      }
+
+      function applyVeilProfilesCss(profiles, forceActivePreview, activeProfile) {
+        const el = ensureVeilLiveStyleEl();
+        el.textContent = buildVeilLiveCss(
+          profiles,
+          forceActivePreview,
+          activeProfile,
+        );
+        if (forceActivePreview) {
+          document.documentElement.classList.add("veil-force-preview");
+        } else {
+          document.documentElement.classList.remove("veil-force-preview");
+        }
+      }
+
+      (function bootVeilProfilesFromStorage() {
+        const saved = loadVeilProfilesFromStorage();
+        if (saved) applyVeilProfilesCss(saved, false, null);
+      })();
+
+      function isOnShopsVeilSector() {
+        return !!(scorecardPending && scorecardPending.type === "shop-turn");
+      }
+
+      function mountVeilTuner(opts = {}) {
         if (veilTunerOverlay) return veilTunerOverlay;
+        const openOnMount = opts.open === true;
         const style = document.createElement("style");
         style.textContent = `
         #veil-tuner {
-          position: absolute;
-          top: 12px;
+          position: fixed;
+          top: 64px;
           left: 12px;
-          width: 268px;
+          width: min(268px, calc(100vw - 24px));
+          max-height: min(78vh, calc(100dvh - 80px));
+          overflow-x: hidden;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
           padding: 10px 12px;
           border-radius: 12px;
-          background: rgba(8, 8, 8, 0.88);
+          background: rgba(8, 8, 8, 0.92);
           border: 1px solid rgba(255, 215, 0, 0.4);
           color: #f5ead2;
           font-family: "Crimson Text", serif;
           font-size: 13px;
-          z-index: 220;
-          box-shadow: 0 0 20px rgba(0, 0, 0, 0.65);
+          z-index: 300;
+          box-shadow: 0 8px 28px rgba(0, 0, 0, 0.7);
+          touch-action: manipulation;
         }
         #veil-tuner.hidden { display: none; }
+        #veil-tuner .veil-drag-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          margin: -2px -4px 8px;
+          padding: 4px 4px 6px;
+          cursor: grab;
+          touch-action: none;
+          user-select: none;
+          -webkit-user-select: none;
+          border-bottom: 1px solid rgba(201, 168, 76, 0.25);
+        }
+        #veil-tuner.veil-dragging .veil-drag-bar {
+          cursor: grabbing;
+        }
+        #veil-tuner .veil-drag-hint {
+          font-size: 10px;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          opacity: 0.55;
+          white-space: nowrap;
+        }
         #veil-tuner h3 {
           font-size: 12px;
           letter-spacing: 1px;
           text-transform: uppercase;
-          margin-bottom: 8px;
+          margin: 0;
+          flex: 1 1 auto;
         }
         #veil-tuner .row {
           display: flex;
@@ -9034,21 +9532,12 @@
         `;
         document.head.appendChild(style);
 
-        const liveStyle = document.createElement("style");
-        liveStyle.id = "veil-live-profiles";
-        document.head.appendChild(liveStyle);
+        ensureVeilLiveStyleEl();
 
-        const defaultProfile = () => ({
-          color: "#718398",
-          opacity: 0.06,
-          gray: 0.12,
-          blur: 0.6,
-          bright: 0.98,
-          radius: 8,
-        });
+        const saved = loadVeilProfilesFromStorage();
         const profiles = {
-          desktop: defaultProfile(),
-          mobile: defaultProfile(),
+          desktop: coerceVeilProfile(saved && saved.desktop),
+          mobile: coerceVeilProfile(saved && saved.mobile),
         };
         const isMobileViewport = () =>
           window.matchMedia("(max-width: 900px)").matches;
@@ -9056,8 +9545,12 @@
 
         const overlay = document.createElement("div");
         overlay.id = "veil-tuner";
+        if (!openOnMount) overlay.classList.add("hidden");
         overlay.innerHTML = `
-        <h3>Velo negozi (dev)</h3>
+        <div class="veil-drag-bar" id="veil-drag-bar">
+          <h3>Velo negozi</h3>
+          <span class="veil-drag-hint">Trascina</span>
+        </div>
         <div class="profile-row">
           <button type="button" id="veil-profile-desktop" data-profile="desktop">Browser</button>
           <button type="button" id="veil-profile-mobile" data-profile="mobile">iPhone</button>
@@ -9101,6 +9594,60 @@
         <button id="veil-close" type="button">Chiudi</button>
         `;
         document.body.appendChild(overlay);
+
+        const dragBar = overlay.querySelector("#veil-drag-bar");
+        let veilDrag = null;
+        function clampVeilTunerPos(left, top) {
+          const pad = 8;
+          const w = overlay.offsetWidth || 268;
+          const h = overlay.offsetHeight || 200;
+          const maxL = Math.max(pad, window.innerWidth - w - pad);
+          const maxT = Math.max(pad, window.innerHeight - Math.min(h, window.innerHeight - pad) - pad);
+          return {
+            left: Math.min(Math.max(pad, left), maxL),
+            top: Math.min(Math.max(pad, top), maxT),
+          };
+        }
+        function onVeilDragMove(evt) {
+          if (!veilDrag || evt.pointerId !== veilDrag.pointerId) return;
+          const next = clampVeilTunerPos(
+            veilDrag.originLeft + (evt.clientX - veilDrag.startX),
+            veilDrag.originTop + (evt.clientY - veilDrag.startY),
+          );
+          overlay.style.left = `${Math.round(next.left)}px`;
+          overlay.style.top = `${Math.round(next.top)}px`;
+          overlay.style.right = "auto";
+          overlay.style.bottom = "auto";
+        }
+        function onVeilDragEnd(evt) {
+          if (!veilDrag || evt.pointerId !== veilDrag.pointerId) return;
+          veilDrag = null;
+          overlay.classList.remove("veil-dragging");
+          window.removeEventListener("pointermove", onVeilDragMove);
+          window.removeEventListener("pointerup", onVeilDragEnd);
+          window.removeEventListener("pointercancel", onVeilDragEnd);
+        }
+        dragBar.addEventListener("pointerdown", (evt) => {
+          if (evt.button != null && evt.button !== 0) return;
+          evt.preventDefault();
+          const rect = overlay.getBoundingClientRect();
+          veilDrag = {
+            pointerId: evt.pointerId,
+            startX: evt.clientX,
+            startY: evt.clientY,
+            originLeft: rect.left,
+            originTop: rect.top,
+          };
+          overlay.classList.add("veil-dragging");
+          try {
+            dragBar.setPointerCapture(evt.pointerId);
+          } catch (_err) {
+            // no-op
+          }
+          window.addEventListener("pointermove", onVeilDragMove);
+          window.addEventListener("pointerup", onVeilDragEnd);
+          window.addEventListener("pointercancel", onVeilDragEnd);
+        });
 
         const root = document.documentElement;
         const preview = overlay.querySelector("#veil-preview");
@@ -9178,52 +9725,7 @@
         }
 
         function syncLiveStyle(forceActivePreview) {
-          const d = profiles.desktop;
-          const m = profiles.mobile;
-          const rgbD = hexToRgbParts(d.color);
-          const rgbM = hexToRgbParts(m.color);
-          let css = `
-:root {
-  --dim-r: ${rgbD.r};
-  --dim-g: ${rgbD.g};
-  --dim-b: ${rgbD.b};
-  --dim-opacity: ${d.opacity};
-  --dim-gray: ${d.gray};
-  --dim-blur: ${d.blur}px;
-  --dim-bright: ${d.bright};
-  --dim-radius: ${d.radius}px;
-}
-@media (max-width: 900px) {
-  :root {
-    --dim-r: ${rgbM.r};
-    --dim-g: ${rgbM.g};
-    --dim-b: ${rgbM.b};
-    --dim-opacity: ${m.opacity};
-    --dim-gray: ${m.gray};
-    --dim-blur: ${m.blur}px;
-    --dim-bright: ${m.bright};
-    --dim-radius: ${m.radius}px;
-  }
-}`;
-          if (forceActivePreview) {
-            const p = profiles[activeProfile];
-            const rgb = hexToRgbParts(p.color);
-            css += `
-html.veil-force-preview {
-  --dim-r: ${rgb.r} !important;
-  --dim-g: ${rgb.g} !important;
-  --dim-b: ${rgb.b} !important;
-  --dim-opacity: ${p.opacity} !important;
-  --dim-gray: ${p.gray} !important;
-  --dim-blur: ${p.blur}px !important;
-  --dim-bright: ${p.bright} !important;
-  --dim-radius: ${p.radius}px !important;
-}`;
-            root.classList.add("veil-force-preview");
-          } else {
-            root.classList.remove("veil-force-preview");
-          }
-          liveStyle.textContent = css;
+          applyVeilProfilesCss(profiles, forceActivePreview, activeProfile);
         }
 
         function updateHint() {
@@ -9249,6 +9751,7 @@ html.veil-force-preview {
           const mismatch =
             (activeProfile === "mobile") !== isMobileViewport();
           syncLiveStyle(tunerOpen && mismatch);
+          saveVeilProfilesToStorage(profiles);
           overlay.querySelector("#veil-opacity-val").textContent =
             `${Math.round(Number(opacity.value) * 100)}%`;
           overlay.querySelector("#veil-gray-val").textContent =
@@ -9313,16 +9816,69 @@ html.veil-force-preview {
         return overlay;
       }
 
-      window.toggleVeilTuner = () => {
-        if (!veilTunerOverlay) mountVeilTuner();
+      window.closeVeilTunerIfWrongSector = () => {
         if (!veilTunerOverlay) return;
-        veilTunerOverlay.classList.toggle("hidden");
+        if (isOnShopsVeilSector()) return;
+        if (veilTunerOverlay.classList.contains("hidden")) return;
+        veilTunerOverlay.classList.add("hidden");
+        document.documentElement.classList.remove("veil-force-preview");
+        if (typeof refreshVeilTunerPreview === "function") {
+          refreshVeilTunerPreview();
+        }
+        if (veilTunerPreview) {
+          veilTunerPreview = false;
+          const preview = veilTunerOverlay.querySelector("#veil-preview");
+          if (preview) preview.checked = false;
+          updateScorecardFocusHighlight();
+        }
+      };
+
+      window.toggleVeilTuner = (forceOpen) => {
+        const wantsOpen =
+          forceOpen === true ||
+          (forceOpen == null &&
+            (!veilTunerOverlay ||
+              veilTunerOverlay.classList.contains("hidden")));
+        if (wantsOpen && !isOnShopsVeilSector()) {
+          showAppToast(
+            "Il pannello del velo si apre solo mentre stai segnando i negozi sulla scheda (dopo aver scelto i dadi sulla plancia).",
+          );
+          return;
+        }
+        const wasMissing = !veilTunerOverlay;
+        if (!veilTunerOverlay) {
+          mountVeilTuner({
+            open: forceOpen === true || forceOpen == null,
+          });
+        }
+        if (!veilTunerOverlay) return;
+        if (wasMissing) {
+          // già aperto da mount({ open: true })
+          if (forceOpen === false) veilTunerOverlay.classList.add("hidden");
+        } else if (forceOpen === true) {
+          veilTunerOverlay.classList.remove("hidden");
+        } else if (forceOpen === false) {
+          veilTunerOverlay.classList.add("hidden");
+        } else {
+          veilTunerOverlay.classList.toggle("hidden");
+        }
         if (typeof refreshVeilTunerPreview === "function") {
           refreshVeilTunerPreview();
         }
         if (veilTunerOverlay.classList.contains("hidden")) {
           document.documentElement.classList.remove("veil-force-preview");
         }
+      };
+
+      window.openVeilTunerFromMenu = () => {
+        closeHamburgerMenu();
+        if (!isOnShopsVeilSector()) {
+          showAppToast(
+            "Il pannello del velo si apre solo mentre stai segnando i negozi sulla scheda (dopo aver scelto i dadi sulla plancia).",
+          );
+          return;
+        }
+        window.toggleVeilTuner(true);
       };
 
       window.addEventListener("keydown", (evt) => {
@@ -9335,7 +9891,7 @@ html.veil-force-preview {
         window.VEIL_TUNER_ENABLED === true ||
         new URLSearchParams(location.search).has("veil")
       ) {
-        mountVeilTuner();
+        mountVeilTuner({ open: isOnShopsVeilSector() });
       }
 
       function mountLightTuner() {

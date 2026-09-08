@@ -127,7 +127,7 @@ var MARKET_GRID = [
     { t: "goats", qty: 1 },
     { t: "plus" },
     { t: "goats", qty: 2 },
-    { t: "score", d: 3 }
+    { t: "goods", district: "orange", qty: 1 }
   ]
 ];
 
@@ -484,9 +484,7 @@ function applyMarketDestinationEffect(sheet, destId) {
   const node = getMarketNode(destId);
   if (!node) return;
   const e = node.effect;
-  if (e.t === "goods") {
-    autoMarkDistrictGoods(sheet, e.district, e.qty);
-  } else if (e.t === "gold") {
+  if (e.t === "gold") {
     const room = GOLD_TRACK - sheet.gold.circled;
     sheet.gold.circled += Math.min(e.qty, Math.max(0, room));
   } else if (e.t === "goats") {
@@ -816,6 +814,26 @@ function applyQuantity(sheet, pick, action, upcomingBuildings) {
   if (action.shopMarks === void 0) return "shop marks required";
   return applyShopMarks(sheet, districtId, action.shopMarks, quota);
 }
+function applyGoodsFromMarketDestination(sheet, destId, shopMarks) {
+  const node = getMarketNode(destId);
+  if (!node || node.effect.t !== "goods") {
+    if (shopMarks && shopMarks.length > 0) {
+      return "shop marks only for goods destinations";
+    }
+    return null;
+  }
+  const need = node.effect.qty;
+  const room = remainingUnmarked(sheet, node.effect.district);
+  const quota = Math.min(need, room);
+  if (quota <= 0) {
+    if (shopMarks && shopMarks.length > 0) {
+      return "no room for market goods";
+    }
+    return null;
+  }
+  if (shopMarks === void 0) return "shop marks required for market goods";
+  return applyShopMarks(sheet, node.effect.district, shopMarks, quota);
+}
 function applyMarketAction(sheet, pick, action) {
   if (pick.compensation) return "use compensation action for a skip step";
   const pathErr = isOrthogonalPath(
@@ -842,7 +860,7 @@ function applyMarketAction(sheet, pick, action) {
     return "illegal market path";
   }
   commitMarketPath(sheet, action.path, cost);
-  return null;
+  return applyGoodsFromMarketDestination(sheet, dest, action.shopMarks);
 }
 function applyCompensationAction(sheet, pick, action) {
   if (!pick.compensation) return "not a compensation turn";
@@ -863,7 +881,7 @@ function applyCompensationAction(sheet, pick, action) {
     return "illegal compensation step";
   }
   commitMarketPath(sheet, action.path, 0);
-  return null;
+  return applyGoodsFromMarketDestination(sheet, dest, action.shopMarks);
 }
 function applyAction(sheet, pick, action, upcomingBuildings) {
   switch (action.kind) {
