@@ -30,14 +30,16 @@ export function districtBonusPoints(
   return DISTRICT_BONUS_VP[districtId] ?? 0;
 }
 
-/** Last filled flower, already cumulative — do not sum diamonds. */
+/** Highest outer diamond — values are already cumulative. */
 export function marketScore(sheet: ScoreSheet): number {
   const diamonds = sheet.mercato.diamonds;
-  for (let i = diamonds.length - 1; i >= 0; i--) {
-    const value = diamonds[i];
-    if (value != null) return value;
+  let best: number | null = null;
+  for (let i = 0; i < 3; i++) {
+    if (diamonds[i] == null) continue;
+    const v = Number(diamonds[i]) || 0;
+    if (best == null || v > best) best = v;
   }
-  return 0;
+  return best == null ? 0 : best;
 }
 
 export function templeScore(sheet: ScoreSheet): number {

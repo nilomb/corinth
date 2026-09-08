@@ -616,11 +616,13 @@ function districtBonusPoints(sheet, districtId) {
 }
 function marketScore(sheet) {
   const diamonds = sheet.mercato.diamonds;
-  for (let i = diamonds.length - 1; i >= 0; i--) {
-    const value = diamonds[i];
-    if (value != null) return value;
+  let best = null;
+  for (let i = 0; i < 3; i++) {
+    if (diamonds[i] == null) continue;
+    const v = Number(diamonds[i]) || 0;
+    if (best == null || v > best) best = v;
   }
-  return 0;
+  return best == null ? 0 : best;
 }
 function templeScore(sheet) {
   if (!sheet.buildings.temple) return 0;

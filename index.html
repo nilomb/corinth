@@ -1564,17 +1564,31 @@
       }
       .endgame-rank-row {
         display: flex;
+        flex-wrap: wrap;
         align-items: baseline;
         justify-content: space-between;
         gap: 10px;
+        width: 100%;
         padding: 8px 10px;
         border-radius: 8px;
         border: 1px solid rgba(201, 168, 76, 0.22);
         background: rgba(255, 255, 255, 0.04);
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
       }
       .endgame-rank-row.winner {
         border-color: var(--gold);
         background: rgba(201, 168, 76, 0.14);
+      }
+      .endgame-rank-row.selected {
+        border-color: var(--gold-lt);
+        background: rgba(201, 168, 76, 0.22);
+        box-shadow: inset 0 0 0 1px rgba(201, 168, 76, 0.35);
+      }
+      .endgame-rank-row:active {
+        transform: scale(0.995);
       }
       .endgame-rank-name {
         font-family: "Cinzel", serif;
@@ -1595,48 +1609,12 @@
         opacity: 0.88;
         margin-top: 2px;
       }
-      .endgame-rank-row {
-        flex-wrap: wrap;
-      }
-      .endgame-sheets-title {
-        font-family: "Cinzel", serif;
-        font-size: 13px;
-        color: var(--gold);
-        letter-spacing: 1px;
-        margin: 4px 0 10px;
-        text-align: center;
-      }
-      .endgame-sheets {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 12px;
-        margin-bottom: 16px;
-      }
-      @media (min-width: 720px) {
-        .endgame-sheets {
-          grid-template-columns: 1fr 1fr;
-        }
-      }
-      .endgame-sheet-card {
-        display: block;
-        width: 100%;
-        padding: 0;
-        margin: 0;
+      .endgame-sheet-panel {
+        margin: 4px 0 16px;
         border: 1px solid rgba(201, 168, 76, 0.4);
         border-radius: 10px;
         overflow: hidden;
         background: rgba(0, 0, 0, 0.28);
-        cursor: pointer;
-        color: inherit;
-        text-align: left;
-        font: inherit;
-      }
-      .endgame-sheet-card.winner {
-        border-color: var(--gold);
-        box-shadow: 0 0 14px rgba(201, 168, 76, 0.32);
-      }
-      .endgame-sheet-card:active {
-        transform: scale(0.995);
       }
       .endgame-sheet-label {
         display: flex;
@@ -1650,7 +1628,7 @@
         color: var(--gold-lt);
         background: rgba(26, 16, 8, 0.85);
       }
-      .endgame-sheet-card canvas {
+      .endgame-sheet-panel canvas {
         width: 100%;
         height: auto;
         display: block;
@@ -2653,11 +2631,12 @@
                     </li>
                     <li>
                       Punteggio (Diamanti): Quando raggiungete una casella
-                      "Diamante", registrate i punti: 1 punto per ogni simbolo
-                      mercato cerchiato + 1 punto per ogni casella "+1"
-                      cerchiata. I diamanti successivi sono cumulativi: sommate
-                      il nuovo punteggio ai punti già registrati nei diamanti
-                      precedenti.
+                      "Diamante", registrate i punti nel rombo esterno: 1 punto
+                      per ogni fermata cerchiata + 1 punto per ogni casella "+1"
+                      cerchiata. Nei rombi successivi il punteggio è cumulativo:
+                      nuove fermate + valore del rombo precedente. Il rombo
+                      mercato nella colonna centrale riporta l'ultimo totale
+                      cumulativo.
                     </li>
                   </ul>
                 </div>
@@ -3457,6 +3436,7 @@
       window.scorecardPanStep = scorecardPanStep;
       window.claimSeat = claimSeat;
       window.viewPlayerSheet = viewPlayerSheet;
+      window.selectEndgamePlayer = selectEndgamePlayer;
       window.rollDice = rollDice;
       window.adjustYellowDice = adjustYellowDice;
       window.toggleYellowDieSlot = toggleYellowDieSlot;
@@ -4539,14 +4519,16 @@
         return SCORECARD_MARKET_LAYOUT.byId[id] || null;
       }
 
-      /** Totale mercato live dai tre rombi esterni (già cumulativi → ultimo valorizzato). */
+      /** Totale mercato = ultimo rombo esterno valorizzato (già cumulativo). */
       function marketDiamondTotal(state) {
         const diamonds = (state && state.mercato && state.mercato.diamonds) || [];
-        for (let i = 2; i >= 0; i--) {
-          if (diamonds[i] != null) return Number(diamonds[i]) || 0;
+        let best = null;
+        for (let i = 0; i < 3; i++) {
+          if (diamonds[i] == null) continue;
+          const v = Number(diamonds[i]) || 0;
+          if (best == null || v > best) best = v;
         }
-        if (diamonds[3] != null) return Number(diamonds[3]) || 0;
-        return 0;
+        return best == null ? 0 : best;
       }
 
       function marketUsedSet(state) {
@@ -4839,14 +4821,22 @@
           const node = getMarketNode(dest);
           if (node && node.t === "score") {
             const value = state.mercato.diamonds[node.d];
-            return { moveIndex: i, diamond: node.d, value: Number(value) || 0 };
+            return {
+              moveIndex: i,
+              diamond: node.d,
+              value: Number(value) || 0,
+            };
           }
         }
         return null;
       }
 
+      /**
+       * Punteggio rombo mercato (cumulativo):
+       * 1° rombo = fermate cerchiate (+ bonus "+1");
+       * successivi = valore del rombo precedente + nuove fermate (+ "+1").
+       */
       function computeMarketFlowerScore(state, destId) {
-        const destNode = getMarketNode(destId);
         const circled = ((state.mercato && state.mercato.circled) || []).concat([
           destId,
         ]);
@@ -8980,21 +8970,46 @@
         ctx.drawImage(marks, 0, 0);
       }
 
-      function paintEndgameSheetPreviews() {
+      let endgameSelectedPlayerId = 0;
+
+      function paintEndgameSelectedSheet() {
         if (!engineState) return;
+        const player = engineState.players.find(
+          (p) => p.id === endgameSelectedPlayerId,
+        );
+        const canvas = document.getElementById("endgame-sheet-canvas");
+        if (!player || !canvas) return;
         ensureScorecardSheetImage()
           .then(() => {
             if (!engineState) return;
-            engineState.players.forEach((p) => {
-              const canvas = document.querySelector(
-                `[data-endgame-sheet="${p.id}"]`,
-              );
-              if (!canvas) return;
-              paintSheetPreview(canvas, engineSheetToUi(p.sheet));
-            });
+            const current = engineState.players.find(
+              (p) => p.id === endgameSelectedPlayerId,
+            );
+            const dest = document.getElementById("endgame-sheet-canvas");
+            if (!current || !dest) return;
+            paintSheetPreview(dest, engineSheetToUi(current.sheet));
             if (scorecardDigitalReady) renderScorecardMarks();
           })
           .catch(() => {});
+      }
+
+      function selectEndgamePlayer(playerNum) {
+        if (!engineState) return;
+        const id = playerNum - 1;
+        const player = engineState.players.find((p) => p.id === id);
+        if (!player) return;
+        endgameSelectedPlayerId = id;
+        document.querySelectorAll(".endgame-rank-row").forEach((row) => {
+          const selected = Number(row.dataset.playerId) === id;
+          row.classList.toggle("selected", selected);
+          row.setAttribute("aria-pressed", selected ? "true" : "false");
+        });
+        const labelName = document.getElementById("endgame-sheet-name");
+        const labelScore = document.getElementById("endgame-sheet-score");
+        const s = scoreSheet(player.sheet);
+        if (labelName) labelName.textContent = `Plancia di ${player.name}`;
+        if (labelScore) labelScore.textContent = `${s.total} pv`;
+        paintEndgameSelectedSheet();
       }
 
       function formatScoreBreakdown(s) {
@@ -9025,30 +9040,36 @@
             if (b.s.total !== a.s.total) return b.s.total - a.s.total;
             return b.goldLeft - a.goldLeft;
           });
+        const defaultId =
+          engineState.winnerIds[0] != null
+            ? engineState.winnerIds[0]
+            : ranked[0]?.p.id ?? 0;
+        endgameSelectedPlayerId = defaultId;
+        const selectedPlayer =
+          engineState.players.find((p) => p.id === defaultId) || ranked[0]?.p;
+        const selectedScore = selectedPlayer
+          ? scoreSheet(selectedPlayer.sheet).total
+          : 0;
         const ranking = ranked
           .map(({ p, s }) => {
             const win = engineState.winnerIds.includes(p.id);
+            const selected = p.id === defaultId;
             const breakDown = formatScoreBreakdown(s);
-            return `<div class="endgame-rank-row${win ? " winner" : ""}">
+            return `<button type="button" class="endgame-rank-row${win ? " winner" : ""}${selected ? " selected" : ""}" data-player-id="${p.id}" onclick="selectEndgamePlayer(${p.id + 1})" aria-pressed="${selected ? "true" : "false"}" aria-label="Mostra plancia di ${p.name}">
               <span class="endgame-rank-name">${p.name}${win ? " ★" : ""}</span>
               <span class="endgame-rank-score">${s.total} pv</span>
               ${breakDown ? `<div class="endgame-rank-break">${breakDown}</div>` : ""}
-            </div>`;
-          })
-          .join("");
-        const sheets = engineState.players
-          .map((p) => {
-            const s = scoreSheet(p.sheet);
-            const win = engineState.winnerIds.includes(p.id);
-            return `<button type="button" class="endgame-sheet-card${win ? " winner" : ""}" onclick="viewPlayerSheet(${p.id + 1})" aria-label="Apri plancia di ${p.name}">
-              <span class="endgame-sheet-label"><span>${p.name}</span><span>${s.total} pv</span></span>
-              <canvas data-endgame-sheet="${p.id}"></canvas>
             </button>`;
           })
           .join("");
         return `<div class="endgame-ranking">${ranking}</div>
-          <p class="endgame-sheets-title">Plance dei giocatori — tocca per ingrandire</p>
-          <div class="endgame-sheets">${sheets}</div>
+          <div class="endgame-sheet-panel" id="endgame-sheet-panel">
+            <div class="endgame-sheet-label">
+              <span id="endgame-sheet-name">Plancia di ${selectedPlayer?.name || "giocatore"}</span>
+              <span id="endgame-sheet-score">${selectedScore} pv</span>
+            </div>
+            <canvas id="endgame-sheet-canvas"></canvas>
+          </div>
           <details class="endgame-log">
             <summary>Resoconto dadi raccolti</summary>
             ${buildGameLogTableHtml()}
@@ -9078,7 +9099,7 @@
         setBottomControlsVisible(false);
         document.getElementById("roll-btn").disabled = true;
         updateTurnInfo();
-        if (isHotseat()) paintEndgameSheetPreviews();
+        if (isHotseat()) paintEndgameSelectedSheet();
       }
 
       function restartGame() {

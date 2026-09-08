@@ -107,10 +107,10 @@ check("2p pick queue and 4p pre-marked turns", () => {
   eq(s4.players[0]?.sheet.turns.marked, 2, "pre-marked");
 });
 
-check("market score uses last diamond, not the sum", () => {
+check("market score uses last cumulative diamond, not the sum", () => {
   const sheet = createInitialState(2).players[0]!.sheet;
-  sheet.mercato.diamonds = [3, 8, null, null];
-  eq(marketScore(sheet), 8, "last diamond");
+  sheet.mercato.diamonds = [5, 8, null, null];
+  eq(marketScore(sheet), 8, "last cumulative diamond");
   isTrue(scoreSheet(sheet).market === 8, "breakdown market");
 });
 

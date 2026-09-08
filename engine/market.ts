@@ -158,6 +158,10 @@ function previousMarketScoreInfo(sheet: ScoreSheet): {
   return null;
 }
 
+/**
+ * Cumulative flower score for the diamond reached:
+ * first = circled stops (+ "+1" bonus); later = previous diamond + new stops.
+ */
 export function computeMarketFlowerScore(
   sheet: ScoreSheet,
   destId: MarketNodeId,
