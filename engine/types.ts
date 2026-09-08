@@ -67,7 +67,7 @@ export interface MarketState {
   used: MarketNodeId[];
   circled: MarketNodeId[];
   moves: MarketMoveRecord[];
-  /** Cumulative flower scores in diamond order 0..2 (column uses the highest). */
+  /** Cumulative flower scores per reached diamond; column sums reached ones. */
   diamonds: [number | null, number | null, number | null, number | null];
   /** Permanent extra yellows from market "die" spaces, capped at 3. */
   yellowDice: number;

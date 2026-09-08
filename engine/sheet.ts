@@ -55,13 +55,11 @@ export function goodsQuota(
   sheet: ScoreSheet,
   harborDistrict: HarborDistrictId,
   dieCount: number,
-  upcomingBuildings: readonly BuildingId[] = [],
 ): number {
   const districtId = sheetDistrictFor(harborDistrict);
   if (!districtId) return 0;
-  const warehouse =
-    sheet.buildings.warehouse || upcomingBuildings.includes("warehouse");
-  const extra = warehouse ? BUILDINGS.warehouse.extraGood : 0;
+  // Buildings apply only after they are owned (built at end of a prior turn).
+  const extra = sheet.buildings.warehouse ? BUILDINGS.warehouse.extraGood : 0;
   return Math.min(dieCount + extra, remainingUnmarked(sheet, districtId));
 }
 

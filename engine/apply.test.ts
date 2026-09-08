@@ -107,11 +107,11 @@ check("2p pick queue and 4p pre-marked turns", () => {
   eq(s4.players[0]?.sheet.turns.marked, 2, "pre-marked");
 });
 
-check("market score uses last cumulative diamond, not the sum", () => {
+check("market score sums reached cumulative diamonds", () => {
   const sheet = createInitialState(2).players[0]!.sheet;
-  sheet.mercato.diamonds = [5, 8, null, null];
-  eq(marketScore(sheet), 8, "last cumulative diamond");
-  isTrue(scoreSheet(sheet).market === 8, "breakdown market");
+  sheet.mercato.diamonds = [8, null, 5, null];
+  eq(marketScore(sheet), 13, "5 + 8, unreached ignored");
+  isTrue(scoreSheet(sheet).market === 13, "breakdown market");
 });
 
 check("wrong player cannot roll", () => {
@@ -261,10 +261,9 @@ check("temple adds 3 VP per owned building to the total", () => {
   eq(templeScore(sheet), 6, "two buildings");
 });
 
-check("warehouse adds one extra shop mark, including if built this turn", () => {
+check("warehouse adds one extra shop mark only when already owned", () => {
   const sheet = createInitialState(2).players[0]!.sheet;
   eq(goodsQuota(sheet, "Spices", 2), 2, "no warehouse");
-  eq(goodsQuota(sheet, "Spices", 2, ["warehouse"]), 3, "upcoming warehouse");
   sheet.buildings.warehouse = true;
   eq(goodsQuota(sheet, "Spices", 2), 3, "owned warehouse");
 });

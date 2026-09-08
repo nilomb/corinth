@@ -72,10 +72,11 @@ export interface QuantityAction {
   kind: "quantity";
   /**
    * Required for a goods district. New marks only; count must equal the
-   * quota (dice in the group, +1 if warehouse — including if built this
-   * turn — capped by remaining symbols).
+   * quota (dice in the group, +1 if warehouse already owned — capped by
+   * remaining symbols). Buildings are paid after the action, so a warehouse
+   * bought this turn does not affect this quota.
    * Must finish the open shop before starting another in the same district.
-   * Gold/goats: omit; engine circles `dieCount` (+2 gold if store).
+   * Gold/goats: omit; engine circles `dieCount` (+2 gold if store already owned).
    */
   shopMarks?: ShopMark[];
 }

@@ -252,11 +252,10 @@ function remainingUnmarked(sheet, districtId) {
     0
   );
 }
-function goodsQuota(sheet, harborDistrict, dieCount, upcomingBuildings = []) {
+function goodsQuota(sheet, harborDistrict, dieCount) {
   const districtId = sheetDistrictFor(harborDistrict);
   if (!districtId) return 0;
-  const warehouse = sheet.buildings.warehouse || upcomingBuildings.includes("warehouse");
-  const extra = warehouse ? BUILDINGS.warehouse.extraGood : 0;
+  const extra = sheet.buildings.warehouse ? BUILDINGS.warehouse.extraGood : 0;
   return Math.min(dieCount + extra, remainingUnmarked(sheet, districtId));
 }
 function shopIsComplete(marked) {
@@ -616,13 +615,10 @@ function districtBonusPoints(sheet, districtId) {
 }
 function marketScore(sheet) {
   const diamonds = sheet.mercato.diamonds;
-  let best = null;
-  for (let i = 0; i < 3; i++) {
-    if (diamonds[i] == null) continue;
-    const v = Number(diamonds[i]) || 0;
-    if (best == null || v > best) best = v;
-  }
-  return best == null ? 0 : best;
+  return [0, 1, 2].reduce(
+    (sum, i) => sum + (diamonds[i] != null ? Number(diamonds[i]) || 0 : 0),
+    0
+  );
 }
 function templeScore(sheet) {
   if (!sheet.buildings.temple) return 0;
@@ -786,7 +782,7 @@ function applyTakeCompensation(state, ctx) {
 function samePath(a, b) {
   return a.length === b.length && a.every((id, i) => id === b[i]);
 }
-function applyQuantity(sheet, pick, action, upcomingBuildings) {
+function applyQuantity(sheet, pick, action) {
   if (pick.compensation || pick.district == null) {
     return "quantity action requires a district pick";
   }
@@ -811,7 +807,7 @@ function applyQuantity(sheet, pick, action, upcomingBuildings) {
   }
   const districtId = sheetDistrictFor(district);
   if (!districtId) return "not a goods district";
-  const quota = goodsQuota(sheet, district, pick.dieCount, upcomingBuildings);
+  const quota = goodsQuota(sheet, district, pick.dieCount);
   if (quota <= 0) return "no remaining goods in that district";
   if (action.shopMarks === void 0) return "shop marks required";
   return applyShopMarks(sheet, districtId, action.shopMarks, quota);
@@ -885,10 +881,10 @@ function applyCompensationAction(sheet, pick, action) {
   commitMarketPath(sheet, action.path, 0);
   return applyGoodsFromMarketDestination(sheet, dest, action.shopMarks);
 }
-function applyAction(sheet, pick, action, upcomingBuildings) {
+function applyAction(sheet, pick, action) {
   switch (action.kind) {
     case "quantity":
-      return applyQuantity(sheet, pick, action, upcomingBuildings);
+      return applyQuantity(sheet, pick, action);
     case "market":
       return applyMarketAction(sheet, pick, action);
     case "compensation":
@@ -906,7 +902,7 @@ function applyCompleteTurn(state, move, ctx) {
   if (ctx.playerId !== pick.playerId) return fail("not your action");
   const actor = playerOf(state, ctx.playerId);
   if (!actor) return fail("unknown player");
-  const actionErr = applyAction(actor.sheet, pick, move.action, move.buildings);
+  const actionErr = applyAction(actor.sheet, pick, move.action);
   if (actionErr) return fail(actionErr);
   refreshBonuses(state, ctx.playerId);
   const seen = /* @__PURE__ */ new Set();

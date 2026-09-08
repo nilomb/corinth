@@ -48,7 +48,6 @@ import {
 import { createInitialState, emptyHarbor, pickQueueForRound, playerId } from "./state";
 import type {
   ApplyResult,
-  BuildingId,
   Die,
   GameState,
   MarketNodeId,
@@ -210,7 +209,6 @@ function applyQuantity(
   sheet: Player["sheet"],
   pick: NonNullable<GameState["activePick"]>,
   action: QuantityAction,
-  upcomingBuildings: BuildingId[],
 ): string | null {
   if (pick.compensation || pick.district == null) {
     return "quantity action requires a district pick";
@@ -236,7 +234,7 @@ function applyQuantity(
   }
   const districtId = sheetDistrictFor(district);
   if (!districtId) return "not a goods district";
-  const quota = goodsQuota(sheet, district, pick.dieCount, upcomingBuildings);
+  const quota = goodsQuota(sheet, district, pick.dieCount);
   if (quota <= 0) return "no remaining goods in that district";
   if (action.shopMarks === undefined) return "shop marks required";
   return applyShopMarks(sheet, districtId, action.shopMarks, quota);
@@ -330,11 +328,10 @@ function applyAction(
   sheet: Player["sheet"],
   pick: NonNullable<GameState["activePick"]>,
   action: TurnAction,
-  upcomingBuildings: BuildingId[],
 ): string | null {
   switch (action.kind) {
     case "quantity":
-      return applyQuantity(sheet, pick, action, upcomingBuildings);
+      return applyQuantity(sheet, pick, action);
     case "market":
       return applyMarketAction(sheet, pick, action);
     case "compensation":
@@ -358,7 +355,7 @@ function applyCompleteTurn(
   const actor = playerOf(state, ctx.playerId);
   if (!actor) return fail("unknown player");
 
-  const actionErr = applyAction(actor.sheet, pick, move.action, move.buildings);
+  const actionErr = applyAction(actor.sheet, pick, move.action);
   if (actionErr) return fail(actionErr);
   refreshBonuses(state, ctx.playerId);
 

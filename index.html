@@ -362,7 +362,7 @@
         color: var(--gold-lt);
       }
       .player-chip.to-play {
-        background: rgba(201, 168, 76, 0.28);
+        background: rgba(244, 255, 0, 0.28);
         color: var(--gold-lt);
       }
       .player-chip.viewing {
@@ -2634,9 +2634,10 @@
                       "Diamante", registrate i punti nel rombo esterno: 1 punto
                       per ogni fermata cerchiata + 1 punto per ogni casella "+1"
                       cerchiata. Nei rombi successivi il punteggio è cumulativo:
-                      nuove fermate + valore del rombo precedente. Il rombo
-                      mercato nella colonna centrale riporta l'ultimo totale
-                      cumulativo.
+                      nuove fermate + valore del rombo precedente. I punti
+                      guadagnati verso un rombo non raggiunto vanno persi. Il
+                      rombo mercato nella colonna centrale somma i rombi esterni
+                      raggiunti (es. 5 + 8 = 13).
                     </li>
                   </ul>
                 </div>
@@ -2664,7 +2665,8 @@
                 <summary>Costruzione degli Edifici</summary>
                 <div class="instructions-body">
                   <p>
-                    Al termine del turno, potete spendere risorse (barrando i
+                    Al termine del turno — dopo aver eseguito l'azione, e anche
+                    nell'ultimo turno — potete spendere risorse (barrando i
                     simboli Oro/Capra cerchiati) per costruire edifici. Il costo
                     è indicato dalle icone sopra ogni edificio sulla scheda.
                   </p>
@@ -2679,7 +2681,7 @@
                       <tr>
                         <td>Tempio</td>
                         <td>
-                          Nell'ottagono del totale, 3 punti per ogni edificio
+                          Nel rombo degli edifici, 3 punti per ogni edificio
                           costruito (incluso il Tempio).
                         </td>
                       </tr>
@@ -3510,7 +3512,7 @@
        * Se un simbolo non combacia a video, ricalibrare SCORECARD_SHEET_LAYOUT.
        * Mercato: griglia 5×5 in SCORECARD_MARKET_LAYOUT. */
       const SCORECARD_DIGITAL_STORAGE_KEY = "corinth-scorecard-digital-v1";
-      const SCORECARD_SHEET_LAYOUT = {"districts":{"orange":{"bonus":null,"shops":[{"points":4,"symbols":[{"x":0.20177,"y":0.17525,"r":0.01471},{"x":0.20177,"y":0.22794,"r":0.01471}]},{"points":5,"symbols":[{"x":0.30834,"y":0.17525,"r":0.01471},{"x":0.30834,"y":0.22794,"r":0.01471}]},{"points":10,"symbols":[{"x":0.39975,"y":0.17525,"r":0.01471},{"x":0.42797,"y":0.17525,"r":0.01471},{"x":0.39975,"y":0.22794,"r":0.01471},{"x":0.42797,"y":0.22794,"r":0.01471}]}]},"blue":{"bonus":{"points":3,"x":0.04002,"y":0.31863,"r":0.01348},"shops":[{"points":3,"symbols":[{"x":0.20514,"y":0.36336,"r":0.01471},{"x":0.20514,"y":0.41422,"r":0.01471}]},{"points":5,"symbols":[{"x":0.31129,"y":0.36336,"r":0.01471},{"x":0.29739,"y":0.41422,"r":0.01471},{"x":0.32519,"y":0.41422,"r":0.01471}]},{"points":8,"symbols":[{"x":0.40396,"y":0.36336,"r":0.01471},{"x":0.42797,"y":0.36336,"r":0.01471},{"x":0.40396,"y":0.41422,"r":0.01471},{"x":0.42797,"y":0.41422,"r":0.01471}]}]},"purple":{"bonus":{"points":4,"x":0.04002,"y":0.50245,"r":0.01348},"shops":[{"points":2,"symbols":[{"x":0.20219,"y":0.55025,"r":0.01471},{"x":0.20219,"y":0.60049,"r":0.01471}]},{"points":3,"symbols":[{"x":0.27296,"y":0.55025,"r":0.01471},{"x":0.25864,"y":0.60049,"r":0.01471},{"x":0.28728,"y":0.60049,"r":0.01471}]},{"points":4,"symbols":[{"x":0.34372,"y":0.55025,"r":0.01471},{"x":0.3294,"y":0.60049,"r":0.01471},{"x":0.35805,"y":0.60049,"r":0.01471}]},{"points":6,"symbols":[{"x":0.40017,"y":0.55025,"r":0.01471},{"x":0.42881,"y":0.55025,"r":0.01471},{"x":0.40017,"y":0.60049,"r":0.01471},{"x":0.42881,"y":0.60049,"r":0.01471}]}]},"green":{"bonus":{"points":5,"x":0.04002,"y":0.68627,"r":0.01348},"shops":[{"points":1,"symbols":[{"x":0.17397,"y":0.73346,"r":0.01471},{"x":0.17397,"y":0.78493,"r":0.01471}]},{"points":2,"symbols":[{"x":0.24431,"y":0.73346,"r":0.01471},{"x":0.23041,"y":0.78493,"r":0.01471},{"x":0.25864,"y":0.78493,"r":0.01471}]},{"points":3,"symbols":[{"x":0.31592,"y":0.73346,"r":0.01471},{"x":0.3016,"y":0.78493,"r":0.01471},{"x":0.33024,"y":0.78493,"r":0.01471}]},{"points":6,"symbols":[{"x":0.38669,"y":0.73346,"r":0.01471},{"x":0.41533,"y":0.73346,"r":0.01471},{"x":0.37237,"y":0.78493,"r":0.01471},{"x":0.40101,"y":0.78493,"r":0.01471},{"x":0.42881,"y":0.78493,"r":0.01471}]}]}},"gold":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.50551,"r":0.01348},{"x":0.65543,"y":0.50551,"r":0.01348},{"x":0.68324,"y":0.50551,"r":0.01348},{"x":0.71104,"y":0.50551,"r":0.01348},{"x":0.73884,"y":0.50551,"r":0.01348},{"x":0.76664,"y":0.50551,"r":0.01348},{"x":0.79444,"y":0.50551,"r":0.01348},{"x":0.82224,"y":0.50551,"r":0.01348},{"x":0.85004,"y":0.50551,"r":0.01348},{"x":0.87784,"y":0.50551,"r":0.01348},{"x":0.90564,"y":0.50551,"r":0.01348},{"x":0.93345,"y":0.50551,"r":0.01348},{"x":0.62763,"y":0.55147,"r":0.01348},{"x":0.65543,"y":0.55147,"r":0.01348},{"x":0.68324,"y":0.55147,"r":0.01348},{"x":0.71104,"y":0.55147,"r":0.01348},{"x":0.73884,"y":0.55147,"r":0.01348},{"x":0.76664,"y":0.55147,"r":0.01348},{"x":0.79444,"y":0.55147,"r":0.01348},{"x":0.82224,"y":0.55147,"r":0.01348},{"x":0.85004,"y":0.55147,"r":0.01348},{"x":0.87784,"y":0.55147,"r":0.01348},{"x":0.90564,"y":0.55147,"r":0.01348},{"x":0.93345,"y":0.55147,"r":0.01348}]},"goats":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.625,"r":0.01348},{"x":0.65543,"y":0.625,"r":0.01348},{"x":0.68324,"y":0.625,"r":0.01348},{"x":0.71104,"y":0.625,"r":0.01348},{"x":0.73884,"y":0.625,"r":0.01348},{"x":0.76664,"y":0.625,"r":0.01348},{"x":0.79444,"y":0.625,"r":0.01348},{"x":0.82224,"y":0.625,"r":0.01348},{"x":0.85004,"y":0.625,"r":0.01348},{"x":0.87784,"y":0.625,"r":0.01348},{"x":0.90564,"y":0.625,"r":0.01348},{"x":0.93345,"y":0.625,"r":0.01348},{"x":0.62763,"y":0.67402,"r":0.01348},{"x":0.65543,"y":0.67402,"r":0.01348},{"x":0.68324,"y":0.67402,"r":0.01348},{"x":0.71104,"y":0.67402,"r":0.01348},{"x":0.73884,"y":0.67402,"r":0.01348},{"x":0.76664,"y":0.67402,"r":0.01348},{"x":0.79444,"y":0.67402,"r":0.01348},{"x":0.82224,"y":0.67402,"r":0.01348},{"x":0.85004,"y":0.67402,"r":0.01348},{"x":0.87784,"y":0.67402,"r":0.01348},{"x":0.90564,"y":0.67402,"r":0.01348},{"x":0.93345,"y":0.67402,"r":0.01348}]},"turns":{"count":6,"slots":[{"x":0.09309,"y":0.93076,"r":0.02206},{"x":0.15459,"y":0.93076,"r":0.02206},{"x":0.22199,"y":0.93076,"r":0.02206},{"x":0.28391,"y":0.93076,"r":0.02206},{"x":0.34541,"y":0.93076,"r":0.02206},{"x":0.40733,"y":0.93076,"r":0.02206}]},"freehandRegions":{"mercato":{"x":0.46335,"y":0.02451,"w":0.52233,"h":0.31863},"edifici":{"x":0.46335,"y":0.68627,"w":0.52233,"h":0.29412}},"scoreDiamonds":{"orange":{"x":0.499,"y":0.1924,"r":0.028},"market":{"x":0.499,"y":0.2843,"r":0.028},"blue":{"x":0.499,"y":0.375,"r":0.028},"gold":{"x":0.4988,"y":0.4663,"r":0.028},"purple":{"x":0.499,"y":0.5576,"r":0.028},"goats":{"x":0.4988,"y":0.6489,"r":0.028},"green":{"x":0.4991,"y":0.7396,"r":0.028}},"scoreOctagon":{"x":0.499,"y":0.9353,"r":0.033},"buildings":[{"id":"temple","gold":3,"goats":3,"x":0.6213,"y":0.8211,"r":0.016},{"id":"warehouse","gold":4,"goats":4,"x":0.7178,"y":0.8211,"r":0.016},{"id":"stable","gold":2,"goats":1,"x":0.8142,"y":0.8211,"r":0.016},{"id":"store","gold":0,"goats":2,"x":0.9103,"y":0.8211,"r":0.016}],"resourceOval":{"rotationDeg":-22,"rxScale":1.38,"ryScale":1.58,"color":"#2a2520","lineWidthScale":0.38}};
+      const SCORECARD_SHEET_LAYOUT = {"districts":{"orange":{"bonus":null,"shops":[{"points":4,"symbols":[{"x":0.20177,"y":0.17525,"r":0.01471},{"x":0.20177,"y":0.22794,"r":0.01471}]},{"points":5,"symbols":[{"x":0.30834,"y":0.17525,"r":0.01471},{"x":0.30834,"y":0.22794,"r":0.01471}]},{"points":10,"symbols":[{"x":0.39975,"y":0.17525,"r":0.01471},{"x":0.42797,"y":0.17525,"r":0.01471},{"x":0.39975,"y":0.22794,"r":0.01471},{"x":0.42797,"y":0.22794,"r":0.01471}]}]},"blue":{"bonus":{"points":3,"x":0.04002,"y":0.31863,"r":0.01348},"shops":[{"points":3,"symbols":[{"x":0.20514,"y":0.36336,"r":0.01471},{"x":0.20514,"y":0.41422,"r":0.01471}]},{"points":5,"symbols":[{"x":0.31129,"y":0.36336,"r":0.01471},{"x":0.29739,"y":0.41422,"r":0.01471},{"x":0.32519,"y":0.41422,"r":0.01471}]},{"points":8,"symbols":[{"x":0.40396,"y":0.36336,"r":0.01471},{"x":0.42797,"y":0.36336,"r":0.01471},{"x":0.40396,"y":0.41422,"r":0.01471},{"x":0.42797,"y":0.41422,"r":0.01471}]}]},"purple":{"bonus":{"points":4,"x":0.04002,"y":0.50245,"r":0.01348},"shops":[{"points":2,"symbols":[{"x":0.20219,"y":0.55025,"r":0.01471},{"x":0.20219,"y":0.60049,"r":0.01471}]},{"points":3,"symbols":[{"x":0.27296,"y":0.55025,"r":0.01471},{"x":0.25864,"y":0.60049,"r":0.01471},{"x":0.28728,"y":0.60049,"r":0.01471}]},{"points":4,"symbols":[{"x":0.34372,"y":0.55025,"r":0.01471},{"x":0.3294,"y":0.60049,"r":0.01471},{"x":0.35805,"y":0.60049,"r":0.01471}]},{"points":6,"symbols":[{"x":0.40017,"y":0.55025,"r":0.01471},{"x":0.42881,"y":0.55025,"r":0.01471},{"x":0.40017,"y":0.60049,"r":0.01471},{"x":0.42881,"y":0.60049,"r":0.01471}]}]},"green":{"bonus":{"points":5,"x":0.04002,"y":0.68627,"r":0.01348},"shops":[{"points":1,"symbols":[{"x":0.17397,"y":0.73346,"r":0.01471},{"x":0.17397,"y":0.78493,"r":0.01471}]},{"points":2,"symbols":[{"x":0.24431,"y":0.73346,"r":0.01471},{"x":0.23041,"y":0.78493,"r":0.01471},{"x":0.25864,"y":0.78493,"r":0.01471}]},{"points":3,"symbols":[{"x":0.31592,"y":0.73346,"r":0.01471},{"x":0.3016,"y":0.78493,"r":0.01471},{"x":0.33024,"y":0.78493,"r":0.01471}]},{"points":6,"symbols":[{"x":0.38669,"y":0.73346,"r":0.01471},{"x":0.41533,"y":0.73346,"r":0.01471},{"x":0.37237,"y":0.78493,"r":0.01471},{"x":0.40101,"y":0.78493,"r":0.01471},{"x":0.42881,"y":0.78493,"r":0.01471}]}]}},"gold":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.50551,"r":0.01348},{"x":0.65543,"y":0.50551,"r":0.01348},{"x":0.68324,"y":0.50551,"r":0.01348},{"x":0.71104,"y":0.50551,"r":0.01348},{"x":0.73884,"y":0.50551,"r":0.01348},{"x":0.76664,"y":0.50551,"r":0.01348},{"x":0.79444,"y":0.50551,"r":0.01348},{"x":0.82224,"y":0.50551,"r":0.01348},{"x":0.85004,"y":0.50551,"r":0.01348},{"x":0.87784,"y":0.50551,"r":0.01348},{"x":0.90564,"y":0.50551,"r":0.01348},{"x":0.93345,"y":0.50551,"r":0.01348},{"x":0.62763,"y":0.55147,"r":0.01348},{"x":0.65543,"y":0.55147,"r":0.01348},{"x":0.68324,"y":0.55147,"r":0.01348},{"x":0.71104,"y":0.55147,"r":0.01348},{"x":0.73884,"y":0.55147,"r":0.01348},{"x":0.76664,"y":0.55147,"r":0.01348},{"x":0.79444,"y":0.55147,"r":0.01348},{"x":0.82224,"y":0.55147,"r":0.01348},{"x":0.85004,"y":0.55147,"r":0.01348},{"x":0.87784,"y":0.55147,"r":0.01348},{"x":0.90564,"y":0.55147,"r":0.01348},{"x":0.93345,"y":0.55147,"r":0.01348}]},"goats":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.625,"r":0.01348},{"x":0.65543,"y":0.625,"r":0.01348},{"x":0.68324,"y":0.625,"r":0.01348},{"x":0.71104,"y":0.625,"r":0.01348},{"x":0.73884,"y":0.625,"r":0.01348},{"x":0.76664,"y":0.625,"r":0.01348},{"x":0.79444,"y":0.625,"r":0.01348},{"x":0.82224,"y":0.625,"r":0.01348},{"x":0.85004,"y":0.625,"r":0.01348},{"x":0.87784,"y":0.625,"r":0.01348},{"x":0.90564,"y":0.625,"r":0.01348},{"x":0.93345,"y":0.625,"r":0.01348},{"x":0.62763,"y":0.67402,"r":0.01348},{"x":0.65543,"y":0.67402,"r":0.01348},{"x":0.68324,"y":0.67402,"r":0.01348},{"x":0.71104,"y":0.67402,"r":0.01348},{"x":0.73884,"y":0.67402,"r":0.01348},{"x":0.76664,"y":0.67402,"r":0.01348},{"x":0.79444,"y":0.67402,"r":0.01348},{"x":0.82224,"y":0.67402,"r":0.01348},{"x":0.85004,"y":0.67402,"r":0.01348},{"x":0.87784,"y":0.67402,"r":0.01348},{"x":0.90564,"y":0.67402,"r":0.01348},{"x":0.93345,"y":0.67402,"r":0.01348}]},"turns":{"count":6,"slots":[{"x":0.09309,"y":0.93076,"r":0.02206},{"x":0.15459,"y":0.93076,"r":0.02206},{"x":0.22199,"y":0.93076,"r":0.02206},{"x":0.28391,"y":0.93076,"r":0.02206},{"x":0.34541,"y":0.93076,"r":0.02206},{"x":0.40733,"y":0.93076,"r":0.02206}]},"freehandRegions":{"mercato":{"x":0.46335,"y":0.02451,"w":0.52233,"h":0.31863},"edifici":{"x":0.46335,"y":0.68627,"w":0.52233,"h":0.29412}},"scoreDiamonds":{"orange":{"x":0.499,"y":0.1924,"r":0.028},"market":{"x":0.499,"y":0.2843,"r":0.028},"blue":{"x":0.499,"y":0.375,"r":0.028},"gold":{"x":0.4988,"y":0.4663,"r":0.028},"purple":{"x":0.499,"y":0.5576,"r":0.028},"goats":{"x":0.4988,"y":0.6489,"r":0.028},"green":{"x":0.4991,"y":0.7396,"r":0.028},"temple":{"x":0.4988,"y":0.8307,"r":0.028}},"scoreOctagon":{"x":0.499,"y":0.9353,"r":0.033},"buildings":[{"id":"temple","gold":3,"goats":3,"x":0.6213,"y":0.8211,"r":0.016},{"id":"warehouse","gold":4,"goats":4,"x":0.7178,"y":0.8211,"r":0.016},{"id":"stable","gold":2,"goats":1,"x":0.8142,"y":0.8211,"r":0.016},{"id":"store","gold":0,"goats":2,"x":0.9103,"y":0.8211,"r":0.016}],"resourceOval":{"rotationDeg":-22,"rxScale":1.38,"ryScale":1.58,"color":"#2a2520","lineWidthScale":0.38}};
 
       const SCORECARD_MARKET_LAYOUT = (() => {
         const ox = 0.76874;
@@ -4360,15 +4362,16 @@
           gold: resourceVictoryPoints(remainingResource(state, "gold")),
           goats: resourceVictoryPoints(remainingResource(state, "goats")),
           market: marketDiamondTotal(state),
+          // Rombo edifici: 3 PV × edifici se hai il Tempio
+          temple: templeVictoryPoints(state),
         };
       }
 
-      function liveOctagonTotal(scores, state) {
-        const base = Object.values(scores).reduce(
+      function liveOctagonTotal(scores) {
+        return Object.values(scores).reduce(
           (sum, value) => sum + (Number(value) || 0),
           0,
         );
-        return base + templeVictoryPoints(state);
       }
 
       function hasTemple(state) {
@@ -4446,14 +4449,7 @@
       }
 
       function warehouseOwnedForTurn() {
-        if (
-          scorecardTurn &&
-          (scorecardTurn.pendingBuildings || []).includes(
-            MARKET_WAREHOUSE_BUILDING,
-          )
-        ) {
-          return true;
-        }
+        // Magazzino: solo se già costruito in un turno precedente (non pending).
         if (hasWarehouse(scorecardDigitalState)) return true;
         if (isHotseat() && engineState) {
           const sheet = engineState.players.find(
@@ -4501,6 +4497,13 @@
       }
 
       function afterPendingBuildingsChanged() {
+        // Edifici solo a azione già pronta: non ricalcolare mossa/quota
+        // (il Magazzino vale dai turni successivi, non a ritroso).
+        if (isScorecardTurnReady()) {
+          updateScorecardActionBar();
+          renderScorecardMarks();
+          return;
+        }
         if (scorecardTurn && scorecardTurn.choice === "distance") {
           if (isMarketRewardPending(scorecardPending)) {
             updateScorecardActionBar();
@@ -4515,20 +4518,54 @@
         renderScorecardMarks();
       }
 
+      /** Edifici solo dopo l'azione del turno (anche all'ultimo round). */
+      function canPurchaseBuildingsNow() {
+        return !!(scorecardTurn && scorecardTurn.choice && isScorecardTurnReady());
+      }
+
+      function isScorecardMobileView() {
+        return (
+          typeof window.matchMedia === "function" &&
+          window.matchMedia("(max-width: 900px)").matches
+        );
+      }
+
+      /** Su iPhone: metà sinistra/destra; le frecce laterali cambiano metà. */
+      function scorecardUsesHalfNav() {
+        return (
+          isScorecardMobileView() &&
+          (scorecardCropSide === "left" || scorecardCropSide === "right")
+        );
+      }
+
+      function revealBuildingsAfterAction() {
+        if (!canPurchaseBuildingsNow()) return;
+        // Su iPhone gli edifici sono a destra: mostra subito quella metà.
+        if (isScorecardMobileView()) {
+          if (scorecardCropSide !== "right") showScorecardHalf("right");
+          return;
+        }
+        // Desktop: dopo i negozi (metà sinistra) apri tutta la scheda.
+        if (
+          scorecardPending &&
+          scorecardPending.type === "shop-turn" &&
+          scorecardCropSide === "left"
+        ) {
+          showScorecardHalf("full");
+        }
+      }
+
       function getMarketNode(id) {
         return SCORECARD_MARKET_LAYOUT.byId[id] || null;
       }
 
-      /** Totale mercato = ultimo rombo esterno valorizzato (già cumulativo). */
+      /** Totale mercato = somma dei rombi esterni raggiunti (valori già cumulativi). */
       function marketDiamondTotal(state) {
         const diamonds = (state && state.mercato && state.mercato.diamonds) || [];
-        let best = null;
-        for (let i = 0; i < 3; i++) {
-          if (diamonds[i] == null) continue;
-          const v = Number(diamonds[i]) || 0;
-          if (best == null || v > best) best = v;
-        }
-        return best == null ? 0 : best;
+        return [0, 1, 2].reduce(
+          (sum, i) => sum + (diamonds[i] != null ? Number(diamonds[i]) || 0 : 0),
+          0,
+        );
       }
 
       function marketUsedSet(state) {
@@ -5302,7 +5339,7 @@
 
         const octagon = SCORECARD_SHEET_LAYOUT.scoreOctagon;
         if (octagon) {
-          const octagonTotal = liveOctagonTotal(scores, view);
+          const octagonTotal = liveOctagonTotal(scores);
           const pt = sheetToStage(octagon.x, octagon.y);
           const fontPx = Math.max(16, octagon.r * pt.scale * 1.55);
           ctx.font = `700 ${fontPx}px Cinzel, Georgia, serif`;
@@ -5454,9 +5491,10 @@
                 const name = p.type === "gold" ? "Oro" : "Capre";
                 label.textContent =
                   p.qty > 0
-                    ? `${name}: +${p.qty} cerchiat${p.qty === 1 ? "o" : "i"}. Conferma o Annulla.`
-                    : `${name}: traccia piena. Conferma o Annulla.`;
+                    ? `${name}: +${p.qty} cerchiat${p.qty === 1 ? "o" : "i"}. Puoi comprare edifici, poi Conferma.`
+                    : `${name}: traccia piena. Puoi comprare edifici, poi Conferma.`;
                 if (confirmBtn) confirmBtn.disabled = false;
+                revealBuildingsAfterAction();
                 return;
               }
               if (p.type === "shop-turn") {
@@ -5464,12 +5502,23 @@
                   p.shops,
                   scorecardDigitalState.districts[p.districtId].shops,
                 );
+                if (placed === p.quota) {
+                  label.textContent =
+                    "Azione fatta. Puoi comprare edifici, poi Conferma. Frecce: cambia metà.";
+                  if (quotaCount) {
+                    quotaCount.hidden = false;
+                    quotaCount.textContent = `${placed}/${p.quota}`;
+                  }
+                  if (confirmBtn) confirmBtn.disabled = false;
+                  revealBuildingsAfterAction();
+                  return;
+                }
                 label.textContent = "";
                 if (quotaCount) {
                   quotaCount.hidden = false;
                   quotaCount.textContent = `${placed}/${p.quota}`;
                 }
-                if (confirmBtn) confirmBtn.disabled = placed !== p.quota;
+                if (confirmBtn) confirmBtn.disabled = true;
                 return;
               }
             }
@@ -5496,8 +5545,9 @@
                   : "";
               label.textContent =
                 (goldCost > 0
-                  ? `Intendente: ${p.steps} passi (−${goldCost} oro). Conferma.`
-                  : `Intendente: ${p.steps} passi. Conferma.`) + extra;
+                  ? `Intendente: ${p.steps} passi (−${goldCost} oro). Puoi comprare edifici, poi Conferma.`
+                  : `Intendente: ${p.steps} passi. Puoi comprare edifici, poi Conferma.`) +
+                extra;
             } else {
               label.textContent =
                 `Intendente: ${p.steps} passi (dado ${t.diceValue}). Tocca un arrivo. ±: stalla ±2 gratis, poi oro.`;
@@ -5516,6 +5566,7 @@
                 : "";
             label.textContent = `${name}: +${p.qty} nel riquadro${extraNote}. Puoi comprare edifici, poi Conferma. Frecce: cambia metà.`;
             if (confirmBtn) confirmBtn.disabled = false;
+            revealBuildingsAfterAction();
             return;
           }
           if (p && p.type === "shop-turn") {
@@ -5523,12 +5574,23 @@
               p.shops,
               scorecardDigitalState.districts[p.districtId].shops,
             );
+            if (placed === p.quota) {
+              label.textContent =
+                "Azione fatta. Puoi comprare edifici, poi Conferma. Frecce: cambia metà.";
+              if (quotaCount) {
+                quotaCount.hidden = false;
+                quotaCount.textContent = `${placed}/${p.quota}`;
+              }
+              if (confirmBtn) confirmBtn.disabled = false;
+              revealBuildingsAfterAction();
+              return;
+            }
             label.textContent = "";
             if (quotaCount) {
               quotaCount.hidden = false;
               quotaCount.textContent = `${placed}/${p.quota}`;
             }
-            if (confirmBtn) confirmBtn.disabled = placed !== p.quota;
+            if (confirmBtn) confirmBtn.disabled = true;
             return;
           }
           label.textContent = "Puoi comprare edifici, poi Conferma.";
@@ -6423,7 +6485,7 @@
         gold = remainingResource(view, "gold");
         goats = remainingResource(view, "goats");
         const scores = liveDiamondScores(view);
-        score = liveOctagonTotal(scores, view);
+        score = liveOctagonTotal(scores);
         refreshHUD();
       }
 
@@ -6474,7 +6536,7 @@
       }
 
       function onBuildingHit(index) {
-        if (!scorecardTurn || !scorecardTurn.choice) return;
+        if (!scorecardTurn) return;
         if (!scorecardDigitalState.buildings) {
           scorecardDigitalState.buildings = SCORECARD_SHEET_LAYOUT.buildings.map(
             () => false,
@@ -6488,6 +6550,7 @@
           afterPendingBuildingsChanged();
           return;
         }
+        if (!canPurchaseBuildingsNow()) return;
         const probe = cloneDigitalState(scorecardDigitalState);
         if (scorecardPending && scorecardPending.type === "gold") {
           probe.gold.circled = scorecardPending.circled;
@@ -6801,6 +6864,14 @@
         const leftBtn = document.getElementById("scorecard-pan-left-btn");
         const rightBtn = document.getElementById("scorecard-pan-right-btn");
         if (!leftBtn || !rightBtn) return;
+        if (scorecardUsesHalfNav()) {
+          // ◀ → metà sinistra, ▶ → metà destra
+          leftBtn.disabled = scorecardCropSide === "left";
+          rightBtn.disabled = scorecardCropSide === "right";
+          const bar = document.getElementById("scorecard-scrollbar");
+          if (bar) bar.dataset.hidden = "true";
+          return;
+        }
         const bounds = getScorecardPanBounds();
         leftBtn.disabled = scorecardPanOffsetX >= bounds.max;
         rightBtn.disabled = scorecardPanOffsetX <= bounds.min;
@@ -6810,6 +6881,10 @@
       function updateScorecardScrollbar() {
         const bar = document.getElementById("scorecard-scrollbar");
         if (!bar) return;
+        if (scorecardUsesHalfNav()) {
+          bar.dataset.hidden = "true";
+          return;
+        }
         const bounds = getScorecardPanBounds();
         const totalTravel = bounds.max - bounds.min;
         if (totalTravel <= 0) {
@@ -6824,6 +6899,7 @@
       }
 
       function onScorecardScrollbarInput(val) {
+        if (scorecardUsesHalfNav()) return;
         const bounds = getScorecardPanBounds();
         scorecardPanOffsetX = bounds.max - Number(val);
         applyScorecardPanOffset();
@@ -6831,6 +6907,17 @@
       window.onScorecardScrollbarInput = onScorecardScrollbarInput;
 
       function scorecardPanStep(dir) {
+        // Su iPhone in metà scheda: le frecce spostano sinistra ↔ destra.
+        if (scorecardUsesHalfNav()) {
+          if (dir > 0 && scorecardCropSide !== "left") {
+            showScorecardHalf("left");
+          } else if (dir < 0 && scorecardCropSide !== "right") {
+            showScorecardHalf("right");
+          } else {
+            updateScorecardPanArrows();
+          }
+          return;
+        }
         const bounds = getScorecardPanBounds();
         scorecardPanOffsetX = dir > 0 ? bounds.max : bounds.min;
         applyScorecardPanOffset();
