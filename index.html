@@ -6791,11 +6791,16 @@
         const shops = p.shops.map((m) => m.slice());
         if (shops[shopIndex][symIndex]) {
           shops[shopIndex][symIndex] = false;
+          // If an open shop remains, clear only other *open* shops.
+          // Do not wipe shops completed earlier in this same turn — that used
+          // to reopen them and then block marks on the new shop.
           const incomplete = shops.findIndex((marked) => shopIsStarted(marked));
           if (incomplete >= 0) {
             for (let i = 0; i < shops.length; i++) {
               if (i === incomplete) continue;
-              shops[i] = confirmed[i].marked.slice();
+              if (shopIsStarted(shops[i])) {
+                shops[i] = confirmed[i].marked.slice();
+              }
             }
           }
         } else {
