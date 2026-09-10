@@ -309,6 +309,7 @@ function applyShopMarks(sheet, districtId, marks, quota) {
     return `expected ${quota} shop marks, got ${marks.length}`;
   }
   const seen = /* @__PURE__ */ new Set();
+  const byShop = /* @__PURE__ */ new Map();
   for (const mark of marks) {
     if (mark.district !== districtId) {
       return `mark district ${mark.district} does not match ${districtId}`;
@@ -322,10 +323,38 @@ function applyShopMarks(sheet, districtId, marks, quota) {
       return "invalid symbol index";
     }
     if (shop.marked[mark.symbolIndex]) return "symbol already marked";
+    const queue = byShop.get(mark.shopIndex);
+    if (queue) queue.push(mark);
+    else byShop.set(mark.shopIndex, [mark]);
+  }
+  while (byShop.size > 0) {
+    const incomplete = getIncompleteShopIndex(sheet, districtId);
+    let shopIndex = incomplete;
+    if (shopIndex < 0) {
+      const candidates = [...byShop.keys()];
+      shopIndex = candidates.find((si) => {
+        const shop = sheet.districts[districtId].shops[si];
+        if (!shop) return false;
+        const need = shop.marked.filter((m) => !m).length;
+        return (byShop.get(si)?.length ?? 0) >= need;
+      }) ?? -1;
+      if (shopIndex < 0) {
+        if (candidates.length > 1) {
+          return "must finish the open shop before starting another";
+        }
+        shopIndex = candidates[0];
+      }
+    }
+    const queue = byShop.get(shopIndex);
+    if (!queue || queue.length === 0) {
+      return "must finish the open shop before starting another";
+    }
+    const mark = queue.shift();
+    if (queue.length === 0) byShop.delete(shopIndex);
     if (!canPlaceOnShop(sheet, districtId, mark.shopIndex)) {
       return "must finish the open shop before starting another";
     }
-    shop.marked[mark.symbolIndex] = true;
+    sheet.districts[districtId].shops[mark.shopIndex].marked[mark.symbolIndex] = true;
   }
   return null;
 }

@@ -2,7 +2,12 @@ import { applyMove, unwrap } from "./apply";
 import { sortDiceToHarbor } from "./harbor";
 import { marketGoldCost, marketStepRange } from "./market";
 import { marketScore, scoreSheet, templeScore } from "./score";
-import { goldGain, goodsQuota } from "./sheet";
+import {
+  applyShopMarks,
+  goldGain,
+  goodsQuota,
+  shopIsComplete,
+} from "./sheet";
 import { createInitialState, pickQueueForRound } from "./state";
 import type {
   Die,
@@ -338,6 +343,44 @@ check("owned yellows are stripped after the first player's turn", () => {
   isTrue(state.harbor.yellowsCleared, "cleared");
   eq(state.harbor.groups.Gold, undefined, "yellow gold gone");
   eq(state.harbor.groups.Oil?.length, 1, "white 2 remains");
+});
+
+check("shop marks may finish an open shop then start a lower-index shop", () => {
+  const sheet = createInitialState(2).players[0]!.sheet;
+  // Blue shop 1 has 3 symbols; leave one open.
+  sheet.districts.blue.shops[1]!.marked = [true, true, false];
+  const err = applyShopMarks(
+    sheet,
+    "blue",
+    [
+      // UI emits lower shop index first — must still be legal.
+      { district: "blue", shopIndex: 0, symbolIndex: 0 },
+      { district: "blue", shopIndex: 0, symbolIndex: 1 },
+      { district: "blue", shopIndex: 1, symbolIndex: 2 },
+    ],
+    3,
+  );
+  eq(err, null, "accepts out-of-order marks");
+  isTrue(shopIsComplete(sheet.districts.blue.shops[0]!.marked), "shop 0 done");
+  isTrue(shopIsComplete(sheet.districts.blue.shops[1]!.marked), "shop 1 done");
+});
+
+check("shop marks cannot leave two shops open", () => {
+  const sheet = createInitialState(2).players[0]!.sheet;
+  const err = applyShopMarks(
+    sheet,
+    "blue",
+    [
+      { district: "blue", shopIndex: 0, symbolIndex: 0 },
+      { district: "blue", shopIndex: 1, symbolIndex: 0 },
+    ],
+    2,
+  );
+  eq(
+    err,
+    "must finish the open shop before starting another",
+    "rejects two partials",
+  );
 });
 
 if (failed > 0) {

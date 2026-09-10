@@ -3584,6 +3584,13 @@
         refreshHUD();
       }
 
+      function formatEngineError(error) {
+        if (error === "must finish the open shop before starting another") {
+          return "Completa prima il negozio già iniziato";
+        }
+        return error || "Mossa non valida";
+      }
+
       function commitEngineMove(move, playerId) {
         if (!engineState) return false;
         if (isOnline()) {
@@ -3597,7 +3604,7 @@
           }
           const preview = applyMove(engineState, move, { playerId });
           if (!preview.ok) {
-            window.alert(preview.error);
+            window.alert(formatEngineError(preview.error));
             return false;
           }
           try {
@@ -3616,7 +3623,7 @@
         }
         const result = applyMove(engineState, move, { playerId });
         if (!result.ok) {
-          window.alert(result.error);
+          window.alert(formatEngineError(result.error));
           return false;
         }
         engineState = result.state;
@@ -3681,19 +3688,53 @@
             : scorecardDigitalState.districts[pending.districtId].shops;
         if (!confirmedShops) return [];
         const confirmed = confirmedShops;
-        const marks = [];
+        const byShop = new Map();
         pending.shops.forEach((marked, shopIndex) => {
           marked.forEach((value, symbolIndex) => {
             if (value && !confirmed[shopIndex].marked[symbolIndex]) {
-              marks.push({
+              const mark = {
                 district: pending.districtId,
                 shopIndex,
                 symbolIndex,
-              });
+              };
+              const queue = byShop.get(shopIndex);
+              if (queue) queue.push(mark);
+              else byShop.set(shopIndex, [mark]);
             }
           });
         });
-        return marks;
+        // Same rule order as the engine: finish the open shop, complete
+        // full shops, then at most one partial (UI emits by shop index).
+        const working = confirmed.map((s) => s.marked.slice());
+        const ordered = [];
+        while (byShop.size > 0) {
+          let shopIndex = working.findIndex((marked) => shopIsStarted(marked));
+          if (shopIndex < 0) {
+            const candidates = [...byShop.keys()];
+            shopIndex =
+              candidates.find((si) => {
+                const need = working[si].filter((m) => !m).length;
+                return (byShop.get(si)?.length ?? 0) >= need;
+              }) ?? -1;
+            if (shopIndex < 0) {
+              if (candidates.length > 1) {
+                for (const rest of byShop.values()) ordered.push(...rest);
+                break;
+              }
+              shopIndex = candidates[0];
+            }
+          }
+          const queue = byShop.get(shopIndex);
+          if (!queue || !queue.length) {
+            for (const rest of byShop.values()) ordered.push(...rest);
+            break;
+          }
+          const mark = queue.shift();
+          if (!queue.length) byShop.delete(shopIndex);
+          working[mark.shopIndex][mark.symbolIndex] = true;
+          ordered.push(mark);
+        }
+        return ordered;
       }
 
       function afterHotseatAction() {
