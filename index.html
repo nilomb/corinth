@@ -3151,15 +3151,16 @@
         scoreSheet,
         usableDistricts,
       } from "./engine.bundle.js";
-
-      // TEMP test: mark shop Xs freely (no dice). Set false when done verifying
-      // district-completion bonus (circle for first, cross for others).
-      const SHOP_FREE_TEST = false;
       import {
         connectRoom,
         getOrCreateClientId,
         randomRoomCode,
       } from "./net/multiplayer.js";
+
+      // TEMP test: mark shop Xs freely (no dice). Set false when done verifying
+      // district-completion bonus (circle for first, cross for others).
+      const SHOP_FREE_TEST = false;
+      document.body.classList.toggle("shop-free-test", SHOP_FREE_TEST);
 
       const THREE = window.THREE;
       const CANNON = window.CANNON;
@@ -3580,6 +3581,12 @@
         return SHOP_FREE_TEST && playMode === "hotseat" && !!engineState && !isOnline();
       }
 
+      function isScorecardConsultReadOnly() {
+        if (shopFreeTestActive()) return false;
+        const page = document.getElementById("scorecard-page");
+        return !!(page && page.classList.contains("consult-mode"));
+      }
+
       /** TEMP: place shop marks without dice; auto-claims district bonus. */
       function applyShopFreeTestMark(districtId, shopIndex, symIndex) {
         if (!shopFreeTestActive()) return false;
@@ -3612,10 +3619,6 @@
           );
         }
         return true;
-      }
-
-      if (SHOP_FREE_TEST) {
-        document.body.classList.add("shop-free-test");
       }
 
       function syncHudFromEngine() {
@@ -7104,6 +7107,7 @@
 
       function onScorecardHitClick(evt) {
         if (isScorecardCalibrating()) return;
+        if (isScorecardConsultReadOnly()) return;
         const btn = evt.currentTarget;
         const kind = btn.getAttribute("data-kind");
         if (!kind || !scorecardDigitalState) return;
