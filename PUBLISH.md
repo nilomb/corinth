@@ -76,6 +76,8 @@ npx wrangler deploy
 cd ..
 ```
 
+(`npx` evita errori se `wrangler` non è installato in globale.)
+
 Poi, se hai anche cambiato il client, rifai `npm run deploy:pages` così client e worker restano allineati.
 
 Se hai toccato solo UI in `index.html` senza cambiare le regole server, di solito basta lo step 4.
