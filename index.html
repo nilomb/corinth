@@ -2479,9 +2479,9 @@
             </div>
             <div id="scorecard-calibrator-body" class="cal-panel-body">
               <div class="cal-help">
-                Scegli il gruppo e usa gli slider. Trascina il riquadro; maniglie
-                ai lati (o pinch) per la scala. I pallini sono solo guida.
-                Esc/Chiudi per uscire.
+                Scegli il gruppo e usa gli slider. Trascina il riquadro; ogni
+                maniglia muove solo quel lato (pinch = scala uniforme). I
+                pallini sono solo guida. Esc/Chiudi per uscire.
               </div>
               <div class="cal-sliders">
                 <div class="cal-row">
@@ -7894,11 +7894,19 @@
         };
       }
 
-      function calibLayerCenterNorm(layerKey, align) {
+      function calibLayerSheetBox(layer) {
+        const pts = calibLayerNormPoints(layer);
+        const raw = symbolsNormBox(pts);
+        return raw ? unionNormBoxes([raw], 0.012, 0.016) : null;
+      }
+
+      function sheetPointToStageNorm(nx, ny, layerKey, align) {
+        const a = align || layerAlign(layerKey);
+        const { sx, sy } = layerScaleXY(a);
         const o = layerScaleOrigin(layerKey);
         return {
-          x: o.x + (align.offsetX || 0),
-          y: o.y + (align.offsetY || 0),
+          x: o.x + (nx - o.x) * sx + (a.offsetX || 0),
+          y: o.y + (ny - o.y) * sy + (a.offsetY || 0),
         };
       }
 
@@ -7935,16 +7943,51 @@
         origin.scaleX = sx;
         origin.scaleY = sy;
         const start = getStageNormPoint(evt);
-        const center = calibLayerCenterNorm(layerKey, origin);
+        const box = calibLayerSheetBox(layerKey);
+        const centroid = layerScaleOrigin(layerKey);
+        // Anchor the opposite edge so each handle moves only its side.
+        let anchorSheet = 0.5;
+        let fixedStage = 0.5;
+        let startDist = 0;
+        if (handle === "e" || handle === "w") {
+          anchorSheet = box
+            ? handle === "e"
+              ? box.minX
+              : box.maxX
+            : centroid.x;
+          fixedStage = sheetPointToStageNorm(
+            anchorSheet,
+            centroid.y,
+            layerKey,
+            origin,
+          ).x;
+          startDist =
+            handle === "e" ? start.x - fixedStage : fixedStage - start.x;
+        } else {
+          anchorSheet = box
+            ? handle === "s"
+              ? box.minY
+              : box.maxY
+            : centroid.y;
+          fixedStage = sheetPointToStageNorm(
+            centroid.x,
+            anchorSheet,
+            layerKey,
+            origin,
+          ).y;
+          startDist =
+            handle === "s" ? start.y - fixedStage : fixedStage - start.y;
+        }
         scorecardCalibDrag = {
           mode: "resize",
           pointerId: evt.pointerId,
           layer: layerKey,
           handle,
           start,
-          center,
-          startRelX: start.x - center.x,
-          startRelY: start.y - center.y,
+          anchorSheet,
+          fixedStage,
+          startDist,
+          centroid,
           origin,
           pointers: new Map([[evt.pointerId, evt]]),
         };
@@ -8042,28 +8085,33 @@
         if (scorecardCalibDrag.mode === "resize") {
           const now = getStageNormPoint(evt);
           const handle = scorecardCalibDrag.handle || "";
-          const affectX = /e|w/.test(handle);
-          const affectY = /n|s/.test(handle);
+          const origin = scorecardCalibDrag.origin;
+          const centroid = scorecardCalibDrag.centroid || { x: 0.5, y: 0.5 };
+          const anchor = scorecardCalibDrag.anchorSheet;
+          const fixed = scorecardCalibDrag.fixedStage;
+          const startDist = scorecardCalibDrag.startDist;
           const eps = 0.004;
-          if (affectX) {
-            const startRel = scorecardCalibDrag.startRelX;
-            const nowRel = now.x - scorecardCalibDrag.center.x;
-            if (Math.abs(startRel) > eps) {
-              const ratio = Math.abs(nowRel) / Math.abs(startRel);
-              layer.scaleX = clampScorecardScale(
-                scorecardCalibDrag.origin.scaleX * Math.max(0.05, ratio),
-              );
-            }
-          }
-          if (affectY) {
-            const startRel = scorecardCalibDrag.startRelY;
-            const nowRel = now.y - scorecardCalibDrag.center.y;
-            if (Math.abs(startRel) > eps) {
-              const ratio = Math.abs(nowRel) / Math.abs(startRel);
-              layer.scaleY = clampScorecardScale(
-                scorecardCalibDrag.origin.scaleY * Math.max(0.05, ratio),
-              );
-            }
+          if ((handle === "e" || handle === "w") && Math.abs(startDist) > eps) {
+            const nowDist =
+              handle === "e" ? now.x - fixed : fixed - now.x;
+            const ratio = Math.max(0.05, nowDist / startDist);
+            const sx1 = clampScorecardScale(origin.scaleX * ratio);
+            layer.scaleX = sx1;
+            layer.offsetX = clampScorecardAlign(
+              origin.offsetX + (anchor - centroid.x) * (origin.scaleX - sx1),
+            );
+          } else if (
+            (handle === "n" || handle === "s") &&
+            Math.abs(startDist) > eps
+          ) {
+            const nowDist =
+              handle === "s" ? now.y - fixed : fixed - now.y;
+            const ratio = Math.max(0.05, nowDist / startDist);
+            const sy1 = clampScorecardScale(origin.scaleY * ratio);
+            layer.scaleY = sy1;
+            layer.offsetY = clampScorecardAlign(
+              origin.offsetY + (anchor - centroid.y) * (origin.scaleY - sy1),
+            );
           }
           applyScorecardAlignLive(false);
           return;
