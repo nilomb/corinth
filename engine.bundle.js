@@ -861,17 +861,16 @@ function applyGoodsFromMarketDestination(sheet, destId, shopMarks) {
   if (shopMarks === void 0) return "shop marks required for market goods";
   return applyShopMarks(sheet, node.effect.district, shopMarks, quota);
 }
-function applyMarketAction(sheet, pick, action) {
-  if (pick.compensation) return "use compensation action for a skip step";
+function applyStewardPath(sheet, dieValue, path, extraGold, shopMarks) {
   const pathErr = isOrthogonalPath(
-    action.path,
+    path,
     sheet.mercato.steward,
     marketUsedSet(sheet)
   );
   if (pathErr) return pathErr;
-  const steps = action.path.length - 1;
-  const cost = marketGoldCost(pick.dieValue, steps, hasMarketStable(sheet));
-  if (action.extraGold !== cost) {
+  const steps = path.length - 1;
+  const cost = marketGoldCost(dieValue, steps, hasMarketStable(sheet));
+  if (extraGold !== cost) {
     return `extra gold must be ${cost}`;
   }
   if (remainingResource(sheet, "gold") < cost) return "not enough gold";
@@ -880,14 +879,24 @@ function applyMarketAction(sheet, pick, action) {
     steps,
     marketUsedSet(sheet)
   );
-  const dest = action.path[action.path.length - 1];
+  const dest = path[path.length - 1];
   if (!dest) return "empty path";
   const options = dests.get(dest) ?? [];
-  if (!options.some((p) => samePath(p, action.path))) {
+  if (!options.some((p) => samePath(p, path))) {
     return "illegal market path";
   }
-  commitMarketPath(sheet, action.path, cost);
-  return applyGoodsFromMarketDestination(sheet, dest, action.shopMarks);
+  commitMarketPath(sheet, path, cost);
+  return applyGoodsFromMarketDestination(sheet, dest, shopMarks);
+}
+function applyMarketAction(sheet, pick, action) {
+  if (pick.compensation) return "use compensation action for a skip step";
+  return applyStewardPath(
+    sheet,
+    pick.dieValue,
+    action.path,
+    action.extraGold,
+    action.shopMarks
+  );
 }
 function applyCompensationAction(sheet, pick, action) {
   if (!pick.compensation) return "not a compensation turn";
