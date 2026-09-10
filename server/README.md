@@ -25,10 +25,10 @@ npx wrangler deploy
 
 Poi imposta `VITE_PARTY_HOST` al worker deployato (es. `corinth.nilom.workers.dev`) e rifai build / riavvia Vite.
 
-## Frontend privato (Cloudflare Pages + password)
+## Frontend online (Cloudflare Pages)
+
+Repo GitHub resta privato; il gioco è su Pages (non GitHub Pages).
 
 - Link: https://corinth.pages.dev/
-- Auth HTTP Basic (secrets `SITE_USER` / `SITE_PASSWORD`)
 - Deploy: `npm run deploy:pages`
-- Cambia password: `printf '%s' 'nuova' | npx wrangler pages secret put SITE_PASSWORD --project-name=corinth`
 

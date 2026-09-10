@@ -87,6 +87,36 @@
         gap: 10px;
         min-width: 0;
       }
+      #header-room-code {
+        font-family: "Cinzel", serif;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        color: var(--gold-lt);
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(201, 168, 76, 0.35);
+        background: rgba(201, 168, 76, 0.08);
+        cursor: pointer;
+        user-select: all;
+        -webkit-user-select: all;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: border-color 0.15s ease, background 0.15s ease;
+      }
+      #header-room-code[hidden] {
+        display: none;
+      }
+      #header-room-code:hover,
+      #header-room-code:focus-visible {
+        border-color: rgba(201, 168, 76, 0.7);
+        background: rgba(201, 168, 76, 0.16);
+        outline: none;
+      }
+      #header-room-code.copied {
+        border-color: rgba(120, 180, 120, 0.55);
+        background: rgba(120, 180, 120, 0.12);
+      }
       #menu-btn {
         width: 36px;
         height: 36px;
@@ -2126,6 +2156,16 @@
         </button>
         <h1>CORINTH</h1>
       </div>
+      <div
+        id="header-room-code"
+        hidden
+        role="button"
+        tabindex="0"
+        title="Copia codice partita"
+        aria-label="Copia codice partita"
+        onclick="copyOnlineRoomCode()"
+        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyOnlineRoomCode();}"
+      ></div>
       <div id="header-right">
         <div id="turn-info"></div>
         <button
@@ -8452,6 +8492,26 @@
         onlineRoom = null;
         onlineOpenedActionKey = null;
         onlineLastHarborSig = "";
+        setOnlineRoomCodeDisplay("");
+      }
+
+      function setOnlineRoomCodeDisplay(code) {
+        const value = String(code || "")
+          .trim()
+          .toUpperCase();
+        const lobbyEl = document.getElementById("online-room-code");
+        const headerEl = document.getElementById("header-room-code");
+        if (lobbyEl) lobbyEl.textContent = value || "————";
+        if (headerEl) {
+          if (value) {
+            headerEl.textContent = value;
+            headerEl.hidden = false;
+          } else {
+            headerEl.textContent = "";
+            headerEl.hidden = true;
+            headerEl.classList.remove("copied");
+          }
+        }
       }
 
       function showOnlineGate() {
@@ -8477,16 +8537,23 @@
 
       let onlineCodeCopiedTimer = null;
       function copyOnlineRoomCode() {
-        const codeEl = document.getElementById("online-room-code");
-        const code = (codeEl?.textContent || "").trim();
+        const lobbyEl = document.getElementById("online-room-code");
+        const headerEl = document.getElementById("header-room-code");
+        const code = (
+          onlineRoom?.code ||
+          headerEl?.textContent ||
+          lobbyEl?.textContent ||
+          ""
+        )
+          .trim()
+          .toUpperCase();
         if (!code || code === "————") return;
 
         const markCopied = () => {
-          if (!codeEl) return;
-          codeEl.classList.add("copied");
+          [lobbyEl, headerEl].forEach((el) => el?.classList.add("copied"));
           if (onlineCodeCopiedTimer) window.clearTimeout(onlineCodeCopiedTimer);
           onlineCodeCopiedTimer = window.setTimeout(() => {
-            codeEl.classList.remove("copied");
+            [lobbyEl, headerEl].forEach((el) => el?.classList.remove("copied"));
             onlineCodeCopiedTimer = null;
           }, 1600);
           setOnlineRoomStatus("Codice copiato");
@@ -8586,8 +8653,7 @@
       function renderOnlineLobby(room) {
         document.getElementById("online-lobby-gate")?.classList.add("hidden");
         document.getElementById("online-lobby-room")?.classList.remove("hidden");
-        const codeEl = document.getElementById("online-room-code");
-        if (codeEl) codeEl.textContent = room.code;
+        setOnlineRoomCodeDisplay(room.code);
         const isHost = room.hostClientId === onlineClientId;
         document
           .getElementById("online-host-controls")
