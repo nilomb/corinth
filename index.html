@@ -2222,6 +2222,9 @@
             <button class="player-btn mode-btn" onclick="chooseMainMode('online')">
               Online
             </button>
+            <button class="player-btn mode-btn" onclick="chooseMainMode('plancia')">
+              Plancia
+            </button>
           </div>
         </div>
       </div>
@@ -3528,6 +3531,10 @@
 
       function isOnline() {
         return playMode === "online" && !!onlineNet;
+      }
+
+      function isPlancia() {
+        return playMode === "plancia";
       }
 
       function canLocalAct() {
@@ -4971,6 +4978,11 @@
       function yellowDiceLimits() {
         let owned = 0;
         let goldLeft = 0;
+        if (isPlancia()) {
+          // Plancia digitale con score cartacei: 0–3 gialli liberi a ogni lancio.
+          const canEdit = !hasRolled && !isRolling;
+          return { owned: 0, maxTotal: 3, canEdit };
+        }
         if (isHotseat()) {
           const first = engineState.players.find(
             (p) => p.id === engineState.firstPlayerId,
@@ -4996,6 +5008,7 @@
       }
 
       function pendingYellowGoldSpend() {
+        if (isPlancia()) return 0;
         if (hasRolled || isRolling) return 0;
         const el = document.getElementById("yellow-dice");
         if (!el) return 0;
@@ -5060,10 +5073,14 @@
           (!isHotseat() || engineState.phase === "supply");
         if (tray) tray.hidden = !showTray;
         if (copy) {
-          copy.textContent =
-            owned > 0
-              ? `Gialli del Mercato + compra · 1 Oro l’uno`
-              : `Compra dadi gialli · 1 Oro l’uno`;
+          if (isPlancia()) {
+            copy.textContent = "Dadi gialli · scelta libera 0–3";
+          } else {
+            copy.textContent =
+              owned > 0
+                ? `Gialli del Mercato + compra · 1 Oro l’uno`
+                : `Compra dadi gialli · 1 Oro l’uno`;
+          }
         }
         slots.forEach((btn, i) => {
           const isOn = i < cur;
@@ -5071,7 +5088,21 @@
           btn.classList.toggle("is-on", isOn);
           btn.classList.toggle("is-owned", isOwned);
           btn.disabled = !canEdit || isOwned || (i >= cur && i >= maxTotal);
-          if (isOwned) {
+          if (isPlancia()) {
+            if (isOn) {
+              btn.title = "Togli questo dado giallo dal lancio";
+              btn.setAttribute(
+                "aria-label",
+                `Dado giallo ${i + 1} selezionato. Tocca per togliere`,
+              );
+            } else {
+              btn.title = "Aggiungi questo dado giallo al lancio";
+              btn.setAttribute(
+                "aria-label",
+                `Dado giallo ${i + 1}. Tocca per aggiungere`,
+              );
+            }
+          } else if (isOwned) {
             btn.title = "Dado guadagnato nel Mercato: resta nel lancio";
             btn.setAttribute("aria-label", `Dado giallo ${i + 1}, dal Mercato`);
           } else if (isOn) {
@@ -5093,7 +5124,20 @@
           }
         });
         if (costEl) {
-          if (purchased > 0) {
+          if (isPlancia()) {
+            if (showTray) {
+              costEl.hidden = false;
+              costEl.textContent =
+                cur === 0
+                  ? "Tocca per scegliere 0–3 gialli"
+                  : cur === 1
+                    ? "1 dado giallo al lancio"
+                    : `${cur} dadi gialli al lancio`;
+            } else {
+              costEl.hidden = true;
+              costEl.textContent = "";
+            }
+          } else if (purchased > 0) {
             costEl.hidden = false;
             costEl.textContent =
               purchased === 1 ? "−1 Oro al lancio" : `−${purchased} Oro al lancio`;
@@ -6102,7 +6146,13 @@
       }
 
       function isBoardGameActive() {
-        if (playMode !== "hotseat" && playMode !== "online") return false;
+        if (
+          playMode !== "hotseat" &&
+          playMode !== "online" &&
+          playMode !== "plancia"
+        ) {
+          return false;
+        }
         const setup = document.getElementById("player-setup");
         const mode = document.getElementById("mode-setup");
         const seat = document.getElementById("seat-setup");
@@ -8875,8 +8925,9 @@
           return;
         }
 
-        // Solo modalità partita: la scheda libera non è più selezionabile all'avvio.
-        playMode = "hotseat";
+        // Plancia: solo porto + turni + dadi (score cartacei).
+        // Stesso dispositivo / default: partita con segnapunti digitale.
+        playMode = mode === "plancia" ? "plancia" : "hotseat";
         document.getElementById("scorecard-page").classList.add("hidden");
         document.getElementById("scorecard-page").classList.remove(
           "turn-mode",
@@ -8889,6 +8940,12 @@
         const online = document.getElementById("online-setup");
         if (online) online.classList.add("hidden");
         document.getElementById("turn-info").textContent = "";
+        const playerSetupCopy = document.querySelector("#player-setup .setup-card p");
+        if (playerSetupCopy) {
+          playerSetupCopy.textContent = isPlancia()
+            ? "Quanti giocatori? (plancia e dadi, senza segnapunti)"
+            : "Quanti giocatori?";
+        }
 
         setBottomControlsVisible(false);
         updateHeaderScorecardBtn();
@@ -8962,7 +9019,8 @@
           renderPlayerRail();
           return;
         }
-        el.textContent = `Turno ${currentGameTurn} di ${maxGameTurns} — Giocatore ${getCurrentPlayer()}`;
+        const modeLabel = isPlancia() ? "Plancia" : "Turno";
+        el.textContent = `${modeLabel} ${currentGameTurn} di ${maxGameTurns} — Giocatore ${getCurrentPlayer()}`;
       }
 
       function nextPlayerContext() {
@@ -9102,14 +9160,28 @@
         document.getElementById("scoreboard").classList.remove("show");
         scorecardTurn = null;
         clearScorecardCanvas();
-        playMode = "hotseat";
-        engineState = createInitialState(n);
         localSeat = 0;
         viewingSeat = 0;
+        document.getElementById("yellow-dice").value = "0";
+
+        if (playMode === "plancia") {
+          engineState = null;
+          if (seatEl) seatEl.classList.add("hidden");
+          document.getElementById("roll-btn").disabled = false;
+          setBottomControlsVisible(true);
+          syncYellowDiceSelect();
+          updateTurnInfo();
+          refreshHUD();
+          setStatus();
+          updateHeaderScorecardBtn();
+          return;
+        }
+
+        playMode = "hotseat";
+        engineState = createInitialState(n);
         loadEngineSheet(0);
         syncHudFromEngine();
         document.getElementById("roll-btn").disabled = true;
-        document.getElementById("yellow-dice").value = "0";
         syncYellowDiceSelect();
         setBottomControlsVisible(false);
         updateTurnInfo();
@@ -9652,6 +9724,18 @@
 
         playerHasPicked = true;
         setAllDistricts(false);
+
+        if (isPlancia()) {
+          // Solo plancia digitale: avanza i turni senza aprire il segnapunti.
+          pickIndex += 1;
+          if (pickIndex < pickSequence.length) {
+            setTimeout(nextPlayerContext, 300);
+          } else {
+            markRoundTurnDie();
+            endTurn();
+          }
+          return;
+        }
 
         openScorecardForTurn({
           player: _lp,
