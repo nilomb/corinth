@@ -1219,40 +1219,14 @@
         pointer-events: auto;
       }
       #scorecard-page.calibrating .scorecard-hit {
-        /* Pallini guida: drag/scale sul riquadro + maniglie laterali. */
+        /* Hit invisibili in calib: le guide (cerchi/X) sono sul canvas. */
         pointer-events: none;
         cursor: default;
         touch-action: none;
         outline: none !important;
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
-      }
-      #scorecard-page.calibrating .scorecard-hit[data-layer="bonus"] {
-        background: rgba(210, 70, 170, 0.9);
-      }
-      #scorecard-page.calibrating .scorecard-hit[data-layer="shops"] {
-        background: rgba(80, 180, 255, 0.9);
-      }
-      #scorecard-page.calibrating .scorecard-hit[data-layer="turns"] {
-        background: rgba(255, 140, 70, 0.9);
-      }
-      #scorecard-page.calibrating .scorecard-hit[data-layer="market"] {
-        background: rgba(201, 168, 76, 0.92);
-      }
-      #scorecard-page.calibrating .scorecard-hit[data-layer="gold"] {
-        background: rgba(240, 200, 50, 0.92);
-      }
-      #scorecard-page.calibrating .scorecard-hit[data-layer="goats"] {
-        background: rgba(120, 170, 70, 0.9);
-      }
-      #scorecard-page.calibrating .scorecard-hit[data-layer="buildings"] {
-        background: rgba(190, 90, 50, 0.9);
-      }
-      #scorecard-page.calibrating .scorecard-hit.is-disabled {
-        pointer-events: none;
-      }
-      #scorecard-page.calibrating .scorecard-hit:not(.is-cal-active) {
+        background: transparent !important;
+        box-shadow: none;
         visibility: hidden;
-        pointer-events: none;
       }
       .cal-layer-box {
         display: none;
@@ -2480,8 +2454,9 @@
             <div id="scorecard-calibrator-body" class="cal-panel-body">
               <div class="cal-help">
                 Scegli il gruppo e usa gli slider. Trascina il riquadro; ogni
-                maniglia muove solo quel lato (pinch = scala uniforme). I
-                pallini sono solo guida. Esc/Chiudi per uscire.
+                maniglia muove solo quel lato (pinch = scala uniforme). Cerchi
+                (oro/capre/mercato) e X (altri) sono guide. Esc/Chiudi per
+                uscire.
               </div>
               <div class="cal-sliders">
                 <div class="cal-row">
@@ -5601,6 +5576,40 @@
         }
       }
 
+      function calibGuideStroke(layer) {
+        const colors = {
+          bonus: "rgba(210, 70, 170, 0.95)",
+          shops: "rgba(40, 140, 230, 0.95)",
+          turns: "rgba(255, 140, 70, 0.95)",
+          market: "rgba(180, 140, 40, 0.95)",
+          gold: "rgba(210, 160, 20, 0.95)",
+          goats: "rgba(90, 150, 50, 0.95)",
+          buildings: "rgba(190, 90, 50, 0.95)",
+        };
+        return colors[layer] || "rgba(22, 14, 6, 0.9)";
+      }
+
+      /** During calib, draw full-size mark shapes for the active layer. */
+      function renderCalibGuides(ctx) {
+        const layer = scorecardCalibrateLayer;
+        const pts = calibLayerNormPoints(layer);
+        if (!pts.length) return;
+        const stroke = calibGuideStroke(layer);
+        const useCircle = layer === "market" || layer === "gold" || layer === "goats";
+        const useOval = layer === "gold" || layer === "goats";
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = stroke;
+        pts.forEach((sym) => {
+          const pt = sheetToStage(sym.x, sym.y, layer);
+          const r = Math.max(6, (sym.r || 0.014) * pt.scale);
+          ctx.lineWidth = Math.max(2.2, r * (useOval ? 0.32 : 0.26));
+          if (useOval) drawMarkOval(ctx, pt.x, pt.y, r);
+          else if (useCircle) drawMarkCircle(ctx, pt.x, pt.y, r * 1.05);
+          else drawMarkX(ctx, pt.x, pt.y, layer === "turns" ? r * 0.7 : r);
+        });
+      }
+
       function renderScorecardMarks() {
         const preview = scorecardPreviewTarget;
         const ctx = preview ? preview.ctx : scorecardMarksCtx;
@@ -5608,6 +5617,11 @@
         if (!preview && !scorecardStage) return;
         const { w, h } = stageSize();
         ctx.clearRect(0, 0, w, h);
+        if (!preview && isScorecardCalibrating()) {
+          renderCalibGuides(ctx);
+          updateScorecardFocusHighlight();
+          return;
+        }
         const view = preview ? preview.view : effectiveDigitalView();
         const stroke = "rgba(22, 14, 6, 0.95)";
         const pendingStroke = "rgba(139, 26, 26, 0.9)";
