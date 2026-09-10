@@ -27,8 +27,8 @@
         --dim-g: 131;
         --dim-b: 152;
         --dim-opacity: 0.06;
-        --dim-gray: 0.12;
-        --dim-blur: 0.6px;
+        --dim-gray: 1;
+        --dim-blur: 0px;
         --dim-bright: 0.98;
         --dim-radius: 8px;
       }
@@ -39,8 +39,8 @@
           --dim-g: 131;
           --dim-b: 152;
           --dim-opacity: 0.06;
-          --dim-gray: 0.12;
-          --dim-blur: 0.6px;
+          --dim-gray: 1;
+          --dim-blur: 0px;
           --dim-bright: 0.98;
           --dim-radius: 8px;
         }
@@ -302,6 +302,32 @@
         color: var(--gold-lt);
         white-space: nowrap;
       }
+      #draft-commit-hint {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 12;
+        max-width: min(320px, calc(100% - 32px));
+        padding: 8px 14px 10px;
+        border-radius: 14px;
+        background: rgba(12, 8, 4, 0.78);
+        border: 1px solid rgba(201, 168, 76, 0.45);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        pointer-events: none;
+        text-align: center;
+      }
+      #draft-commit-hint[hidden] {
+        display: none;
+      }
+      #draft-commit-hint-copy {
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        line-height: 1.45;
+        color: var(--gold-lt);
+      }
       #yellow-buy-slots {
         display: flex;
         gap: 8px;
@@ -394,6 +420,19 @@
       .player-chip.to-play {
         background: rgba(244, 255, 0, 0.28);
         color: var(--gold-lt);
+        border-color: var(--gold-lt);
+        animation: player-chip-glow-pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes player-chip-glow-pulse {
+        0%,
+        100% {
+          filter: drop-shadow(0 0 3px rgba(244, 255, 0, 0.45))
+            drop-shadow(0 0 8px rgba(201, 168, 76, 0.3));
+        }
+        50% {
+          filter: drop-shadow(0 0 7px rgba(244, 255, 0, 0.9))
+            drop-shadow(0 0 16px rgba(201, 168, 76, 0.65));
+        }
       }
       .player-chip.viewing {
         box-shadow: inset 0 0 0 1px var(--gold-lt);
@@ -1226,6 +1265,29 @@
         z-index: 5;
         pointer-events: none;
       }
+      .cal-split-handle {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 28px;
+        height: 44px;
+        margin: -22px 0 0 -14px;
+        padding: 0;
+        border-radius: 8px;
+        border: 1.5px solid rgba(26, 16, 8, 0.7);
+        background: rgba(245, 230, 200, 0.95);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+        cursor: ew-resize;
+        touch-action: none;
+        pointer-events: auto;
+      }
+      .scorecard-split-line.is-selected .cal-split-handle {
+        box-shadow:
+          0 0 0 2px rgba(201, 168, 76, 0.95),
+          0 1px 3px rgba(0, 0, 0, 0.35);
+        background: rgba(255, 244, 214, 1);
+      }
       #scorecard-split-band {
         display: none;
         position: absolute;
@@ -1237,6 +1299,12 @@
       }
       #scorecard-page.calibrating .scorecard-split-line,
       #scorecard-page.calibrating #scorecard-split-band {
+        display: block;
+      }
+      #scorecard-page.calibrating .scorecard-split-line {
+        pointer-events: auto;
+      }
+      #scorecard-page.calibrating .cal-split-handle {
         display: block;
       }
       #scorecard-page.calibrating #scorecard-hit-layer {
@@ -1410,38 +1478,6 @@
         border-radius: 6px;
         padding: 6px 8px;
         accent-color: rgba(201, 168, 76, 0.95);
-      }
-      .scorecard-calibrator .cal-sliders {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2px 10px;
-      }
-      .scorecard-calibrator .cal-row {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        min-width: 0;
-      }
-      .scorecard-calibrator label {
-        width: 54px;
-        flex-shrink: 0;
-        font-size: 10px;
-        color: var(--gold-lt);
-      }
-      .scorecard-calibrator input[type="range"] {
-        flex: 1;
-        min-width: 0;
-        height: 14px;
-        margin: 0;
-        accent-color: rgba(201, 168, 76, 0.95);
-      }
-      .scorecard-calibrator .cal-val {
-        width: 38px;
-        flex-shrink: 0;
-        text-align: right;
-        font-size: 10px;
-        font-family: "Cinzel", serif;
-        color: var(--gold-lt);
       }
       .scorecard-calibrator .cal-actions {
         display: flex;
@@ -2208,6 +2244,12 @@
         <span id="yellow-dice-cost" hidden></span>
         <input type="hidden" id="yellow-dice" value="0" />
       </div>
+      <div id="draft-commit-hint" hidden>
+        <p id="draft-commit-hint-copy">
+          Dopo il lancio, una volta scelto un distretto non puoi rimettere i dadi
+          a posto.
+        </p>
+      </div>
 
       <div id="mode-setup" class="hidden" aria-hidden="true">
         <div class="setup-card">
@@ -2415,8 +2457,30 @@
                   <canvas id="scorecard-marks-canvas" aria-hidden="true"></canvas>
                   <div id="scorecard-focus-layer" aria-hidden="true"></div>
                   <div id="scorecard-split-band"></div>
-                  <div id="scorecard-split-line-left" class="scorecard-split-line"></div>
-                  <div id="scorecard-split-line-right" class="scorecard-split-line"></div>
+                  <div
+                    id="scorecard-split-line-left"
+                    class="scorecard-split-line"
+                    data-split="left"
+                  >
+                    <button
+                      type="button"
+                      class="cal-split-handle"
+                      data-split="left"
+                      aria-label="Rombi sinistra"
+                    ></button>
+                  </div>
+                  <div
+                    id="scorecard-split-line-right"
+                    class="scorecard-split-line"
+                    data-split="right"
+                  >
+                    <button
+                      type="button"
+                      class="cal-split-handle"
+                      data-split="right"
+                      aria-label="Rombi destra"
+                    ></button>
+                  </div>
                   <div id="scorecard-hit-layer" aria-hidden="false"></div>
                 </div>
               </div>
@@ -2466,6 +2530,8 @@
                 <option value="gold">Monete</option>
                 <option value="goats">Capre</option>
                 <option value="buildings">Edifici</option>
+                <option value="splitLeft">Rombi sx</option>
+                <option value="splitRight">Rombi dx</option>
               </select>
               <button
                 type="button"
@@ -2480,84 +2546,8 @@
             </div>
             <div id="scorecard-calibrator-body" class="cal-panel-body">
               <div class="cal-help">
-                Scegli il gruppo e usa gli slider. Trascina il riquadro; ogni
-                maniglia muove solo quel lato (pinch = scala uniforme). Cerchi
-                (oro/capre/mercato) e X (altri) sono guide. Esc/Chiudi per
-                uscire.
-              </div>
-              <div class="cal-sliders">
-                <div class="cal-row">
-                  <label for="cal-offset-x">Offset X</label>
-                  <input
-                    id="cal-offset-x"
-                    type="range"
-                    min="-80"
-                    max="80"
-                    value="0"
-                    oninput="onScorecardCalibratorInput()"
-                  />
-                  <span class="cal-val" id="cal-offset-x-val">0.0%</span>
-                </div>
-                <div class="cal-row">
-                  <label for="cal-offset-y">Offset Y</label>
-                  <input
-                    id="cal-offset-y"
-                    type="range"
-                    min="-80"
-                    max="80"
-                    value="0"
-                    oninput="onScorecardCalibratorInput()"
-                  />
-                  <span class="cal-val" id="cal-offset-y-val">0.0%</span>
-                </div>
-                <div class="cal-row">
-                  <label for="cal-scale-x">Scala X</label>
-                  <input
-                    id="cal-scale-x"
-                    type="range"
-                    min="40"
-                    max="400"
-                    value="100"
-                    oninput="onScorecardCalibratorInput()"
-                  />
-                  <span class="cal-val" id="cal-scale-x-val">100%</span>
-                </div>
-                <div class="cal-row">
-                  <label for="cal-scale-y">Scala Y</label>
-                  <input
-                    id="cal-scale-y"
-                    type="range"
-                    min="40"
-                    max="400"
-                    value="100"
-                    oninput="onScorecardCalibratorInput()"
-                  />
-                  <span class="cal-val" id="cal-scale-y-val">100%</span>
-                </div>
-                <div class="cal-row">
-                  <label for="cal-split-left">Rombi sx</label>
-                  <input
-                    id="cal-split-left"
-                    type="range"
-                    min="400"
-                    max="500"
-                    value="438"
-                    oninput="onScorecardCalibratorInput()"
-                  />
-                  <span class="cal-val" id="cal-split-left-val">43.8%</span>
-                </div>
-                <div class="cal-row">
-                  <label for="cal-split-right">Rombi dx</label>
-                  <input
-                    id="cal-split-right"
-                    type="range"
-                    min="490"
-                    max="560"
-                    value="532"
-                    oninput="onScorecardCalibratorInput()"
-                  />
-                  <span class="cal-val" id="cal-split-right-val">53.2%</span>
-                </div>
+                Trascina riquadro e maniglie (pinch = scala). Le linee verticali
+                spostano i rombi. Esc/Chiudi per uscire.
               </div>
               <div class="cal-actions">
                 <button type="button" onclick="nudgeScorecardAlign(-1, 0)">←</button>
@@ -2565,7 +2555,6 @@
                 <button type="button" onclick="nudgeScorecardAlign(0, -1)">↑</button>
                 <button type="button" onclick="nudgeScorecardAlign(0, 1)">↓</button>
                 <button type="button" onclick="resetScorecardAlign()">Azzera</button>
-                <button type="button" onclick="copyScorecardAlign()">Copia valori</button>
                 <button type="button" class="cal-close" onclick="closeScorecardCalibrator()">
                   Chiudi
                 </button>
@@ -2920,7 +2909,8 @@
                     Se un giocatore non può effettuare alcuna azione legale con
                     i dadi rimasti, o se il lancio ha generato meno gruppi di
                     dadi rispetto al numero di giocatori, i giocatori esclusi
-                    possono muovere l'Intendente di 1 passo come compensazione.
+                    possono muovere l'Intendente di esattamente 1 passo come
+                    compensazione (senza monete d'oro né abilità della Stalla).
                   </p>
                 </div>
               </details>
@@ -3151,15 +3141,16 @@
         scoreSheet,
         usableDistricts,
       } from "./engine.bundle.js";
-
-      // TEMP test: mark shop Xs freely (no dice). Set false when done verifying
-      // district-completion bonus (circle for first, cross for others).
-      const SHOP_FREE_TEST = false;
       import {
         connectRoom,
         getOrCreateClientId,
         randomRoomCode,
       } from "./net/multiplayer.js";
+
+      // TEMP test: mark shop Xs freely (no dice). Set false when done verifying
+      // district-completion bonus (circle for first, cross for others).
+      const SHOP_FREE_TEST = false;
+      document.body.classList.toggle("shop-free-test", SHOP_FREE_TEST);
 
       const THREE = window.THREE;
       const CANNON = window.CANNON;
@@ -3478,6 +3469,9 @@
       };
       const shopProgress = { Oil: 0, Wine: 0, Carpets: 0, Spices: 0 };
 
+      /** false = nasconde l’avviso al centro della plancia vuota. */
+      const SHOW_DRAFT_COMMIT_HINT = true;
+
       let hasRolled = false;
       let pickedThisTurn = new Set(); // distretti già scelti in questo turno
       let isRolling = false;
@@ -3580,6 +3574,12 @@
         return SHOP_FREE_TEST && playMode === "hotseat" && !!engineState && !isOnline();
       }
 
+      function isScorecardConsultReadOnly() {
+        if (shopFreeTestActive()) return false;
+        const page = document.getElementById("scorecard-page");
+        return !!(page && page.classList.contains("consult-mode"));
+      }
+
       /** TEMP: place shop marks without dice; auto-claims district bonus. */
       function applyShopFreeTestMark(districtId, shopIndex, symIndex) {
         if (!shopFreeTestActive()) return false;
@@ -3612,10 +3612,6 @@
           );
         }
         return true;
-      }
-
-      if (SHOP_FREE_TEST) {
-        document.body.classList.add("shop-free-test");
       }
 
       function syncHudFromEngine() {
@@ -3875,6 +3871,11 @@
       const SCORECARD_ALIGN_KEY_LEGACY = "corinth-scorecard-align-v2";
       const SCORECARD_SPLIT_LEFT_DEFAULT = 0.438;
       const SCORECARD_SPLIT_RIGHT_DEFAULT = 0.532;
+      const SCORECARD_SPLIT_LEFT_MIN = 0.4;
+      const SCORECARD_SPLIT_LEFT_MAX = 0.5;
+      const SCORECARD_SPLIT_RIGHT_MIN = 0.49;
+      const SCORECARD_SPLIT_RIGHT_MAX = 0.56;
+      const SCORECARD_SPLIT_GAP = 0.02;
       const SCORECARD_ALIGN_CLAMP = 0.08;
       const SCORECARD_CAL_LAYERS = [
         { id: "bonus", label: "Solo bonus" },
@@ -3904,6 +3905,9 @@
       function isCalLayer(layer) {
         return SCORECARD_CAL_LAYER_IDS.indexOf(layer) !== -1;
       }
+      function isCalSplit(layer) {
+        return layer === "splitLeft" || layer === "splitRight";
+      }
       let scorecardAlign = emptyScorecardAlign();
       let scorecardCalibrateLayer = "market";
       let scorecardCalibDrag = null;
@@ -3932,7 +3936,7 @@
        * Se un simbolo non combacia a video, ricalibrare SCORECARD_SHEET_LAYOUT.
        * Mercato: griglia 5×5 in SCORECARD_MARKET_LAYOUT. */
       const SCORECARD_DIGITAL_STORAGE_KEY = "corinth-scorecard-digital-v1";
-      const SCORECARD_SHEET_LAYOUT = {"districts":{"orange":{"bonus":null,"shops":[{"points":4,"symbols":[{"x":0.20177,"y":0.17525,"r":0.01471},{"x":0.20177,"y":0.22794,"r":0.01471}]},{"points":5,"symbols":[{"x":0.30834,"y":0.17525,"r":0.01471},{"x":0.30834,"y":0.22794,"r":0.01471}]},{"points":10,"symbols":[{"x":0.39975,"y":0.17525,"r":0.01471},{"x":0.42797,"y":0.17525,"r":0.01471},{"x":0.39975,"y":0.22794,"r":0.01471},{"x":0.42797,"y":0.22794,"r":0.01471}]}]},"blue":{"bonus":{"points":3,"x":0.04002,"y":0.31863,"r":0.01348},"shops":[{"points":3,"symbols":[{"x":0.20177,"y":0.36336,"r":0.01471},{"x":0.20177,"y":0.41422,"r":0.01471}]},{"points":5,"symbols":[{"x":0.30792,"y":0.36336,"r":0.01471},{"x":0.29402,"y":0.41422,"r":0.01471},{"x":0.32182,"y":0.41422,"r":0.01471}]},{"points":8,"symbols":[{"x":0.40059,"y":0.36336,"r":0.01471},{"x":0.42460,"y":0.36336,"r":0.01471},{"x":0.40059,"y":0.41422,"r":0.01471},{"x":0.42460,"y":0.41422,"r":0.01471}]}]},"purple":{"bonus":{"points":4,"x":0.04002,"y":0.50245,"r":0.01348},"shops":[{"points":2,"symbols":[{"x":0.20219,"y":0.55025,"r":0.01471},{"x":0.20219,"y":0.60049,"r":0.01471}]},{"points":3,"symbols":[{"x":0.27296,"y":0.55025,"r":0.01471},{"x":0.25864,"y":0.60049,"r":0.01471},{"x":0.28728,"y":0.60049,"r":0.01471}]},{"points":4,"symbols":[{"x":0.34372,"y":0.55025,"r":0.01471},{"x":0.3294,"y":0.60049,"r":0.01471},{"x":0.35805,"y":0.60049,"r":0.01471}]},{"points":6,"symbols":[{"x":0.40017,"y":0.55025,"r":0.01471},{"x":0.42881,"y":0.55025,"r":0.01471},{"x":0.40017,"y":0.60049,"r":0.01471},{"x":0.42881,"y":0.60049,"r":0.01471}]}]},"green":{"bonus":{"points":5,"x":0.04002,"y":0.68627,"r":0.01348},"shops":[{"points":1,"symbols":[{"x":0.17397,"y":0.73346,"r":0.01471},{"x":0.17397,"y":0.78493,"r":0.01471}]},{"points":2,"symbols":[{"x":0.24431,"y":0.73346,"r":0.01471},{"x":0.23041,"y":0.78493,"r":0.01471},{"x":0.25864,"y":0.78493,"r":0.01471}]},{"points":3,"symbols":[{"x":0.31592,"y":0.73346,"r":0.01471},{"x":0.3016,"y":0.78493,"r":0.01471},{"x":0.33024,"y":0.78493,"r":0.01471}]},{"points":6,"symbols":[{"x":0.38669,"y":0.73346,"r":0.01471},{"x":0.41533,"y":0.73346,"r":0.01471},{"x":0.37237,"y":0.78493,"r":0.01471},{"x":0.40101,"y":0.78493,"r":0.01471},{"x":0.42881,"y":0.78493,"r":0.01471}]}]}},"gold":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.50551,"r":0.01348},{"x":0.65543,"y":0.50551,"r":0.01348},{"x":0.68324,"y":0.50551,"r":0.01348},{"x":0.71104,"y":0.50551,"r":0.01348},{"x":0.73884,"y":0.50551,"r":0.01348},{"x":0.76664,"y":0.50551,"r":0.01348},{"x":0.79444,"y":0.50551,"r":0.01348},{"x":0.82224,"y":0.50551,"r":0.01348},{"x":0.85004,"y":0.50551,"r":0.01348},{"x":0.87784,"y":0.50551,"r":0.01348},{"x":0.90564,"y":0.50551,"r":0.01348},{"x":0.93345,"y":0.50551,"r":0.01348},{"x":0.62763,"y":0.55147,"r":0.01348},{"x":0.65543,"y":0.55147,"r":0.01348},{"x":0.68324,"y":0.55147,"r":0.01348},{"x":0.71104,"y":0.55147,"r":0.01348},{"x":0.73884,"y":0.55147,"r":0.01348},{"x":0.76664,"y":0.55147,"r":0.01348},{"x":0.79444,"y":0.55147,"r":0.01348},{"x":0.82224,"y":0.55147,"r":0.01348},{"x":0.85004,"y":0.55147,"r":0.01348},{"x":0.87784,"y":0.55147,"r":0.01348},{"x":0.90564,"y":0.55147,"r":0.01348},{"x":0.93345,"y":0.55147,"r":0.01348}]},"goats":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.625,"r":0.01348},{"x":0.65543,"y":0.625,"r":0.01348},{"x":0.68324,"y":0.625,"r":0.01348},{"x":0.71104,"y":0.625,"r":0.01348},{"x":0.73884,"y":0.625,"r":0.01348},{"x":0.76664,"y":0.625,"r":0.01348},{"x":0.79444,"y":0.625,"r":0.01348},{"x":0.82224,"y":0.625,"r":0.01348},{"x":0.85004,"y":0.625,"r":0.01348},{"x":0.87784,"y":0.625,"r":0.01348},{"x":0.90564,"y":0.625,"r":0.01348},{"x":0.93345,"y":0.625,"r":0.01348},{"x":0.62763,"y":0.67402,"r":0.01348},{"x":0.65543,"y":0.67402,"r":0.01348},{"x":0.68324,"y":0.67402,"r":0.01348},{"x":0.71104,"y":0.67402,"r":0.01348},{"x":0.73884,"y":0.67402,"r":0.01348},{"x":0.76664,"y":0.67402,"r":0.01348},{"x":0.79444,"y":0.67402,"r":0.01348},{"x":0.82224,"y":0.67402,"r":0.01348},{"x":0.85004,"y":0.67402,"r":0.01348},{"x":0.87784,"y":0.67402,"r":0.01348},{"x":0.90564,"y":0.67402,"r":0.01348},{"x":0.93345,"y":0.67402,"r":0.01348}]},"turns":{"count":6,"slots":[{"x":0.09309,"y":0.93076,"r":0.02206},{"x":0.15459,"y":0.93076,"r":0.02206},{"x":0.22199,"y":0.93076,"r":0.02206},{"x":0.28391,"y":0.93076,"r":0.02206},{"x":0.34541,"y":0.93076,"r":0.02206},{"x":0.40733,"y":0.93076,"r":0.02206}]},"freehandRegions":{"mercato":{"x":0.46335,"y":0.02451,"w":0.52233,"h":0.31863},"edifici":{"x":0.46335,"y":0.68627,"w":0.52233,"h":0.29412}},"scoreDiamonds":{"orange":{"x":0.499,"y":0.1924,"r":0.028},"market":{"x":0.499,"y":0.2843,"r":0.028},"blue":{"x":0.499,"y":0.375,"r":0.028},"gold":{"x":0.4988,"y":0.4663,"r":0.028},"purple":{"x":0.499,"y":0.5576,"r":0.028},"goats":{"x":0.4988,"y":0.6489,"r":0.028},"green":{"x":0.4991,"y":0.7396,"r":0.028},"temple":{"x":0.4988,"y":0.8307,"r":0.028}},"scoreOctagon":{"x":0.499,"y":0.9353,"r":0.033},"buildings":[{"id":"temple","gold":3,"goats":3,"x":0.6213,"y":0.8211,"r":0.016},{"id":"warehouse","gold":4,"goats":4,"x":0.7178,"y":0.8211,"r":0.016},{"id":"stable","gold":2,"goats":1,"x":0.8142,"y":0.8211,"r":0.016},{"id":"store","gold":0,"goats":2,"x":0.9103,"y":0.8211,"r":0.016}],"resourceOval":{"rotationDeg":-22,"rxScale":1.38,"ryScale":1.58,"color":"#2a2520","lineWidthScale":0.38}};
+      const SCORECARD_SHEET_LAYOUT = {"districts":{"orange":{"bonus":null,"shops":[{"points":4,"symbols":[{"x":0.20177,"y":0.17525,"r":0.01471},{"x":0.20177,"y":0.22794,"r":0.01471}]},{"points":5,"symbols":[{"x":0.30834,"y":0.17525,"r":0.01471},{"x":0.30834,"y":0.22794,"r":0.01471}]},{"points":10,"symbols":[{"x":0.39975,"y":0.17525,"r":0.01471},{"x":0.42797,"y":0.17525,"r":0.01471},{"x":0.39975,"y":0.22794,"r":0.01471},{"x":0.42797,"y":0.22794,"r":0.01471}]}]},"blue":{"bonus":{"points":3,"x":0.058,"y":0.31863,"r":0.01348},"shops":[{"points":3,"symbols":[{"x":0.20177,"y":0.36336,"r":0.01471},{"x":0.20177,"y":0.41422,"r":0.01471}]},{"points":5,"symbols":[{"x":0.30792,"y":0.36336,"r":0.01471},{"x":0.29402,"y":0.41422,"r":0.01471},{"x":0.32182,"y":0.41422,"r":0.01471}]},{"points":8,"symbols":[{"x":0.40059,"y":0.36336,"r":0.01471},{"x":0.42460,"y":0.36336,"r":0.01471},{"x":0.40059,"y":0.41422,"r":0.01471},{"x":0.42460,"y":0.41422,"r":0.01471}]}]},"purple":{"bonus":{"points":4,"x":0.058,"y":0.50245,"r":0.01348},"shops":[{"points":2,"symbols":[{"x":0.20219,"y":0.55025,"r":0.01471},{"x":0.20219,"y":0.60049,"r":0.01471}]},{"points":3,"symbols":[{"x":0.27296,"y":0.55025,"r":0.01471},{"x":0.25864,"y":0.60049,"r":0.01471},{"x":0.28728,"y":0.60049,"r":0.01471}]},{"points":4,"symbols":[{"x":0.34372,"y":0.55025,"r":0.01471},{"x":0.3294,"y":0.60049,"r":0.01471},{"x":0.35805,"y":0.60049,"r":0.01471}]},{"points":6,"symbols":[{"x":0.40017,"y":0.55025,"r":0.01471},{"x":0.42881,"y":0.55025,"r":0.01471},{"x":0.40017,"y":0.60049,"r":0.01471},{"x":0.42881,"y":0.60049,"r":0.01471}]}]},"green":{"bonus":{"points":5,"x":0.059,"y":0.68627,"r":0.01348},"shops":[{"points":1,"symbols":[{"x":0.17397,"y":0.73346,"r":0.01471},{"x":0.17397,"y":0.78493,"r":0.01471}]},{"points":2,"symbols":[{"x":0.24431,"y":0.73346,"r":0.01471},{"x":0.23041,"y":0.78493,"r":0.01471},{"x":0.25864,"y":0.78493,"r":0.01471}]},{"points":3,"symbols":[{"x":0.31592,"y":0.73346,"r":0.01471},{"x":0.3016,"y":0.78493,"r":0.01471},{"x":0.33024,"y":0.78493,"r":0.01471}]},{"points":6,"symbols":[{"x":0.38669,"y":0.73346,"r":0.01471},{"x":0.41533,"y":0.73346,"r":0.01471},{"x":0.37237,"y":0.78493,"r":0.01471},{"x":0.40101,"y":0.78493,"r":0.01471},{"x":0.42881,"y":0.78493,"r":0.01471}]}]}},"gold":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.50551,"r":0.01348},{"x":0.65543,"y":0.50551,"r":0.01348},{"x":0.68324,"y":0.50551,"r":0.01348},{"x":0.71104,"y":0.50551,"r":0.01348},{"x":0.73884,"y":0.50551,"r":0.01348},{"x":0.76664,"y":0.50551,"r":0.01348},{"x":0.79444,"y":0.50551,"r":0.01348},{"x":0.82224,"y":0.50551,"r":0.01348},{"x":0.85004,"y":0.50551,"r":0.01348},{"x":0.87784,"y":0.50551,"r":0.01348},{"x":0.90564,"y":0.50551,"r":0.01348},{"x":0.93345,"y":0.50551,"r":0.01348},{"x":0.62763,"y":0.55147,"r":0.01348},{"x":0.65543,"y":0.55147,"r":0.01348},{"x":0.68324,"y":0.55147,"r":0.01348},{"x":0.71104,"y":0.55147,"r":0.01348},{"x":0.73884,"y":0.55147,"r":0.01348},{"x":0.76664,"y":0.55147,"r":0.01348},{"x":0.79444,"y":0.55147,"r":0.01348},{"x":0.82224,"y":0.55147,"r":0.01348},{"x":0.85004,"y":0.55147,"r":0.01348},{"x":0.87784,"y":0.55147,"r":0.01348},{"x":0.90564,"y":0.55147,"r":0.01348},{"x":0.93345,"y":0.55147,"r":0.01348}]},"goats":{"count":24,"preCircled":1,"symbols":[{"x":0.62763,"y":0.625,"r":0.01348},{"x":0.65543,"y":0.625,"r":0.01348},{"x":0.68324,"y":0.625,"r":0.01348},{"x":0.71104,"y":0.625,"r":0.01348},{"x":0.73884,"y":0.625,"r":0.01348},{"x":0.76664,"y":0.625,"r":0.01348},{"x":0.79444,"y":0.625,"r":0.01348},{"x":0.82224,"y":0.625,"r":0.01348},{"x":0.85004,"y":0.625,"r":0.01348},{"x":0.87784,"y":0.625,"r":0.01348},{"x":0.90564,"y":0.625,"r":0.01348},{"x":0.93345,"y":0.625,"r":0.01348},{"x":0.62763,"y":0.67402,"r":0.01348},{"x":0.65543,"y":0.67402,"r":0.01348},{"x":0.68324,"y":0.67402,"r":0.01348},{"x":0.71104,"y":0.67402,"r":0.01348},{"x":0.73884,"y":0.67402,"r":0.01348},{"x":0.76664,"y":0.67402,"r":0.01348},{"x":0.79444,"y":0.67402,"r":0.01348},{"x":0.82224,"y":0.67402,"r":0.01348},{"x":0.85004,"y":0.67402,"r":0.01348},{"x":0.87784,"y":0.67402,"r":0.01348},{"x":0.90564,"y":0.67402,"r":0.01348},{"x":0.93345,"y":0.67402,"r":0.01348}]},"turns":{"count":6,"slots":[{"x":0.09309,"y":0.93076,"r":0.02206},{"x":0.15459,"y":0.93076,"r":0.02206},{"x":0.22199,"y":0.93076,"r":0.02206},{"x":0.28391,"y":0.93076,"r":0.02206},{"x":0.34541,"y":0.93076,"r":0.02206},{"x":0.40733,"y":0.93076,"r":0.02206}]},"freehandRegions":{"mercato":{"x":0.46335,"y":0.02451,"w":0.52233,"h":0.31863},"edifici":{"x":0.46335,"y":0.68627,"w":0.52233,"h":0.29412}},"scoreDiamonds":{"orange":{"x":0.499,"y":0.1924,"r":0.028},"market":{"x":0.499,"y":0.2843,"r":0.028},"blue":{"x":0.499,"y":0.375,"r":0.028},"gold":{"x":0.4988,"y":0.4663,"r":0.028},"purple":{"x":0.499,"y":0.5576,"r":0.028},"goats":{"x":0.4988,"y":0.6489,"r":0.028},"green":{"x":0.4991,"y":0.7396,"r":0.028},"temple":{"x":0.4988,"y":0.8307,"r":0.028}},"scoreOctagon":{"x":0.499,"y":0.9353,"r":0.033},"buildings":[{"id":"temple","gold":3,"goats":3,"x":0.6213,"y":0.8211,"r":0.016},{"id":"warehouse","gold":4,"goats":4,"x":0.7178,"y":0.8211,"r":0.016},{"id":"stable","gold":2,"goats":1,"x":0.8142,"y":0.8211,"r":0.016},{"id":"store","gold":0,"goats":2,"x":0.9103,"y":0.8211,"r":0.016}],"resourceOval":{"rotationDeg":-22,"rxScale":1.38,"ryScale":1.58,"color":"#2a2520","lineWidthScale":0.38}};
 
       const SCORECARD_MARKET_LAYOUT = (() => {
         const ox = 0.76874;
@@ -5266,6 +5270,28 @@
         }
         syncYellowSupplyOnBoard(cur, showTray);
         if (scorecardDigitalReady) renderScorecardMarks();
+        syncDraftCommitHint();
+      }
+
+      function syncDraftCommitHint() {
+        const hint = document.getElementById("draft-commit-hint");
+        if (!hint) return;
+        if (!SHOW_DRAFT_COMMIT_HINT) {
+          hint.hidden = true;
+          return;
+        }
+        const controls = document.getElementById("bottom-controls");
+        const controlsVisible = !!(
+          controls && controls.style.display !== "none"
+        );
+        // Plancia vuota, prima del lancio; sparisce al click su «Lancia i dadi».
+        const show =
+          controlsVisible &&
+          !hasRolled &&
+          !isRolling &&
+          !scorecardTurn &&
+          (!isHotseat() || !engineState || engineState.phase === "supply");
+        hint.hidden = !show;
       }
 
       function adjustYellowDice(delta) {
@@ -5508,7 +5534,28 @@
         if (!scorecardTurn || !scorecardDigitalState) return false;
         normalizeMercatoState(scorecardDigitalState);
         const view = effectiveDigitalView();
-        const diceValue = scorecardTurn.diceValue || 1;
+        const compensation = !!scorecardTurn.compensation;
+        const diceValue = compensation ? 1 : scorecardTurn.diceValue || 1;
+        if (compensation) {
+          const start = marketStewardId(view);
+          const used = marketUsedSet(view);
+          const dests = findMarketDestinations(start, 1, used);
+          if (!dests.size) return false;
+          setScorecardPending({
+            type: "market-move",
+            steps: 1,
+            goldCost: 0,
+            dests: Array.from(dests.entries()).map(([id, paths]) => ({
+              id,
+              paths,
+            })),
+            selectedId: null,
+            selectedPath: null,
+            pathIndex: 0,
+          });
+          showScorecardHalf("right");
+          return true;
+        }
         if (!marketActionPossible(view, diceValue)) {
           return false;
         }
@@ -5540,6 +5587,35 @@
           scorecardPending.type !== "market-move" ||
           !scorecardTurn
         ) {
+          return;
+        }
+        if (scorecardTurn.compensation) {
+          const selectedId = keepSelection ? scorecardPending.selectedId : null;
+          const start = marketStewardId(effectiveDigitalView());
+          const used = marketUsedSet(effectiveDigitalView());
+          const dests = findMarketDestinations(start, 1, used);
+          let selectedPath = null;
+          let pathIndex = 0;
+          if (selectedId && dests.has(selectedId)) {
+            const paths = dests.get(selectedId);
+            pathIndex = Math.min(
+              scorecardPending.pathIndex || 0,
+              paths.length - 1,
+            );
+            selectedPath = paths[pathIndex];
+          }
+          setScorecardPending({
+            type: "market-move",
+            steps: 1,
+            goldCost: 0,
+            dests: Array.from(dests.entries()).map(([id, paths]) => ({
+              id,
+              paths,
+            })),
+            selectedId: selectedPath ? selectedId : null,
+            selectedPath,
+            pathIndex,
+          });
           return;
         }
         const selectedId = keepSelection ? scorecardPending.selectedId : null;
@@ -5591,6 +5667,7 @@
 
       function adjustMarketSteps(delta) {
         if (!scorecardPending || scorecardPending.type !== "market-move") return;
+        if (scorecardTurn && scorecardTurn.compensation) return;
         scorecardPending.steps += delta;
         refreshMarketMove(true);
       }
@@ -6033,7 +6110,7 @@
                 return;
               }
             }
-            if (qtyWrap) qtyWrap.hidden = false;
+            if (qtyWrap) qtyWrap.hidden = !!t.compensation;
             if (qtyVal && p && p.type === "market-move") {
               qtyVal.textContent = String(p.steps);
             }
@@ -6043,6 +6120,20 @@
               p && p.type === "market-move" ? p.goldCost || 0 : 0;
             const selected =
               p && p.type === "market-move" && p.selectedId;
+            if (t.compensation) {
+              if (!nDest) {
+                label.textContent =
+                  "Nessuna casella adiacente libera. Annulla per passare.";
+              } else if (selected) {
+                label.textContent =
+                  "Compensazione: 1 passo. Puoi comprare edifici, poi Conferma.";
+              } else {
+                label.textContent =
+                  "Compensazione: muovi l'Intendente di esattamente 1 passo.";
+              }
+              if (confirmBtn) confirmBtn.disabled = !selected;
+              return;
+            }
             if (!nDest) {
               label.textContent =
                 "Nessun percorso con questi passi. Usa ± (stalla ±2 gratis, poi oro) o Annulla.";
@@ -6580,6 +6671,58 @@
         return Number.isFinite(v) ? v : SCORECARD_SPLIT_RIGHT_DEFAULT;
       }
 
+      function clampScorecardSplitLeft(n) {
+        const v = Number(n);
+        if (!Number.isFinite(v)) return SCORECARD_SPLIT_LEFT_DEFAULT;
+        return Math.max(
+          SCORECARD_SPLIT_LEFT_MIN,
+          Math.min(SCORECARD_SPLIT_LEFT_MAX, v),
+        );
+      }
+
+      function clampScorecardSplitRight(n) {
+        const v = Number(n);
+        if (!Number.isFinite(v)) return SCORECARD_SPLIT_RIGHT_DEFAULT;
+        return Math.max(
+          SCORECARD_SPLIT_RIGHT_MIN,
+          Math.min(SCORECARD_SPLIT_RIGHT_MAX, v),
+        );
+      }
+
+      function setScorecardSplitPair(left, right) {
+        let nextLeft = clampScorecardSplitLeft(left);
+        let nextRight = clampScorecardSplitRight(right);
+        if (nextRight < nextLeft + SCORECARD_SPLIT_GAP) {
+          nextRight = clampScorecardSplitRight(nextLeft + SCORECARD_SPLIT_GAP);
+          if (nextRight < nextLeft + SCORECARD_SPLIT_GAP) {
+            nextLeft = clampScorecardSplitLeft(nextRight - SCORECARD_SPLIT_GAP);
+          }
+        }
+        const changed =
+          scorecardAlign.splitLeft !== nextLeft ||
+          scorecardAlign.splitRight !== nextRight;
+        scorecardAlign.splitLeft = nextLeft;
+        scorecardAlign.splitRight = nextRight;
+        return changed;
+      }
+
+      function syncScorecardSplitHandleSelection() {
+        const leftEl = document.getElementById("scorecard-split-line-left");
+        const rightEl = document.getElementById("scorecard-split-line-right");
+        if (leftEl) {
+          leftEl.classList.toggle(
+            "is-selected",
+            scorecardCalibrateLayer === "splitLeft",
+          );
+        }
+        if (rightEl) {
+          rightEl.classList.toggle(
+            "is-selected",
+            scorecardCalibrateLayer === "splitRight",
+          );
+        }
+      }
+
       function updateScorecardSplitLine() {
         const leftEl = document.getElementById("scorecard-split-line-left");
         const rightEl = document.getElementById("scorecard-split-line-right");
@@ -6593,6 +6736,7 @@
           band.style.left = `${left.x}px`;
           band.style.width = `${Math.max(0, right.x - left.x)}px`;
         }
+        syncScorecardSplitHandleSelection();
       }
 
       function applyScorecardCropVars(x0, span) {
@@ -6672,6 +6816,7 @@
           showScorecardHalf("full");
         }
         setBottomControlsVisible(false);
+        syncDraftCommitHint();
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             resizeScorecardCanvas(true);
@@ -6695,6 +6840,7 @@
         setBottomControlsVisible(true);
         renderPlayerRail();
         updateHeaderScorecardBtn();
+        syncDraftCommitHint();
       }
 
       function applyQtyActionForPick() {
@@ -7104,6 +7250,7 @@
 
       function onScorecardHitClick(evt) {
         if (isScorecardCalibrating()) return;
+        if (isScorecardConsultReadOnly()) return;
         const btn = evt.currentTarget;
         const kind = btn.getAttribute("data-kind");
         if (!kind || !scorecardDigitalState) return;
@@ -7792,10 +7939,6 @@
         updateScorecardSplitLine();
       }
 
-      function formatCalPct(n) {
-        return `${(n * 100).toFixed(1)}%`;
-      }
-
       function coerceLayerAlign(src) {
         const uniform = src && src.scale;
         return {
@@ -7886,42 +8029,12 @@
         return layer;
       }
 
-      function formatCalScale(n) {
-        return `${Math.round(clampScorecardScale(n) * 100)}%`;
-      }
-
       function syncScorecardCalibratorUi() {
-        const layer = activeLayerAlign();
-        const ox = document.getElementById("cal-offset-x");
-        const oy = document.getElementById("cal-offset-y");
-        const sx = document.getElementById("cal-scale-x");
-        const sy = document.getElementById("cal-scale-y");
-        const splitL = document.getElementById("cal-split-left");
-        const splitR = document.getElementById("cal-split-right");
-        if (ox) ox.value = String(Math.round(layer.offsetX * 1000));
-        if (oy) oy.value = String(Math.round(layer.offsetY * 1000));
-        if (sx) sx.value = String(Math.round(layer.scaleX * 100));
-        if (sy) sy.value = String(Math.round(layer.scaleY * 100));
-        if (splitL)
-          splitL.value = String(Math.round(getScorecardSplitLeft() * 1000));
-        if (splitR)
-          splitR.value = String(Math.round(getScorecardSplitRight() * 1000));
-        const oxv = document.getElementById("cal-offset-x-val");
-        const oyv = document.getElementById("cal-offset-y-val");
-        const sxv = document.getElementById("cal-scale-x-val");
-        const syv = document.getElementById("cal-scale-y-val");
-        const lv = document.getElementById("cal-split-left-val");
-        const rv = document.getElementById("cal-split-right-val");
-        if (oxv) oxv.textContent = formatCalPct(layer.offsetX);
-        if (oyv) oyv.textContent = formatCalPct(layer.offsetY);
-        if (sxv) sxv.textContent = formatCalScale(layer.scaleX);
-        if (syv) syv.textContent = formatCalScale(layer.scaleY);
-        if (lv) lv.textContent = formatCalPct(getScorecardSplitLeft());
-        if (rv) rv.textContent = formatCalPct(getScorecardSplitRight());
         const layerSelect = document.getElementById("cal-layer-select");
         if (layerSelect && layerSelect.value !== scorecardCalibrateLayer) {
           layerSelect.value = scorecardCalibrateLayer;
         }
+        syncScorecardSplitHandleSelection();
       }
 
       function applyScorecardAlignLive(rebuildCrop) {
@@ -7932,36 +8045,12 @@
         if (rebuildCrop) showScorecardHalf(scorecardCropSide);
       }
 
-      function onScorecardCalibratorInput() {
-        const layer = activeLayerAlign();
-        const ox = document.getElementById("cal-offset-x");
-        const oy = document.getElementById("cal-offset-y");
-        const sx = document.getElementById("cal-scale-x");
-        const sy = document.getElementById("cal-scale-y");
-        const splitL = document.getElementById("cal-split-left");
-        const splitR = document.getElementById("cal-split-right");
-        layer.offsetX = clampScorecardAlign(ox ? Number(ox.value) / 1000 : 0);
-        layer.offsetY = clampScorecardAlign(oy ? Number(oy.value) / 1000 : 0);
-        layer.scaleX = clampScorecardScale(sx ? Number(sx.value) / 100 : 1);
-        layer.scaleY = clampScorecardScale(sy ? Number(sy.value) / 100 : 1);
-        let left = splitL
-          ? Number(splitL.value) / 1000
-          : SCORECARD_SPLIT_LEFT_DEFAULT;
-        let right = splitR
-          ? Number(splitR.value) / 1000
-          : SCORECARD_SPLIT_RIGHT_DEFAULT;
-        if (right < left + 0.02) right = left + 0.02;
-        const splitChanged =
-          scorecardAlign.splitLeft !== left ||
-          scorecardAlign.splitRight !== right;
-        scorecardAlign.splitLeft = left;
-        scorecardAlign.splitRight = right;
-        applyScorecardAlignLive(splitChanged);
-      }
-      window.onScorecardCalibratorInput = onScorecardCalibratorInput;
-
       function setScorecardCalibrateLayer(layer) {
-        scorecardCalibrateLayer = isCalLayer(layer) ? layer : "shops";
+        if (isCalSplit(layer)) {
+          scorecardCalibrateLayer = layer;
+        } else {
+          scorecardCalibrateLayer = isCalLayer(layer) ? layer : "shops";
+        }
         syncScorecardCalibratorUi();
         syncScorecardCalibCrop();
         refreshScorecardOverlayPositions();
@@ -7969,6 +8058,22 @@
       window.setScorecardCalibrateLayer = setScorecardCalibrateLayer;
 
       function nudgeScorecardAlign(dx, dy) {
+        if (isCalSplit(scorecardCalibrateLayer)) {
+          const delta = dx * 0.001;
+          if (scorecardCalibrateLayer === "splitLeft") {
+            setScorecardSplitPair(
+              getScorecardSplitLeft() + delta,
+              getScorecardSplitRight(),
+            );
+          } else {
+            setScorecardSplitPair(
+              getScorecardSplitLeft(),
+              getScorecardSplitRight() + delta,
+            );
+          }
+          applyScorecardAlignLive(true);
+          return;
+        }
         const layer = activeLayerAlign();
         layer.offsetX = clampScorecardAlign(layer.offsetX + dx * 0.001);
         layer.offsetY = clampScorecardAlign(layer.offsetY + dy * 0.001);
@@ -8026,6 +8131,17 @@
         const dx = a.clientX - b.clientX;
         const dy = a.clientY - b.clientY;
         return Math.hypot(dx, dy);
+      }
+
+      function beginCalibSplitDrag(evt, side) {
+        scorecardCalibDrag = {
+          mode: "split",
+          side: side === "right" ? "right" : "left",
+          pointerId: evt.pointerId,
+          start: getStageNormPoint(evt),
+          originLeft: getScorecardSplitLeft(),
+          originRight: getScorecardSplitRight(),
+        };
       }
 
       function beginCalibMoveDrag(evt, layerKey) {
@@ -8129,6 +8245,25 @@
         return true;
       }
 
+      function onCalibSplitPointerDown(evt) {
+        if (!isScorecardCalibrating()) return;
+        const target = evt.target.closest(
+          ".cal-split-handle, .scorecard-split-line[data-split]",
+        );
+        if (!target) return;
+        const side = target.dataset.split;
+        if (side !== "left" && side !== "right") return;
+        evt.preventDefault();
+        evt.stopPropagation();
+        setScorecardCalibrateLayer(side === "left" ? "splitLeft" : "splitRight");
+        beginCalibSplitDrag(evt, side);
+        try {
+          target.setPointerCapture(evt.pointerId);
+        } catch (_err) {
+          // no-op
+        }
+      }
+
       function onCalibPointerDown(evt) {
         if (!isScorecardCalibrating()) return;
         const handleEl = evt.target.closest(".cal-handle");
@@ -8177,6 +8312,25 @@
           return;
         }
         evt.preventDefault();
+
+        if (scorecardCalibDrag.mode === "split") {
+          const now = getStageNormPoint(evt);
+          const dx = now.x - scorecardCalibDrag.start.x;
+          if (scorecardCalibDrag.side === "left") {
+            setScorecardSplitPair(
+              scorecardCalibDrag.originLeft + dx,
+              scorecardCalibDrag.originRight,
+            );
+          } else {
+            setScorecardSplitPair(
+              scorecardCalibDrag.originLeft,
+              scorecardCalibDrag.originRight + dx,
+            );
+          }
+          applyScorecardAlignLive(false);
+          return;
+        }
+
         const layer = scorecardAlign[scorecardCalibDrag.layer];
         if (!layer) return;
 
@@ -8272,6 +8426,7 @@
           return;
         }
         if (evt.pointerId !== scorecardCalibDrag.pointerId) return;
+        const wasSplit = scorecardCalibDrag.mode === "split";
         scorecardCalibDrag = null;
         const el = evt.target;
         if (el && el.releasePointerCapture) {
@@ -8281,12 +8436,21 @@
             // no-op
           }
         }
+        if (wasSplit) showScorecardHalf(scorecardCropSide);
       }
 
       function initScorecardCalibDrag() {
         if (!scorecardHitLayer || scorecardHitLayer.dataset.calibDrag) return;
         scorecardHitLayer.dataset.calibDrag = "1";
         scorecardHitLayer.addEventListener("pointerdown", onCalibPointerDown, true);
+        const leftLine = document.getElementById("scorecard-split-line-left");
+        const rightLine = document.getElementById("scorecard-split-line-right");
+        if (leftLine) {
+          leftLine.addEventListener("pointerdown", onCalibSplitPointerDown, true);
+        }
+        if (rightLine) {
+          rightLine.addEventListener("pointerdown", onCalibSplitPointerDown, true);
+        }
         window.addEventListener("pointermove", onCalibPointerMove);
         window.addEventListener("pointerup", onCalibPointerUp);
         window.addEventListener("pointercancel", onCalibPointerUp);
@@ -8317,7 +8481,9 @@
 
       function syncScorecardCalibCrop() {
         if (!isScorecardCalibrating()) return;
-        if (isCalibMobileView()) {
+        if (isCalSplit(scorecardCalibrateLayer)) {
+          showScorecardHalf("full");
+        } else if (isCalibMobileView()) {
           showScorecardHalf(calibLayerHalfSide(scorecardCalibrateLayer));
         } else {
           showScorecardHalf("full");
@@ -9216,7 +9382,7 @@
           const name =
             engineState.players.find((p) => p.id === actor)?.name ||
             `Giocatore ${actor + 1}`;
-          el.textContent = `Round ${engineState.round} di ${engineState.maxRounds} — ${name}${actor === localSeat ? " (tu)" : ""}`;
+          el.textContent = `R. ${engineState.round} di ${engineState.maxRounds} — ${name}${actor === localSeat ? " (tu)" : ""}`;
           renderPlayerRail();
           return;
         }
@@ -9239,6 +9405,7 @@
               if (btn) btn.disabled = true;
               if (zoneOverlays[k]) zoneOverlays[k].visible = false;
             });
+            syncDraftCommitHint();
             return;
           }
           const usable = player
@@ -9259,6 +9426,7 @@
               }
             }
           });
+          syncDraftCommitHint();
           return;
         }
 
@@ -9273,6 +9441,7 @@
         if (availableOptions.length === 0) {
           // Nessuna opzione disponibile per il giocatore corrente
           showMarketSkipModal();
+          syncDraftCommitHint();
           return;
         }
 
@@ -9291,6 +9460,7 @@
             }
           }
         });
+        syncDraftCommitHint();
       }
 
       function showMarketSkipModal() {
@@ -9925,6 +10095,7 @@
 
         playerHasPicked = true;
         setAllDistricts(false);
+        syncDraftCommitHint();
 
         if (isPlancia()) {
           // Solo plancia digitale: avanza i turni senza aprire il segnapunti.
@@ -10412,8 +10583,8 @@
         return {
           color: "#718398",
           opacity: 0.06,
-          gray: 0.12,
-          blur: 0.6,
+          gray: 1,
+          blur: 0,
           bright: 0.98,
           radius: 8,
         };

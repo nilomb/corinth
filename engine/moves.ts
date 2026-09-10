@@ -100,6 +100,9 @@ export interface MarketAction {
   shopMarks?: ShopMark[];
 }
 
+/**
+ * Compensation: exactly one steward step. No gold / stable modifiers.
+ */
 export interface CompensationAction {
   kind: "compensation";
   path: MarketNodeId[];
@@ -107,7 +110,7 @@ export interface CompensationAction {
   shopMarks?: ShopMark[];
 }
 
-/** Decline the optional 1-step market move on a compensation turn. */
+/** Decline the optional 1-step compensation move. */
 export interface PassAction {
   kind: "pass";
 }

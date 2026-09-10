@@ -13,6 +13,7 @@ import type {
   Die,
   DieFace,
   GameState,
+  MarketNodeId,
   MoveContext,
   PlayerId,
 } from "./types";
@@ -223,6 +224,48 @@ check("all-gold roll forces compensation for later pickers", () => {
   );
   eq(state.activePick, null, "cleared");
   eq(state.pickIndex, 2, "P0 second pick");
+});
+
+check("compensation: exact 1 step; no gold or stable modifiers", () => {
+  let state = rollNine(
+    createInitialState(2),
+    [4, 4, 4, 4, 4, 4, 4, 4, 4],
+  );
+  state = unwrap(applyMove(state, { type: "pickDistrict", district: "Gold" }, ctx(0)));
+  state = qty(state, 0);
+  state.players[1]!.sheet.gold.circled = 5;
+  state.players[1]!.sheet.buildings.stable = true;
+  state = unwrap(applyMove(state, { type: "takeCompensation" }, ctx(1)));
+  eq(state.activePick?.dieValue, 1, "compensation dieValue is 1");
+  eq(state.activePick?.compensation, true, "flagged");
+  const origin = state.players[1]!.sheet.mercato.steward;
+  const longPath: MarketNodeId[] = [origin, "r1c2", "r0c2"];
+  const blocked = applyMove(
+    state,
+    {
+      type: "completeTurn",
+      action: { kind: "compensation", path: longPath },
+      buildings: [],
+    },
+    ctx(1),
+  );
+  isTrue(!blocked.ok, "cannot extend beyond 1 step");
+  state = unwrap(
+    applyMove(
+      state,
+      {
+        type: "completeTurn",
+        action: {
+          kind: "compensation",
+          path: [origin, "r1c2"],
+        },
+        buildings: [],
+      },
+      ctx(1),
+    ),
+  );
+  eq(state.players[1]!.sheet.mercato.steward, "r1c2", "moved one step");
+  eq(state.players[1]!.sheet.gold.spent, 0, "no gold spent");
 });
 
 check("first closer claims district bonus; others are crossed", () => {
