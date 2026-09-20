@@ -1881,7 +1881,9 @@
         }
         #scorecard-page.turn-mode #scorecard-action-cancel {
           position: absolute;
-          left: calc(var(--sc-gutter-left-w, 80px) / 2);
+          left: calc(
+            var(--sc-board-right, 70%) + var(--sc-gutter-right-w, 80px) / 2
+          );
           top: auto;
           bottom: 12px;
           transform: translateX(-50%);
