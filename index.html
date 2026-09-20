@@ -4,8 +4,13 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#1a1008" />
+    <link rel="manifest" href="manifest.webmanifest" />
     <title>Corinth</title>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap");
@@ -495,7 +500,9 @@
         inset: 0;
         background: rgba(10, 6, 2, 0.96);
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
+        padding-top: 10vh;
+        box-sizing: border-box;
         z-index: 200;
         backdrop-filter: blur(8px);
       }
@@ -749,6 +756,8 @@
       .scorecard-crop {
         --scorecard-crop-x0: 0;
         --scorecard-crop-span: 1;
+        --scorecard-crop-y0: 0;
+        --scorecard-crop-yspan: 1;
         --scorecard-crop-aspect: 1.454657;
         position: relative;
         overflow: hidden;
@@ -764,11 +773,13 @@
       }
       .scorecard-stage {
         position: absolute;
-        top: 0;
+        top: calc(
+          var(--scorecard-crop-y0) / var(--scorecard-crop-yspan) * -100%
+        );
         left: calc(
           var(--scorecard-crop-x0) / var(--scorecard-crop-span) * -100%
         );
-        height: 100%;
+        height: calc(100% / var(--scorecard-crop-yspan));
         width: calc(100% / var(--scorecard-crop-span));
         max-width: none;
         max-height: none;
@@ -1008,6 +1019,30 @@
       }
       .scorecard-quota-count[hidden] {
         display: none;
+      }
+      .scorecard-wallet {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-right: 4px;
+      }
+      .scorecard-wallet[hidden] {
+        display: none;
+      }
+      .scorecard-wallet .wallet-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-family: "Cinzel", serif;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--gold-lt);
+      }
+      .scorecard-wallet .wallet-item img {
+        width: auto;
+        height: 22px;
+        object-fit: contain;
+        background: transparent;
       }
       #scorecard-page.turn-mode .scorecard-toolbar,
       #scorecard-page.turn-mode .scorecard-hint {
@@ -1757,12 +1792,21 @@
 
         /* ---- SEGNAPUNTI ---- */
         #scorecard-page.turn-mode {
-          --peek-bar-h: 48px;
+          --peek-bar-h: 0px;
         }
+        /* Barra peek/slider: non serve in landscape durante il proprio turno,
+         * lo spazio va ai controlli. In consultazione/review resta visibile
+         * il bottone Plancia per tornare indietro. */
         #scorecard-page.turn-mode .board-peek-bar {
-          height: var(--peek-bar-h);
-          padding: 4px 14px 6px;
-          gap: 10px;
+          display: none;
+        }
+        #scorecard-page.turn-mode.consult-mode,
+        #scorecard-page.turn-mode.review-mode {
+          --peek-bar-h: 52px;
+        }
+        #scorecard-page.turn-mode.consult-mode .board-peek-bar,
+        #scorecard-page.turn-mode.review-mode .board-peek-bar {
+          display: flex;
         }
         #scorecard-page.turn-mode .scorecard-wrap {
           padding: 0;
@@ -1784,139 +1828,170 @@
           justify-content: center;
           align-items: center;
           height: 100%;
-          padding: 6px 0;
+          min-height: 0;
+          padding: 0;
           box-sizing: border-box;
+          overflow: hidden;
         }
         #scorecard-page.turn-mode .scorecard-crop {
-          height: calc(100% - 4px) !important;
+          height: 100% !important;
           width: auto !important;
-          max-height: calc(100% - 4px) !important;
-          max-width: 100%;
+          max-height: 100% !important;
+          max-width: 100% !important;
+          aspect-ratio: var(--scorecard-crop-aspect);
           align-self: center;
           border-radius: 6px;
         }
+        /* Edifici: schiaccia appena il crop così la parte bassa non va nel bordo */
+        #scorecard-page.turn-mode .scorecard-crop[data-band="buildings"] {
+          height: calc(100% - 10px) !important;
+          max-height: calc(100% - 10px) !important;
+        }
         #scorecard-page.turn-mode .scorecard-scrollbar {
-          display: none;
+          display: none !important;
         }
+        /* Landscape: niente frecce metà scheda — si usa il crop a fascia */
         #scorecard-page.turn-mode .scorecard-pan-arrow {
-          width: 28px;
-          height: 64px;
-          font-size: 16px;
-        }
-        #scorecard-page.turn-mode .scorecard-pan-arrow-left {
-          left: max(4px, calc(var(--sc-gutter-left-w, 80px) * 0.5 - 14px));
-        }
-        #scorecard-page.turn-mode .scorecard-pan-arrow-right {
-          right: max(4px, calc(var(--sc-gutter-right-w, 80px) * 0.5 - 14px));
+          display: none !important;
         }
 
+        /* Controlli in basso, centrati in riga: 3/3 · oro/capre · Annulla · Conferma */
         #scorecard-page.turn-mode .scorecard-action-bar.show {
-          position: absolute;
-          inset: 0;
-          width: auto;
+          position: relative;
+          inset: auto;
+          width: 100%;
           max-width: none;
           z-index: 28;
-          display: block;
-          padding: 0;
-          background: transparent;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 4px 8px;
+          padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
+          background: linear-gradient(to top, #2a1808, #1a1008);
           border: none;
+          border-top: 1px solid rgba(201, 168, 76, 0.45);
           border-radius: 0;
-          pointer-events: none;
+          pointer-events: auto;
+          flex-shrink: 0;
+          box-sizing: border-box;
+          min-height: 42px;
         }
         #scorecard-page.turn-mode .scorecard-action-bar .action-label {
-          position: absolute;
-          top: 8px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: max-content;
-          max-width: min(42vw, 260px);
-          text-align: center;
-          font-size: 12px;
-          padding: 5px 12px;
-          border-radius: 8px;
-          background: rgba(12, 8, 4, 0.72);
-          border: 1px solid rgba(201, 168, 76, 0.35);
-          pointer-events: none;
+          display: none;
         }
         #scorecard-page.turn-mode .scorecard-action-bar .action-btns {
-          display: contents;
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          width: auto;
+          max-width: 100%;
         }
 
-        /* Cluster sinistro: centrato nella gutter sinistra della scheda */
         #scorecard-page.turn-mode #scorecard-quota-count {
-          position: absolute;
-          left: calc(var(--sc-gutter-left-w, 80px) / 2);
-          top: 12%;
-          transform: translateX(-50%);
+          position: static;
+          left: auto;
+          top: auto;
+          transform: none;
           margin: 0;
-          padding: 6px 8px;
-          border-radius: 8px;
-          background: rgba(12, 8, 4, 0.72);
-          border: 1px solid rgba(201, 168, 76, 0.35);
+          padding: 0 4px;
+          border: none;
+          background: transparent;
+          font-size: 16px;
           pointer-events: none;
-          z-index: 1;
+          z-index: auto;
+        }
+        #scorecard-page.turn-mode #scorecard-wallet {
+          position: static;
+          gap: 12px;
+        }
+        #scorecard-page.turn-mode #scorecard-wallet .wallet-item {
+          font-family: "Cinzel", serif;
+          font-size: 32px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          color: var(--gold-lt);
+          line-height: 32px;
+          gap: 6px;
+        }
+        #scorecard-page.turn-mode #scorecard-wallet .wallet-item img {
+          width: auto;
+          height: 32px;
+          object-fit: contain;
+          flex-shrink: 0;
+          background: transparent;
         }
         #scorecard-page.turn-mode #scorecard-qty-controls {
-          position: absolute;
-          left: calc(var(--sc-gutter-left-w, 80px) / 2);
-          top: 44%;
-          transform: translate(-50%, -50%);
+          position: static;
+          left: auto;
+          top: auto;
+          transform: none;
           margin: 0;
+          display: inline-flex;
           flex-direction: row;
-          gap: 8px;
-          padding: 6px 8px;
-          border-radius: 12px;
-          background: rgba(12, 8, 4, 0.78);
-          border: 1px solid rgba(201, 168, 76, 0.45);
+          align-items: center;
+          gap: 4px;
+          padding: 2px 4px;
+          border-radius: 8px;
+          background: rgba(12, 8, 4, 0.45);
+          border: 1px solid rgba(201, 168, 76, 0.35);
           pointer-events: auto;
-          z-index: 1;
+          z-index: auto;
+        }
+        #scorecard-page.turn-mode #scorecard-qty-controls[hidden] {
+          display: none !important;
         }
         #scorecard-page.turn-mode #scorecard-qty-controls button {
-          width: 40px;
-          height: 40px;
+          width: 30px;
+          height: 30px;
           padding: 0;
           display: inline-flex;
           align-items: center;
           justify-content: center;
+          font-size: 15px;
+        }
+        #scorecard-page.turn-mode #scorecard-qty-controls #scorecard-qty-value {
+          min-width: 1.2em;
+          font-size: 14px;
+          line-height: 1;
+        }
+        #scorecard-page.turn-mode #scorecard-action-cancel,
+        #scorecard-page.turn-mode #scorecard-action-confirm {
+          position: static;
+          left: auto;
+          right: auto;
+          top: auto;
+          bottom: auto;
+          transform: none;
+          pointer-events: auto;
+          z-index: auto;
+          min-width: 0;
+          width: auto;
+          height: 32px;
+          padding: 0 10px;
+          font-size: 11px;
+          line-height: 1.1;
+          letter-spacing: 0;
+          white-space: nowrap;
+          border-radius: 8px;
         }
         #scorecard-page.turn-mode #scorecard-action-cancel {
-          position: absolute;
-          left: calc(
-            var(--sc-board-right, 70%) + var(--sc-gutter-right-w, 80px) / 2
-          );
-          top: calc(50% - 70px);
-          bottom: auto;
-          transform: translate(-50%, -50%);
-          pointer-events: auto;
-          z-index: 1;
-          min-width: 72px;
-          padding: 10px 12px;
-          background: rgba(12, 8, 4, 0.82);
+          margin-left: 0;
         }
         #scorecard-page.turn-mode #scorecard-action-confirm {
-          position: absolute;
-          left: calc(
-            var(--sc-board-right, 70%) + var(--sc-gutter-right-w, 80px) / 2
-          );
-          right: auto;
-          top: 50%;
-          transform: translate(-50%, -50%);
-          pointer-events: auto;
-          z-index: 1;
-          width: 76px;
-          height: 76px;
-          padding: 8px;
-          border-radius: 14px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           text-align: center;
-          white-space: normal;
-          line-height: 1.15;
         }
 
         #scorecard-choice {
           padding: 10px 14px;
+          bottom: 0;
         }
         #scorecard-choice .setup-card {
           padding: 8px 6px;
@@ -1947,6 +2022,216 @@
           max-height: min(34vh, 112px);
           aspect-ratio: 1;
         }
+
+        /* Menu hamburger: scrollabile se le voci non entrano in altezza */
+        #hamburger-menu {
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
+          width: min(62vw, 280px);
+          padding: 10px 12px max(14px, env(safe-area-inset-bottom, 0px));
+          gap: 8px;
+        }
+        #hamburger-menu .menu-title {
+          flex-shrink: 0;
+          margin-bottom: 2px;
+          font-size: 15px;
+        }
+        #hamburger-menu .menu-item {
+          flex-shrink: 0;
+          font-size: 15px;
+          padding: 8px 10px;
+        }
+        #hamburger-menu .menu-separator {
+          flex-shrink: 0;
+          margin: 2px 0;
+        }
+
+        /* Prima schermata + lobby: card a tutta altezza, contenuti distribuiti */
+        #mode-setup,
+        #online-setup,
+        #player-setup,
+        #seat-setup {
+          align-items: stretch;
+          justify-content: stretch;
+          padding: 6px 10px;
+          box-sizing: border-box;
+        }
+        #mode-setup .setup-card,
+        #online-setup .setup-card,
+        #player-setup .setup-card,
+        #seat-setup .setup-card {
+          width: 100%;
+          max-width: none;
+          height: 100%;
+          max-height: 100%;
+          box-sizing: border-box;
+          padding: 10px 16px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-evenly;
+          overflow: hidden;
+        }
+        /* Quanti giocatori / questo telefono: numeri in alto, sotto la domanda */
+        #player-setup .setup-card,
+        #seat-setup .setup-card {
+          justify-content: flex-start;
+          padding-top: 18px;
+          gap: 14px;
+        }
+        #mode-setup .setup-card h2,
+        #online-setup .setup-card h2,
+        #player-setup .setup-card h2,
+        #seat-setup .setup-card h2 {
+          margin-bottom: 0;
+          font-size: 20px;
+        }
+        #mode-setup .setup-card p,
+        #online-setup .setup-card p,
+        #player-setup .setup-card p,
+        #seat-setup .setup-card p {
+          margin-bottom: 0;
+          font-size: 13px;
+        }
+        #mode-setup .player-btns {
+          flex-direction: row;
+          flex-wrap: nowrap;
+          align-items: stretch;
+          justify-content: center;
+          gap: 10px;
+          width: 100%;
+        }
+        #mode-setup .mode-btn {
+          width: auto;
+          flex: 1 1 0;
+          min-width: 0;
+          min-height: 44px;
+          padding: 8px 8px;
+          font-size: 13px;
+          white-space: normal;
+          line-height: 1.25;
+        }
+        #player-setup .player-btns,
+        #seat-setup .player-btns {
+          flex-direction: row;
+          flex-wrap: nowrap;
+          gap: 12px;
+          margin-top: 4px;
+          width: min(240px, 52%);
+          align-self: center;
+          justify-content: center;
+        }
+        #player-setup .player-btn,
+        #seat-setup .player-btn {
+          flex: 1 1 0;
+          width: auto;
+          min-width: 0;
+        }
+        #online-setup .online-lobby {
+          flex: 1 1 auto;
+          min-height: 0;
+          flex-direction: row;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: center;
+          align-content: center;
+          gap: 6px 8px;
+          margin-top: 0;
+        }
+        #online-setup .online-lobby > .online-hint,
+        #online-setup .online-lobby > .online-status {
+          flex: 1 1 100%;
+          text-align: center;
+          margin: 0;
+          font-size: 11px;
+          min-height: 0;
+        }
+        #online-setup .online-lobby > input[type="text"] {
+          flex: 0 1 140px;
+          width: auto;
+          min-width: 96px;
+          max-width: 160px;
+          padding: 6px 8px;
+          font-size: 14px;
+          height: 36px;
+        }
+        #online-setup .online-lobby > .lobby-row {
+          flex: 0 1 auto;
+          width: auto;
+          flex-wrap: nowrap;
+        }
+        #online-setup .online-lobby .lobby-row .player-btn {
+          min-height: 36px;
+          height: 36px;
+          padding: 6px 10px;
+          font-size: 13px;
+        }
+        #online-setup .online-lobby > .online-code {
+          flex: 0 0 auto;
+          font-size: 20px;
+          letter-spacing: 0.18em;
+          padding: 4px 8px;
+        }
+        #online-setup .online-lobby > .online-seats {
+          flex: 1 1 100%;
+          flex-direction: row;
+          flex-wrap: wrap;
+          margin: 0;
+          gap: 6px;
+        }
+        #online-setup .online-seat {
+          flex: 1 1 calc(50% - 6px);
+          min-width: 140px;
+          padding: 4px 8px;
+          font-size: 12px;
+        }
+      }
+
+      /*
+       * Nasconde le barre Safari/Chrome iOS: il documento deve poter scorrere
+       * (body resta fixed, così il gioco non si muove). Quando le barre
+       * collassano, lockiamo al visual viewport.
+       */
+      html.app-seeking-chrome {
+        height: calc(100svh + 140px);
+        overflow-y: scroll;
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      html.app-seeking-chrome body {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 100svh;
+        height: var(--app-vv-h, 100svh);
+        overflow: hidden;
+        overscroll-behavior: none;
+        touch-action: manipulation;
+      }
+      html.app-chrome-hidden,
+      html.app-chrome-hidden body {
+        overflow: hidden !important;
+        overscroll-behavior: none;
+        touch-action: manipulation;
+      }
+      html.app-chrome-hidden {
+        height: 100%;
+      }
+      html.app-chrome-hidden body {
+        position: fixed;
+        top: var(--app-vv-top, 0px);
+        left: var(--app-vv-left, 0px);
+        width: var(--app-vv-w, 100%);
+        height: var(--app-vv-h, 100dvh);
+      }
+      html.app-seeking-chrome #canvas-wrap,
+      html.app-seeking-chrome #scorecard-page,
+      html.app-chrome-hidden #canvas-wrap,
+      html.app-chrome-hidden #scorecard-page {
+        width: 100%;
+        height: 100%;
       }
 
       .scorecard-hit[data-kind="building"] {
@@ -2899,6 +3184,16 @@
             <div class="action-label" id="scorecard-action-label"></div>
             <div class="action-btns">
               <span id="scorecard-quota-count" class="scorecard-quota-count" hidden></span>
+              <div id="scorecard-wallet" class="scorecard-wallet" hidden>
+                <span class="wallet-item">
+                  <img src="icona_oro.png" alt="" />
+                  <span id="scorecard-wallet-gold">0</span>
+                </span>
+                <span class="wallet-item">
+                  <img src="icona_capra.png" alt="" />
+                  <span id="scorecard-wallet-goats">0</span>
+                </span>
+              </div>
               <div class="scorecard-qty" id="scorecard-qty-controls" hidden>
                 <button type="button" id="scorecard-qty-minus" aria-label="Diminuisci">−</button>
                 <span id="scorecard-qty-value">1</span>
@@ -4200,7 +4495,9 @@
       let scorecardCrop = null;
       let scorecardPanViewport = null;
       let scorecardCropSide = "full";
+      let scorecardCropBand = null;
       const SCORECARD_ALIGN_KEY = "corinth-scorecard-align-v3";
+      const SCORECARD_ALIGN_KEY_LANDSCAPE = "corinth-scorecard-align-v3-landscape";
       const SCORECARD_ALIGN_KEY_LEGACY = "corinth-scorecard-align-v2";
       const SCORECARD_SPLIT_LEFT_DEFAULT = 0.438;
       const SCORECARD_SPLIT_RIGHT_DEFAULT = 0.532;
@@ -4241,7 +4538,10 @@
       function isCalSplit(layer) {
         return layer === "splitLeft" || layer === "splitRight";
       }
-      let scorecardAlign = emptyScorecardAlign();
+      let scorecardAlignPortrait = emptyScorecardAlign();
+      let scorecardAlignLandscape = emptyScorecardAlign();
+      let scorecardAlign = scorecardAlignPortrait;
+      let scorecardAlignOrientation = "portrait";
       let scorecardCalibrateLayer = "market";
       let scorecardCalibDrag = null;
       let scorecardDrawing = false;
@@ -4400,6 +4700,49 @@
         purple: { minX: 0.028, minY: 0.478, maxX: 0.458, maxY: 0.642 },
         green: { minX: 0.03, minY: 0.658, maxX: 0.458, maxY: 0.822 },
       };
+
+      /**
+       * Landscape: crop a fascia a tutta altezza (solo la parte cliccabile).
+       * Coordinate normalizzate sul foglio (x0/y0 + span).
+       * Calibrabili indirettamente via offset layer landscape.
+       */
+      const SCORECARD_LANDSCAPE_BANDS = {
+        orange: { x0: 0.02, y0: 0.1, spanX: 0.45, spanY: 0.19 },
+        blue: { x0: 0.02, y0: 0.28, spanX: 0.45, spanY: 0.19 },
+        purple: { x0: 0.02, y0: 0.46, spanX: 0.45, spanY: 0.2 },
+        green: { x0: 0.02, y0: 0.64, spanX: 0.45, spanY: 0.2 },
+        shops: { x0: 0.02, y0: 0.1, spanX: 0.45, spanY: 0.74 },
+        turns: { x0: 0.02, y0: 0.86, spanX: 0.45, spanY: 0.13 },
+        /* Hex row0≈0.086, row4≈0.373; r visivo ~0.05 (punta esagono). */
+        market: { x0: 0.445, y0: 0.026, spanX: 0.55, spanY: 0.412 },
+        resources: { x0: 0.45, y0: 0.45, spanX: 0.55, spanY: 0.28 },
+        /* y fino a 1: i piedi degli edifici non finiscono nel bordo crop. */
+        buildings: { x0: 0.45, y0: 0.7, spanX: 0.55, spanY: 0.3 },
+      };
+
+      function isScorecardLandscapeView() {
+        return (
+          typeof window.matchMedia === "function" &&
+          window
+            .matchMedia("(max-width: 900px) and (orientation: landscape)")
+            .matches
+        );
+      }
+
+      function syncActiveScorecardAlign(forceRefresh) {
+        const next = isScorecardLandscapeView() ? "landscape" : "portrait";
+        const changed = next !== scorecardAlignOrientation;
+        scorecardAlignOrientation = next;
+        scorecardAlign =
+          next === "landscape"
+            ? scorecardAlignLandscape
+            : scorecardAlignPortrait;
+        if ((changed || forceRefresh) && scorecardStage) {
+          refreshScorecardOverlayPositions();
+          updateScorecardSplitLine();
+        }
+        return changed;
+      }
 
       function districtKeyFromSheetId(districtId) {
         for (const [key, id] of Object.entries(DISTRICT_SHEET_ID)) {
@@ -5302,16 +5645,58 @@
         );
       }
 
-      /** Su iPhone: metà sinistra/destra; le frecce laterali cambiano metà. */
+      /** Su iPhone portrait: metà sinistra/destra; le frecce laterali cambiano metà. */
       function scorecardUsesHalfNav() {
         return (
           isScorecardMobileView() &&
+          !isScorecardLandscapeView() &&
           (scorecardCropSide === "left" || scorecardCropSide === "right")
         );
       }
 
+      function isViewingShopsBeforeBuildingReveal() {
+        if (isScorecardLandscapeView()) {
+          const band = scorecardCropBand;
+          return (
+            band === "shops" ||
+            band === "orange" ||
+            band === "blue" ||
+            band === "purple" ||
+            band === "green"
+          );
+        }
+        return scorecardCropSide === "left";
+      }
+
       function revealBuildingsAfterAction() {
         if (!canPurchaseBuildingsNow()) return;
+        // Negozi: resta sui segni finché non premi Conferma.
+        if (
+          scorecardPending &&
+          scorecardPending.type === "shop-turn" &&
+          isViewingShopsBeforeBuildingReveal()
+        ) {
+          return;
+        }
+        revealBuildingsNow();
+      }
+
+      function revealBuildingsNow() {
+        if (!canPurchaseBuildingsNow()) return;
+        if (isScorecardLandscapeView()) {
+          if (scorecardCropBand !== "buildings") {
+            showScorecardFocus("buildings");
+          }
+          syncScorecardWallet();
+          const quotaCount = document.getElementById("scorecard-quota-count");
+          if (quotaCount) {
+            quotaCount.hidden = true;
+            quotaCount.textContent = "";
+          }
+          const qtyWrap = document.getElementById("scorecard-qty-controls");
+          if (qtyWrap) qtyWrap.hidden = true;
+          return;
+        }
         // Su iPhone gli edifici sono a destra: mostra subito quella metà.
         if (isScorecardMobileView()) {
           if (scorecardCropSide !== "right") showScorecardHalf("right");
@@ -5804,8 +6189,11 @@
             circled: confirmed + qty,
             fromMarket: { path: path.slice(), goldCost: goldCost || 0 },
           });
-          // Resta sulla metà destra (mercato / tracce oro-capre)
-          showScorecardHalf("right");
+          if (canPurchaseBuildingsNow()) {
+            revealBuildingsAfterAction();
+          } else {
+            showScorecardFocus("resources");
+          }
           return true;
         }
 
@@ -5831,7 +6219,7 @@
             quota,
             fromMarket: { path: path.slice(), goldCost: goldCost || 0 },
           });
-          showScorecardHalf("left");
+          showScorecardFocus(districtId);
           return true;
         }
 
@@ -5857,7 +6245,7 @@
               : null,
             pathIndex: draft.pathIndex || 0,
           });
-          showScorecardHalf("right");
+          showScorecardFocus("market");
           return;
         }
         startMarketMove();
@@ -5886,7 +6274,7 @@
             selectedPath: null,
             pathIndex: 0,
           });
-          showScorecardHalf("right");
+          showScorecardFocus("market");
           return true;
         }
         if (!marketActionPossible(view, diceValue)) {
@@ -5910,7 +6298,7 @@
           selectedPath: null,
           pathIndex: 0,
         });
-        showScorecardHalf("right");
+        showScorecardFocus("market");
         return true;
       }
 
@@ -6382,6 +6770,45 @@
         });
       }
 
+      function setScorecardQuotaDisplay(placed, quota) {
+        const quotaCount = document.getElementById("scorecard-quota-count");
+        if (!quotaCount) return;
+        if (!(quota > 0)) {
+          quotaCount.hidden = true;
+          quotaCount.textContent = "";
+          return;
+        }
+        const left = Math.max(0, quota - (placed || 0));
+        quotaCount.hidden = false;
+        quotaCount.textContent = `${left}/${quota}`;
+      }
+
+      function liveWalletAmounts() {
+        const view =
+          typeof effectiveDigitalView === "function"
+            ? effectiveDigitalView()
+            : scorecardDigitalState;
+        if (!view) return { gold: 0, goats: 0 };
+        return {
+          gold: remainingResource(view, "gold"),
+          goats: remainingResource(view, "goats"),
+        };
+      }
+
+      function syncScorecardWallet() {
+        const el = document.getElementById("scorecard-wallet");
+        const goldEl = document.getElementById("scorecard-wallet-gold");
+        const goatsEl = document.getElementById("scorecard-wallet-goats");
+        if (!el) return;
+        const show =
+          isScorecardLandscapeView() && scorecardCropBand === "buildings";
+        el.hidden = !show;
+        if (!show) return;
+        const w = liveWalletAmounts();
+        if (goldEl) goldEl.textContent = String(w.gold);
+        if (goatsEl) goatsEl.textContent = String(w.goats);
+      }
+
       function updateScorecardActionBar() {
         const bar = document.getElementById("scorecard-action-bar");
         const label = document.getElementById("scorecard-action-label");
@@ -6390,7 +6817,10 @@
         const quotaCount = document.getElementById("scorecard-quota-count");
         const confirmBtn = document.getElementById("scorecard-action-confirm");
         if (!bar || !label) return;
-        requestAnimationFrame(() => syncScorecardGutters());
+        requestAnimationFrame(() => {
+          syncScorecardGutters();
+          syncScorecardWallet();
+        });
         if (qtyWrap) qtyWrap.hidden = true;
         if (quotaCount) {
           quotaCount.hidden = true;
@@ -6425,21 +6855,16 @@
                   scorecardDigitalState.districts[p.districtId].shops,
                 );
                 if (placed === p.quota) {
-                  label.textContent =
-                    "Azione fatta. Puoi comprare edifici, poi Conferma. Frecce: cambia metà.";
-                  if (quotaCount) {
-                    quotaCount.hidden = false;
-                    quotaCount.textContent = `${placed}/${p.quota}`;
-                  }
+                  label.textContent = isScorecardLandscapeView()
+                    ? "Azione fatta. Puoi comprare edifici, poi Conferma."
+                    : "Azione fatta. Puoi comprare edifici, poi Conferma. Frecce: cambia metà.";
+                  setScorecardQuotaDisplay(placed, p.quota);
                   if (confirmBtn) confirmBtn.disabled = false;
                   revealBuildingsAfterAction();
                   return;
                 }
                 label.textContent = "";
-                if (quotaCount) {
-                  quotaCount.hidden = false;
-                  quotaCount.textContent = `${placed}/${p.quota}`;
-                }
+                setScorecardQuotaDisplay(placed, p.quota);
                 if (confirmBtn) confirmBtn.disabled = true;
                 return;
               }
@@ -6461,6 +6886,9 @@
               } else if (selected) {
                 label.textContent =
                   "Compensazione: 1 passo. Puoi comprare edifici, poi Conferma.";
+                if (!marketRewardNeedsFollowUp(selected)) {
+                  revealBuildingsAfterAction();
+                }
               } else {
                 label.textContent =
                   "Compensazione: muovi l'Intendente di esattamente 1 passo.";
@@ -6484,6 +6912,9 @@
                   ? `Intendente: ${p.steps} passi (−${goldCost} oro). Puoi comprare edifici, poi Conferma.`
                   : `Intendente: ${p.steps} passi. Puoi comprare edifici, poi Conferma.`) +
                 extra;
+              if (!marketRewardNeedsFollowUp(selected)) {
+                revealBuildingsAfterAction();
+              }
             } else {
               label.textContent =
                 `Intendente: ${p.steps} passi (dado ${t.diceValue}). Tocca un arrivo. ±: stalla ±2 gratis, poi oro.`;
@@ -6500,7 +6931,9 @@
               p.qty > (scorecardTurn.diceCount || 0)
                 ? " (Bottega +2)"
                 : "";
-            label.textContent = `${name}: +${p.qty} nel riquadro${extraNote}. Puoi comprare edifici, poi Conferma. Frecce: cambia metà.`;
+            label.textContent = isScorecardLandscapeView()
+              ? `${name}: +${p.qty} nel riquadro${extraNote}. Puoi comprare edifici, poi Conferma.`
+              : `${name}: +${p.qty} nel riquadro${extraNote}. Puoi comprare edifici, poi Conferma. Frecce: cambia metà.`;
             if (confirmBtn) confirmBtn.disabled = false;
             revealBuildingsAfterAction();
             return;
@@ -6511,21 +6944,16 @@
               scorecardDigitalState.districts[p.districtId].shops,
             );
             if (placed === p.quota) {
-              label.textContent =
-                "Azione fatta. Puoi comprare edifici, poi Conferma. Frecce: cambia metà.";
-              if (quotaCount) {
-                quotaCount.hidden = false;
-                quotaCount.textContent = `${placed}/${p.quota}`;
-              }
+              label.textContent = isScorecardLandscapeView()
+                ? "Azione fatta. Puoi comprare edifici, poi Conferma."
+                : "Azione fatta. Puoi comprare edifici, poi Conferma. Frecce: cambia metà.";
+              setScorecardQuotaDisplay(placed, p.quota);
               if (confirmBtn) confirmBtn.disabled = false;
               revealBuildingsAfterAction();
               return;
             }
             label.textContent = "";
-            if (quotaCount) {
-              quotaCount.hidden = false;
-              quotaCount.textContent = `${placed}/${p.quota}`;
-            }
+            setScorecardQuotaDisplay(placed, p.quota);
             if (confirmBtn) confirmBtn.disabled = true;
             return;
           }
@@ -7073,18 +7501,100 @@
         syncScorecardSplitHandleSelection();
       }
 
-      function applyScorecardCropVars(x0, span) {
+      function applyScorecardCropVars(x0, span, y0, yspan) {
         const crop = scorecardCrop || document.getElementById("scorecard-crop");
         if (!crop) return;
-        crop.style.setProperty("--scorecard-crop-x0", String(x0));
-        crop.style.setProperty("--scorecard-crop-span", String(span));
+        const sx = Math.max(0.08, Number(span) || 1);
+        const sy = Math.max(0.08, Number(yspan) || 1);
+        const nx0 = Number(x0) || 0;
+        const ny0 = Number(y0) || 0;
+        crop.style.setProperty("--scorecard-crop-x0", String(nx0));
+        crop.style.setProperty("--scorecard-crop-span", String(sx));
+        crop.style.setProperty("--scorecard-crop-y0", String(ny0));
+        crop.style.setProperty("--scorecard-crop-yspan", String(sy));
         crop.style.setProperty(
           "--scorecard-crop-aspect",
-          String((span * 2374) / 1632),
+          String((sx * 2374) / (sy * 1632)),
+        );
+        if (scorecardCropSide === "band" && scorecardCropBand) {
+          crop.dataset.band = scorecardCropBand;
+        } else {
+          delete crop.dataset.band;
+        }
+      }
+
+      function afterScorecardCropApplied() {
+        requestAnimationFrame(() => {
+          resizeScorecardCanvas(true);
+          centerScorecardPanOffset();
+          updateScorecardSplitLine();
+          if (scorecardDigitalReady) {
+            buildScorecardHitLayer();
+            renderScorecardMarks();
+          }
+          updateScorecardPanArrows();
+        });
+      }
+
+      function showScorecardBand(bandId) {
+        const band = SCORECARD_LANDSCAPE_BANDS[bandId];
+        if (!band) {
+          showScorecardHalf("full");
+          return;
+        }
+        scorecardCropBand = bandId;
+        scorecardCropSide = "band";
+        applyScorecardCropVars(band.x0, band.spanX, band.y0, band.spanY);
+        afterScorecardCropApplied();
+      }
+
+      /**
+       * Portrait: metà sinistra/destra/full.
+       * Landscape: fascia a tutta altezza (mercato / risorse / edifici / distretto).
+       */
+      function showScorecardFocus(focus) {
+        syncActiveScorecardAlign();
+        if (isScorecardLandscapeView()) {
+          if (focus && SCORECARD_LANDSCAPE_BANDS[focus]) {
+            showScorecardBand(focus);
+            return;
+          }
+          if (focus === "left") {
+            showScorecardBand("shops");
+            return;
+          }
+          if (focus === "right") {
+            showScorecardBand("market");
+            return;
+          }
+        } else {
+          if (
+            focus === "market" ||
+            focus === "resources" ||
+            focus === "buildings"
+          ) {
+            showScorecardHalf("right");
+            return;
+          }
+          if (
+            focus === "orange" ||
+            focus === "blue" ||
+            focus === "purple" ||
+            focus === "green" ||
+            focus === "shops" ||
+            focus === "turns"
+          ) {
+            showScorecardHalf("left");
+            return;
+          }
+        }
+        showScorecardHalf(
+          focus === "left" || focus === "right" ? focus : "full",
         );
       }
 
       function showScorecardHalf(side) {
+        scorecardCropBand = null;
         scorecardCropSide = side === "left" || side === "right" ? side : "full";
         const splitLeft = getScorecardSplitLeft();
         const splitRight = getScorecardSplitRight();
@@ -7096,16 +7606,33 @@
           x0 = splitLeft;
           span = Math.max(0.2, 1 - splitLeft);
         }
-        applyScorecardCropVars(x0, span);
-        requestAnimationFrame(() => {
-          resizeScorecardCanvas(true);
-          centerScorecardPanOffset();
-          updateScorecardSplitLine();
-          if (scorecardDigitalReady) {
-            buildScorecardHitLayer();
-            renderScorecardMarks();
-          }
-        });
+        applyScorecardCropVars(x0, span, 0, 1);
+        afterScorecardCropApplied();
+      }
+
+      function focusScorecardForPending() {
+        const p = scorecardPending;
+        if (!p) {
+          showScorecardFocus("full");
+          return;
+        }
+        if (canPurchaseBuildingsNow()) {
+          revealBuildingsAfterAction();
+          return;
+        }
+        if (p.type === "market-move") {
+          showScorecardFocus("market");
+          return;
+        }
+        if (p.type === "gold" || p.type === "goats") {
+          showScorecardFocus("resources");
+          return;
+        }
+        if (p.type === "shop-turn" && p.districtId) {
+          showScorecardFocus(p.districtId);
+          return;
+        }
+        showScorecardFocus("full");
       }
 
       function openScorecardForTurn(pick) {
@@ -7154,7 +7681,11 @@
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             resizeScorecardCanvas(true);
-            showScorecardHalf(pick.compensation ? "right" : "full");
+            if (pick.compensation) {
+              showScorecardFocus("market");
+            } else {
+              showScorecardHalf("full");
+            }
             buildScorecardHitLayer();
             renderScorecardMarks();
             updateScorecardActionBar();
@@ -7202,7 +7733,11 @@
             qty,
             circled: confirmed + qty,
           });
-          showScorecardHalf("right");
+          if (canPurchaseBuildingsNow()) {
+            revealBuildingsAfterAction();
+          } else {
+            showScorecardFocus("resources");
+          }
           return;
         }
         const districtId = DISTRICT_SHEET_ID[key];
@@ -7215,7 +7750,7 @@
           shops: confirmedShops.map((s) => s.marked.slice()),
           quota,
         });
-        showScorecardHalf("left");
+        showScorecardFocus(districtId);
       }
 
       function chooseScorecardAction(choice) {
@@ -7396,6 +7931,17 @@
 
       function confirmScorecardTurn() {
         if (!scorecardTurn || !isScorecardTurnReady()) return;
+
+        // Dopo l'ultima X: Conferma passa agli edifici, non chiude il turno.
+        if (
+          scorecardPending &&
+          scorecardPending.type === "shop-turn" &&
+          isViewingShopsBeforeBuildingReveal()
+        ) {
+          scorecardTurn.shopsAdvanceDone = true;
+          revealBuildingsNow();
+          return;
+        }
 
         // Prima conferma percorso → eventuale secondo passo premio
         if (
@@ -8296,8 +8842,9 @@
         );
       }
 
-      function applyParsedAlign(parsed) {
+      function applyParsedAlign(parsed, target) {
         if (!parsed || typeof parsed !== "object") return;
+        const dest = target || scorecardAlign;
         let leftBase = emptyLayerAlign();
         let rightBase = emptyLayerAlign();
         if (parsed.shops || parsed.market) {
@@ -8310,43 +8857,71 @@
           leftBase = coerceLayerAlign(parsed);
         }
         SCORECARD_CAL_LEFT_LAYERS.forEach((id) => {
-          scorecardAlign[id] = hasLayerAlign(parsed[id])
+          dest[id] = hasLayerAlign(parsed[id])
             ? coerceLayerAlign(parsed[id])
             : coerceLayerAlign(leftBase);
         });
         SCORECARD_CAL_RIGHT_LAYERS.forEach((id) => {
-          scorecardAlign[id] = hasLayerAlign(parsed[id])
+          dest[id] = hasLayerAlign(parsed[id])
             ? coerceLayerAlign(parsed[id])
             : coerceLayerAlign(rightBase);
         });
         if (Number.isFinite(parsed.splitLeft)) {
-          scorecardAlign.splitLeft = parsed.splitLeft;
+          dest.splitLeft = parsed.splitLeft;
         } else if (Number.isFinite(parsed.splitX)) {
-          scorecardAlign.splitLeft = parsed.splitX;
+          dest.splitLeft = parsed.splitX;
         }
         if (Number.isFinite(parsed.splitRight)) {
-          scorecardAlign.splitRight = parsed.splitRight;
+          dest.splitRight = parsed.splitRight;
         }
       }
 
+      function cloneScorecardAlign(src) {
+        const out = emptyScorecardAlign();
+        if (!src || typeof src !== "object") return out;
+        applyParsedAlign(src, out);
+        return out;
+      }
+
       function restoreScorecardAlign() {
+        let portraitRaw = null;
         try {
-          const raw =
+          portraitRaw =
             localStorage.getItem(SCORECARD_ALIGN_KEY) ||
             localStorage.getItem(SCORECARD_ALIGN_KEY_LEGACY);
-          if (!raw) return;
-          applyParsedAlign(JSON.parse(raw));
+          if (portraitRaw) {
+            applyParsedAlign(JSON.parse(portraitRaw), scorecardAlignPortrait);
+          }
         } catch (_err) {
           // keep defaults
         }
+        try {
+          const landscapeRaw = localStorage.getItem(
+            SCORECARD_ALIGN_KEY_LANDSCAPE,
+          );
+          if (landscapeRaw) {
+            applyParsedAlign(
+              JSON.parse(landscapeRaw),
+              scorecardAlignLandscape,
+            );
+          } else if (portraitRaw) {
+            // Prima calibrazione landscape: parti da quella portrait.
+            scorecardAlignLandscape = cloneScorecardAlign(
+              scorecardAlignPortrait,
+            );
+          }
+        } catch (_err) {
+          // keep defaults
+        }
+        syncActiveScorecardAlign();
       }
 
       function saveScorecardAlign() {
         try {
-          localStorage.setItem(
-            SCORECARD_ALIGN_KEY,
-            JSON.stringify(scorecardAlign),
-          );
+          const key = isScorecardLandscapeView()
+            ? SCORECARD_ALIGN_KEY_LANDSCAPE
+            : SCORECARD_ALIGN_KEY;
+          localStorage.setItem(key, JSON.stringify(scorecardAlign));
         } catch (_err) {
           // no-op
         }
@@ -8372,12 +8947,20 @@
         syncScorecardSplitHandleSelection();
       }
 
+      function reapplyScorecardCrop() {
+        if (scorecardCropSide === "band" && scorecardCropBand) {
+          showScorecardBand(scorecardCropBand);
+        } else {
+          showScorecardHalf(scorecardCropSide);
+        }
+      }
+
       function applyScorecardAlignLive(rebuildCrop) {
         saveScorecardAlign();
         syncScorecardCalibratorUi();
         refreshScorecardOverlayPositions();
         updateScorecardSplitLine();
-        if (rebuildCrop) showScorecardHalf(scorecardCropSide);
+        if (rebuildCrop) reapplyScorecardCrop();
       }
 
       function setScorecardCalibrateLayer(layer) {
@@ -8771,7 +9354,7 @@
             // no-op
           }
         }
-        if (wasSplit) showScorecardHalf(scorecardCropSide);
+        if (wasSplit) reapplyScorecardCrop();
       }
 
       function initScorecardCalibDrag() {
@@ -8814,10 +9397,25 @@
         return "right";
       }
 
+      function calibLayerBand(layer) {
+        const key = isCalLayer(layer) ? layer : scorecardCalibrateLayer;
+        if (key === "market") return "market";
+        if (key === "gold" || key === "goats") return "resources";
+        if (key === "buildings") return "buildings";
+        if (key === "turns") return "turns";
+        if (key === "shops" || key === "bonus") return "shops";
+        return null;
+      }
+
       function syncScorecardCalibCrop() {
         if (!isScorecardCalibrating()) return;
+        syncActiveScorecardAlign();
         if (isCalSplit(scorecardCalibrateLayer)) {
           showScorecardHalf("full");
+        } else if (isScorecardLandscapeView()) {
+          const band = calibLayerBand(scorecardCalibrateLayer);
+          if (band) showScorecardBand(band);
+          else showScorecardHalf("full");
         } else if (isCalibMobileView()) {
           showScorecardHalf(calibLayerHalfSide(scorecardCalibrateLayer));
         } else {
@@ -8907,7 +9505,7 @@
           return;
 
         restoreScorecardAlign();
-        applyScorecardCropVars(0, 1);
+        applyScorecardCropVars(0, 1, 0, 1);
         syncScorecardCalibratorUi();
 
         scorecardStateBooting = true;
@@ -9038,6 +9636,358 @@
         document.getElementById("hamburger-menu").classList.remove("show");
         document.getElementById("menu-backdrop").classList.remove("show");
       }
+
+      let fullscreenDismissed = false;
+      let immersiveChromeLocked = false;
+
+      function isNativeFullscreen() {
+        return !!(
+          document.fullscreenElement ||
+          document.webkitFullscreenElement ||
+          document.msFullscreenElement
+        );
+      }
+
+      function isAppFullscreen() {
+        return isNativeFullscreen() || immersiveChromeLocked;
+      }
+
+      function isLikelyIOS() {
+        const ua = navigator.userAgent || "";
+        if (/iPad|iPhone|iPod/.test(ua)) return true;
+        return (
+          navigator.platform === "MacIntel" &&
+          typeof navigator.maxTouchPoints === "number" &&
+          navigator.maxTouchPoints > 1
+        );
+      }
+
+      function isStandaloneDisplay() {
+        return (
+          window.matchMedia("(display-mode: standalone)").matches ||
+          window.matchMedia("(display-mode: fullscreen)").matches ||
+          window.navigator.standalone === true
+        );
+      }
+
+      function nativeFullscreenEnabled() {
+        if (isStandaloneDisplay()) return false;
+        const el = document.documentElement;
+        return !!(
+          el.requestFullscreen ||
+          el.webkitRequestFullscreen ||
+          el.msRequestFullscreen
+        );
+      }
+
+      function isLandscapeNow() {
+        return (
+          window.matchMedia("(orientation: landscape)").matches ||
+          window.innerWidth > window.innerHeight
+        );
+      }
+
+      function applyVisualViewportSize() {
+        const vv = window.visualViewport;
+        const root = document.documentElement;
+        const h = vv ? vv.height : window.innerHeight;
+        const w = vv ? vv.width : window.innerWidth;
+        root.style.setProperty("--app-vv-h", `${Math.round(h)}px`);
+        root.style.setProperty("--app-vv-w", `${Math.round(w)}px`);
+        root.style.setProperty("--app-vv-top", `${Math.round(vv ? vv.offsetTop : 0)}px`);
+        root.style.setProperty(
+          "--app-vv-left",
+          `${Math.round(vv ? vv.offsetLeft : 0)}px`,
+        );
+      }
+
+      function isBrowserChromeVisible() {
+        const vv = window.visualViewport;
+        if (!vv) return false;
+        if (isLandscapeNow()) {
+          const screenShort = Math.min(
+            window.screen.width || 0,
+            window.screen.height || 0,
+          );
+          // Chrome iOS: la barra top non sparisce del tutto (~20px)
+          return vv.height + (vv.offsetTop || 0) < screenShort - 20;
+        }
+        const gap = Math.max(
+          window.innerHeight - vv.height,
+          vv.offsetTop || 0,
+        );
+        return gap > 30;
+      }
+
+      function needsImmersiveScroll() {
+        if (isStandaloneDisplay() || isNativeFullscreen()) return false;
+        if (isLikelyIOS()) return true;
+        if (!nativeFullscreenEnabled()) return true;
+        if (
+          !window.isSecureContext &&
+          /Android|Mobile/i.test(navigator.userAgent || "")
+        ) {
+          return true;
+        }
+        return false;
+      }
+
+      function notifyLayoutResize() {
+        try {
+          window.dispatchEvent(new Event("resize"));
+        } catch (_err) {
+          // no-op
+        }
+      }
+
+      function lockImmersiveChrome() {
+        immersiveChromeLocked = true;
+        document.documentElement.classList.add("app-chrome-hidden");
+        document.documentElement.classList.remove("app-seeking-chrome");
+        applyVisualViewportSize();
+        window.scrollTo(0, 0);
+        syncFullscreenButton();
+        notifyLayoutResize();
+      }
+
+      function startImmersiveSeeking() {
+        immersiveChromeLocked = false;
+        document.documentElement.classList.add("app-seeking-chrome");
+        document.documentElement.classList.remove("app-chrome-hidden");
+        applyVisualViewportSize();
+        const extra = Math.max(80, Math.round((window.innerHeight || 400) * 0.18));
+        window.scrollTo(0, extra);
+        setTimeout(() => window.scrollTo(0, extra), 40);
+        setTimeout(() => {
+          measureBrowserChrome();
+        }, 280);
+        syncFullscreenButton();
+        notifyLayoutResize();
+      }
+
+      function clearImmersiveChrome() {
+        immersiveChromeLocked = false;
+        document.documentElement.classList.remove(
+          "app-seeking-chrome",
+          "app-chrome-hidden",
+        );
+        applyVisualViewportSize();
+        syncFullscreenButton();
+        notifyLayoutResize();
+      }
+
+      function measureBrowserChrome() {
+        applyVisualViewportSize();
+        if (isNativeFullscreen() || isStandaloneDisplay()) {
+          document.documentElement.classList.remove("app-seeking-chrome");
+          if (isNativeFullscreen()) immersiveChromeLocked = false;
+          syncFullscreenButton();
+          return;
+        }
+        if (!needsImmersiveScroll()) return;
+        if (!isBrowserChromeVisible()) {
+          lockImmersiveChrome();
+        } else if (immersiveChromeLocked) {
+          startImmersiveSeeking();
+        }
+      }
+
+      function requestNativeFullscreenSync() {
+        const el = document.documentElement;
+        try {
+          if (typeof el.requestFullscreen === "function") {
+            return el.requestFullscreen({ navigationUI: "hide" });
+          }
+          if (typeof el.webkitRequestFullscreen === "function") {
+            return Promise.resolve(el.webkitRequestFullscreen());
+          }
+          if (typeof el.msRequestFullscreen === "function") {
+            return Promise.resolve(el.msRequestFullscreen());
+          }
+        } catch (err) {
+          return Promise.reject(err);
+        }
+        return Promise.reject(new Error("fullscreen unsupported"));
+      }
+
+      function lockLandscapeIfPossible() {
+        try {
+          if (screen.orientation && typeof screen.orientation.lock === "function") {
+            screen.orientation.lock("landscape").catch(() => {});
+          }
+        } catch (_err) {
+          // no-op
+        }
+      }
+
+      function ensureImmersiveFullscreen() {
+        if (fullscreenDismissed || isStandaloneDisplay()) return;
+        if (isNativeFullscreen()) {
+          lockLandscapeIfPossible();
+          return;
+        }
+        if (nativeFullscreenEnabled()) {
+          const pending = requestNativeFullscreenSync();
+          if (pending && typeof pending.then === "function") {
+            pending
+              .then(() => {
+                lockLandscapeIfPossible();
+                document.documentElement.classList.remove("app-seeking-chrome");
+                immersiveChromeLocked = false;
+                syncFullscreenButton();
+                notifyLayoutResize();
+              })
+              .catch(() => {
+                if (
+                  !immersiveChromeLocked &&
+                  (isLikelyIOS() ||
+                    /Android|Mobile/i.test(navigator.userAgent || ""))
+                ) {
+                  startImmersiveSeeking();
+                }
+              });
+          }
+        }
+        if (immersiveChromeLocked) return;
+        if (
+          (needsImmersiveScroll() || isLikelyIOS()) &&
+          !document.documentElement.classList.contains("app-seeking-chrome")
+        ) {
+          startImmersiveSeeking();
+        } else if (
+          document.documentElement.classList.contains("app-seeking-chrome")
+        ) {
+          const extra = Math.max(80, Math.round((window.innerHeight || 400) * 0.18));
+          window.scrollTo(0, extra);
+        }
+      }
+      window.ensureImmersiveFullscreen = ensureImmersiveFullscreen;
+
+      function syncFullscreenButton() {
+        const btn = document.getElementById("fullscreen-btn");
+        if (!btn) return;
+        const active = isAppFullscreen();
+        document.body.classList.toggle("is-fullscreen", active);
+        btn.classList.toggle("is-active", active);
+        btn.setAttribute("aria-label", active ? "Riduci" : "Schermo intero");
+        btn.title = active ? "Riduci" : "Schermo intero";
+      }
+
+      async function exitNativeFullscreen() {
+        if (document.exitFullscreen) return document.exitFullscreen();
+        if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+        if (document.msExitFullscreen) return document.msExitFullscreen();
+      }
+
+      async function toggleAppFullscreen() {
+        if (isNativeFullscreen() || immersiveChromeLocked) {
+          fullscreenDismissed = true;
+          try {
+            await exitNativeFullscreen();
+          } catch (_err) {
+            // no-op
+          }
+          clearImmersiveChrome();
+          return;
+        }
+        fullscreenDismissed = false;
+        ensureImmersiveFullscreen();
+      }
+      window.toggleAppFullscreen = toggleAppFullscreen;
+
+      ["fullscreenchange", "webkitfullscreenchange", "MSFullscreenChange"].forEach(
+        (evtName) => {
+          document.addEventListener(evtName, () => {
+            if (isNativeFullscreen()) {
+              document.documentElement.classList.remove("app-seeking-chrome");
+              immersiveChromeLocked = false;
+            }
+            syncFullscreenButton();
+            notifyLayoutResize();
+          });
+        },
+      );
+
+      (function armAutoFullscreen() {
+        const gestureEvents = ["pointerup", "click", "keydown"];
+
+        function isEditableTarget(target) {
+          if (!target || typeof target.closest !== "function") return false;
+          return !!target.closest("input, textarea, select, [contenteditable='true']");
+        }
+
+        function onFullscreenGesture(evt) {
+          if (fullscreenDismissed || isStandaloneDisplay()) return;
+          const target = evt.target;
+          if (target && typeof target.closest === "function") {
+            if (isEditableTarget(target)) return;
+          }
+          if (evt.type === "keydown") {
+            const key = evt.key || "";
+            if (key === "Escape" || key === "Tab" || key.startsWith("F")) return;
+          }
+          ensureImmersiveFullscreen();
+        }
+
+        gestureEvents.forEach((name) => {
+          document.addEventListener(name, onFullscreenGesture, {
+            capture: true,
+            passive: true,
+          });
+        });
+
+        applyVisualViewportSize();
+        window.addEventListener("resize", measureBrowserChrome, { passive: true });
+        window.addEventListener("orientationchange", () => {
+          setTimeout(measureBrowserChrome, 250);
+        });
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener("resize", measureBrowserChrome, {
+            passive: true,
+          });
+          window.visualViewport.addEventListener("scroll", measureBrowserChrome, {
+            passive: true,
+          });
+        }
+
+        // Body è fixed: inoltra lo swipe al documento, così Safari/Chrome
+        // ritirano le barre (non basta uno scroll programmatico).
+        let seekTouchY = null;
+        document.addEventListener(
+          "touchstart",
+          (evt) => {
+            seekTouchY =
+              evt.touches && evt.touches.length ? evt.touches[0].clientY : null;
+          },
+          { capture: true, passive: true },
+        );
+        document.addEventListener(
+          "touchmove",
+          (evt) => {
+            if (
+              !document.documentElement.classList.contains("app-seeking-chrome")
+            ) {
+              return;
+            }
+            if (!evt.touches || !evt.touches.length || seekTouchY == null) return;
+            const y = evt.touches[0].clientY;
+            const dy = seekTouchY - y;
+            seekTouchY = y;
+            if (Math.abs(dy) < 1) return;
+            window.scrollBy(0, dy);
+            measureBrowserChrome();
+          },
+          { capture: true, passive: true },
+        );
+        document.addEventListener(
+          "touchend",
+          () => {
+            seekTouchY = null;
+            measureBrowserChrome();
+          },
+          { capture: true, passive: true },
+        );
+      })();
 
       function openInstructionsModal() {
         closeHamburgerMenu();
@@ -9609,6 +10559,7 @@
       }
 
       function chooseMainMode(mode) {
+        ensureImmersiveFullscreen();
         closeHamburgerMenu();
         document.getElementById("mode-setup").classList.add("hidden");
         document.getElementById("mode-setup").setAttribute("aria-hidden", "true");
@@ -10840,11 +11791,24 @@
         camera.bottom = -halfH;
         camera.updateProjectionMatrix();
         syncPlanciaGutters(halfW, w, h);
+        const orientChanged = syncActiveScorecardAlign();
         if (isScorecardCalibrating()) {
           syncScorecardCalibCrop();
+        } else if (orientChanged && scorecardTurn && scorecardPending) {
+          if (
+            scorecardPending.type === "shop-turn" &&
+            !scorecardTurn.shopsAdvanceDone
+          ) {
+            showScorecardFocus(scorecardPending.districtId);
+          } else if (canPurchaseBuildingsNow() && isScorecardLandscapeView()) {
+            showScorecardFocus("buildings");
+          } else {
+            focusScorecardForPending();
+          }
         } else {
           resizeScorecardCanvas(true);
         }
+        syncFullscreenButton();
       }
 
       /** Gutters landscape: spazio libero a sx/dx della plancia 6×9 (x ±3). */

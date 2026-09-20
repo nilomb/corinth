@@ -1,0 +1,11 @@
+{
+  "name": "Corinth",
+  "short_name": "Corinth",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#1a1008",
+  "theme_color": "#1a1008"
+}
