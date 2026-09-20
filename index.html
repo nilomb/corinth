@@ -1714,6 +1714,8 @@
         #bottom-controls .player-chip {
           width: 100%;
           min-width: 52px;
+          display: inline-flex;
+          align-items: center;
           justify-content: center;
         }
         #roll-btn {
@@ -1732,26 +1734,41 @@
         }
 
         /* ---- SEGNAPUNTI ---- */
+        #scorecard-page.turn-mode {
+          --peek-bar-h: 48px;
+        }
+        #scorecard-page.turn-mode .board-peek-bar {
+          height: var(--peek-bar-h);
+          padding: 4px 10px 6px;
+        }
         #scorecard-page.turn-mode .scorecard-wrap {
           padding: 0;
           gap: 0;
           position: relative;
+          flex: 1 1 auto;
+          min-height: 0;
+          height: auto;
+          align-items: stretch;
         }
         #scorecard-page.turn-mode .scorecard-viewport-wrapper {
           width: 100%;
-          height: 100%;
-          flex: 1;
+          flex: 1 1 auto;
           min-height: 0;
+          height: auto;
+          align-self: stretch;
         }
         #scorecard-page.turn-mode .scorecard-pan-viewport {
           justify-content: center;
-          align-items: center;
+          align-items: stretch;
+          height: 100%;
         }
         #scorecard-page.turn-mode .scorecard-crop {
-          height: 100%;
-          width: auto;
-          max-height: 100%;
+          height: 100% !important;
+          width: auto !important;
+          max-height: 100% !important;
           max-width: none;
+          align-self: center;
+          border-radius: 0;
         }
         #scorecard-page.turn-mode .scorecard-scrollbar {
           display: none;
@@ -1809,10 +1826,10 @@
         #scorecard-page.turn-mode #scorecard-qty-controls {
           position: absolute;
           left: 8px;
-          top: 50%;
+          top: 42%;
           transform: translateY(-50%);
           margin: 0;
-          flex-direction: column;
+          flex-direction: column-reverse;
           gap: 8px;
           padding: 8px 6px;
           border-radius: 12px;
@@ -1832,7 +1849,8 @@
         #scorecard-page.turn-mode #scorecard-action-cancel {
           position: absolute;
           left: 8px;
-          bottom: 12%;
+          top: auto;
+          bottom: 10px;
           pointer-events: auto;
           z-index: 1;
           min-width: 72px;
