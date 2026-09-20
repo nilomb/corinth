@@ -1631,15 +1631,12 @@
        * scelta distretto in riga orizzontale.
        */
       @media (max-width: 900px) and (orientation: landscape) {
-        /* Gutters equilibrati: bordo schermo ↔ controlli ↔ scheda/plancia */
-        #scorecard-page.turn-mode,
-        body {
-          --land-inset: 14px;
-          --land-gap: 10px;
-          --land-rail: 88px;
-        }
+        /*
+         * Gutters dinamiche (--gutter-*-w / --sc-gutter-*-w) calcolate in JS:
+         * centro controlli nello spazio libero tra bordo schermo e plancia/scheda.
+         */
         #header {
-          padding: 4px var(--land-inset);
+          padding: 4px 14px;
         }
         #header h1 {
           font-size: 16px;
@@ -1650,15 +1647,19 @@
         #board-pre-roll-stack {
           display: flex;
           flex-direction: column;
-          align-items: stretch;
-          gap: var(--land-gap);
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
           position: absolute;
-          left: var(--land-inset);
+          left: 0;
           top: 50%;
           bottom: auto;
+          width: var(--gutter-left-w, 30%);
+          max-width: none;
           transform: translateY(-50%);
           z-index: 12;
-          max-width: min(188px, calc(38vw - var(--land-inset)));
+          padding: 0 10px;
+          box-sizing: border-box;
           pointer-events: none;
         }
         #board-pre-roll-stack #draft-commit-hint,
@@ -1668,12 +1669,13 @@
           top: auto;
           bottom: auto;
           transform: none;
-          max-width: none;
-          width: 100%;
+          max-width: 100%;
+          width: auto;
+          min-width: 0;
           pointer-events: auto;
         }
         #board-pre-roll-stack #draft-commit-hint {
-          text-align: left;
+          text-align: center;
           padding: 8px 11px 9px;
         }
         #board-pre-roll-stack #draft-commit-hint-copy {
@@ -1701,31 +1703,39 @@
         }
 
         #bottom-controls {
-          position: absolute;
-          right: var(--land-inset);
-          top: 50%;
+          position: fixed;
+          left: var(--board-right-vp, auto);
+          width: var(--gutter-right-w-vp, 30%);
+          top: var(--canvas-center-y, 50%);
           bottom: auto;
-          left: auto;
+          right: auto;
           transform: translateY(-50%);
           z-index: 14;
           flex-direction: column;
-          align-items: flex-end;
-          gap: var(--land-gap);
+          align-items: center;
+          justify-content: center;
+          gap: 28px;
           min-height: 0;
-          padding: 0;
+          padding: 0 10px;
+          box-sizing: border-box;
           background: transparent;
           border: none;
           pointer-events: none;
         }
         #bottom-controls #player-rail {
           pointer-events: auto;
-          flex-direction: column;
-          align-items: stretch;
-          gap: 6px;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          align-items: center;
+          justify-content: space-evenly;
+          gap: 8px;
+          width: 100%;
         }
         #bottom-controls .player-chip {
-          width: 100%;
-          min-width: 52px;
+          width: auto;
+          min-width: 44px;
+          flex: 1 1 0;
+          max-width: 72px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -1751,8 +1761,8 @@
         }
         #scorecard-page.turn-mode .board-peek-bar {
           height: var(--peek-bar-h);
-          padding: 4px var(--land-inset) 6px;
-          gap: var(--land-gap);
+          padding: 4px 14px 6px;
+          gap: 10px;
         }
         #scorecard-page.turn-mode .scorecard-wrap {
           padding: 0;
@@ -1774,8 +1784,7 @@
           justify-content: center;
           align-items: center;
           height: 100%;
-          /* Rota laterale simmetrica per controlli + margine dal bordo */
-          padding: 8px var(--land-rail);
+          padding: 6px 0;
           box-sizing: border-box;
         }
         #scorecard-page.turn-mode .scorecard-crop {
@@ -1795,13 +1804,12 @@
           font-size: 16px;
         }
         #scorecard-page.turn-mode .scorecard-pan-arrow-left {
-          left: calc(var(--land-rail) + 2px);
+          left: max(4px, calc(var(--sc-gutter-left-w, 80px) * 0.5 - 14px));
         }
         #scorecard-page.turn-mode .scorecard-pan-arrow-right {
-          right: calc(var(--land-rail) + 2px);
+          right: max(4px, calc(var(--sc-gutter-right-w, 80px) * 0.5 - 14px));
         }
 
-        /* Controlli conferma: nella rota laterale, staccati dal bordo */
         #scorecard-page.turn-mode .scorecard-action-bar.show {
           position: absolute;
           inset: 0;
@@ -1833,10 +1841,13 @@
         #scorecard-page.turn-mode .scorecard-action-bar .action-btns {
           display: contents;
         }
+
+        /* Cluster sinistro: centrato nella gutter sinistra della scheda */
         #scorecard-page.turn-mode #scorecard-quota-count {
           position: absolute;
-          left: var(--land-inset);
-          top: 10%;
+          left: calc(var(--sc-gutter-left-w, 80px) / 2);
+          top: 12%;
+          transform: translateX(-50%);
           margin: 0;
           padding: 6px 8px;
           border-radius: 8px;
@@ -1847,13 +1858,13 @@
         }
         #scorecard-page.turn-mode #scorecard-qty-controls {
           position: absolute;
-          left: var(--land-inset);
-          top: 42%;
-          transform: translateY(-50%);
+          left: calc(var(--sc-gutter-left-w, 80px) / 2);
+          top: 44%;
+          transform: translate(-50%, -50%);
           margin: 0;
-          flex-direction: column-reverse;
-          gap: var(--land-gap);
-          padding: 8px 6px;
+          flex-direction: row;
+          gap: 8px;
+          padding: 6px 8px;
           border-radius: 12px;
           background: rgba(12, 8, 4, 0.78);
           border: 1px solid rgba(201, 168, 76, 0.45);
@@ -1870,9 +1881,10 @@
         }
         #scorecard-page.turn-mode #scorecard-action-cancel {
           position: absolute;
-          left: var(--land-inset);
+          left: calc(var(--sc-gutter-left-w, 80px) / 2);
           top: auto;
-          bottom: var(--land-inset);
+          bottom: 12px;
+          transform: translateX(-50%);
           pointer-events: auto;
           z-index: 1;
           min-width: 72px;
@@ -1881,9 +1893,12 @@
         }
         #scorecard-page.turn-mode #scorecard-action-confirm {
           position: absolute;
-          right: var(--land-inset);
+          left: calc(
+            var(--sc-board-right, 70%) + var(--sc-gutter-right-w, 80px) / 2
+          );
+          right: auto;
           top: 50%;
-          transform: translateY(-50%);
+          transform: translate(-50%, -50%);
           pointer-events: auto;
           z-index: 1;
           width: 76px;
@@ -1898,13 +1913,12 @@
           line-height: 1.15;
         }
 
-        /* Scelta negozi/oro/capre/mercato: una riga */
         #scorecard-choice {
-          padding: 10px var(--land-inset);
+          padding: 10px 14px;
         }
         #scorecard-choice .setup-card {
           padding: 8px 6px;
-          max-width: min(calc(100vw - 2 * var(--land-inset)), 680px);
+          max-width: min(calc(100vw - 28px), 680px);
         }
         #scorecard-choice .setup-card h2 {
           margin-bottom: 4px;
@@ -1920,7 +1934,7 @@
           flex-direction: row;
           flex-wrap: nowrap;
           gap: 12px;
-          max-width: min(calc(100vw - 2 * var(--land-inset)), 600px);
+          max-width: min(calc(100vw - 28px), 600px);
           align-items: center;
           justify-content: center;
         }
@@ -6374,6 +6388,7 @@
         const quotaCount = document.getElementById("scorecard-quota-count");
         const confirmBtn = document.getElementById("scorecard-action-confirm");
         if (!bar || !label) return;
+        requestAnimationFrame(() => syncScorecardGutters());
         if (qtyWrap) qtyWrap.hidden = true;
         if (quotaCount) {
           quotaCount.hidden = true;
@@ -8254,6 +8269,7 @@
         buildScorecardHitLayer();
         renderScorecardMarks();
         updateScorecardSplitLine();
+        requestAnimationFrame(() => syncScorecardGutters());
       }
 
       function coerceLayerAlign(src) {
@@ -10821,11 +10837,55 @@
         camera.top = halfH;
         camera.bottom = -halfH;
         camera.updateProjectionMatrix();
+        syncPlanciaGutters(halfW, w, h);
         if (isScorecardCalibrating()) {
           syncScorecardCalibCrop();
         } else {
           resizeScorecardCanvas(true);
         }
+      }
+
+      /** Gutters landscape: spazio libero a sx/dx della plancia 6×9 (x ±3). */
+      function syncPlanciaGutters(halfW, w, h) {
+        const wrapRect = wrap.getBoundingClientRect();
+        const boardLeftLocal = ((halfW - 3) / (2 * halfW)) * w;
+        const boardRightLocal = ((halfW + 3) / (2 * halfW)) * w;
+        const gutterLeft = Math.max(0, boardLeftLocal);
+        const gutterRight = Math.max(0, w - boardRightLocal);
+        wrap.style.setProperty("--gutter-left-w", `${gutterLeft}px`);
+        wrap.style.setProperty("--board-left-local", `${boardLeftLocal}px`);
+        wrap.style.setProperty("--board-right-local", `${boardRightLocal}px`);
+        wrap.style.setProperty("--gutter-right-w", `${gutterRight}px`);
+
+        const boardRightVp = wrapRect.left + boardRightLocal;
+        const root = document.documentElement;
+        root.style.setProperty("--board-left-vp", `${wrapRect.left + boardLeftLocal}px`);
+        root.style.setProperty("--board-right-vp", `${boardRightVp}px`);
+        root.style.setProperty(
+          "--gutter-right-w-vp",
+          `${Math.max(0, wrapRect.right - boardRightVp)}px`,
+        );
+        root.style.setProperty(
+          "--canvas-center-y",
+          `${wrapRect.top + h / 2}px`,
+        );
+      }
+
+      /** Gutters landscape: spazio libero a sx/dx del crop segnapunti. */
+      function syncScorecardGutters() {
+        const page = document.getElementById("scorecard-page");
+        const crop = document.getElementById("scorecard-crop");
+        const scWrap = page?.querySelector(".scorecard-wrap");
+        if (!page || !crop || !scWrap || page.classList.contains("hidden")) return;
+        const wrapRect = scWrap.getBoundingClientRect();
+        const cropRect = crop.getBoundingClientRect();
+        const leftW = Math.max(0, cropRect.left - wrapRect.left);
+        const rightW = Math.max(0, wrapRect.right - cropRect.right);
+        const boardRight = Math.max(0, cropRect.right - wrapRect.left);
+        scWrap.style.setProperty("--sc-gutter-left-w", `${leftW}px`);
+        scWrap.style.setProperty("--sc-gutter-right-w", `${rightW}px`);
+        scWrap.style.setProperty("--sc-board-left", `${leftW}px`);
+        scWrap.style.setProperty("--sc-board-right", `${boardRight}px`);
       }
       window.addEventListener("resize", onResize);
       onResize();
