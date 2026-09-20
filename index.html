@@ -1631,8 +1631,15 @@
        * scelta distretto in riga orizzontale.
        */
       @media (max-width: 900px) and (orientation: landscape) {
+        /* Gutters equilibrati: bordo schermo ↔ controlli ↔ scheda/plancia */
+        #scorecard-page.turn-mode,
+        body {
+          --land-inset: 14px;
+          --land-gap: 10px;
+          --land-rail: 88px;
+        }
         #header {
-          padding: 4px 10px;
+          padding: 4px var(--land-inset);
         }
         #header h1 {
           font-size: 16px;
@@ -1644,14 +1651,14 @@
           display: flex;
           flex-direction: column;
           align-items: stretch;
-          gap: 8px;
+          gap: var(--land-gap);
           position: absolute;
-          left: 8px;
+          left: var(--land-inset);
           top: 50%;
           bottom: auto;
           transform: translateY(-50%);
           z-index: 12;
-          max-width: min(200px, 38vw);
+          max-width: min(188px, calc(38vw - var(--land-inset)));
           pointer-events: none;
         }
         #board-pre-roll-stack #draft-commit-hint,
@@ -1667,7 +1674,7 @@
         }
         #board-pre-roll-stack #draft-commit-hint {
           text-align: left;
-          padding: 7px 10px 8px;
+          padding: 8px 11px 9px;
         }
         #board-pre-roll-stack #draft-commit-hint-copy {
           font-size: 10px;
@@ -1675,7 +1682,8 @@
         }
         #board-pre-roll-stack #yellow-buy-tray {
           align-items: center;
-          padding: 7px 10px 8px;
+          padding: 8px 11px 9px;
+          gap: 7px;
         }
         #board-pre-roll-stack #yellow-buy-copy {
           white-space: normal;
@@ -1688,10 +1696,13 @@
           height: 40px;
           background-size: 26px;
         }
+        #board-pre-roll-stack #yellow-buy-slots {
+          gap: 7px;
+        }
 
         #bottom-controls {
           position: absolute;
-          right: 8px;
+          right: var(--land-inset);
           top: 50%;
           bottom: auto;
           left: auto;
@@ -1699,7 +1710,7 @@
           z-index: 14;
           flex-direction: column;
           align-items: flex-end;
-          gap: 8px;
+          gap: var(--land-gap);
           min-height: 0;
           padding: 0;
           background: transparent;
@@ -1710,6 +1721,7 @@
           pointer-events: auto;
           flex-direction: column;
           align-items: stretch;
+          gap: 6px;
         }
         #bottom-controls .player-chip {
           width: 100%;
@@ -1739,7 +1751,8 @@
         }
         #scorecard-page.turn-mode .board-peek-bar {
           height: var(--peek-bar-h);
-          padding: 4px 10px 6px;
+          padding: 4px var(--land-inset) 6px;
+          gap: var(--land-gap);
         }
         #scorecard-page.turn-mode .scorecard-wrap {
           padding: 0;
@@ -1759,16 +1772,19 @@
         }
         #scorecard-page.turn-mode .scorecard-pan-viewport {
           justify-content: center;
-          align-items: stretch;
+          align-items: center;
           height: 100%;
+          /* Rota laterale simmetrica per controlli + margine dal bordo */
+          padding: 8px var(--land-rail);
+          box-sizing: border-box;
         }
         #scorecard-page.turn-mode .scorecard-crop {
-          height: 100% !important;
+          height: calc(100% - 4px) !important;
           width: auto !important;
-          max-height: 100% !important;
-          max-width: none;
+          max-height: calc(100% - 4px) !important;
+          max-width: 100%;
           align-self: center;
-          border-radius: 0;
+          border-radius: 6px;
         }
         #scorecard-page.turn-mode .scorecard-scrollbar {
           display: none;
@@ -1778,8 +1794,14 @@
           height: 64px;
           font-size: 16px;
         }
+        #scorecard-page.turn-mode .scorecard-pan-arrow-left {
+          left: calc(var(--land-rail) + 2px);
+        }
+        #scorecard-page.turn-mode .scorecard-pan-arrow-right {
+          right: calc(var(--land-rail) + 2px);
+        }
 
-        /* Controlli conferma: overlay sui lati liberi della scheda */
+        /* Controlli conferma: nella rota laterale, staccati dal bordo */
         #scorecard-page.turn-mode .scorecard-action-bar.show {
           position: absolute;
           inset: 0;
@@ -1795,14 +1817,14 @@
         }
         #scorecard-page.turn-mode .scorecard-action-bar .action-label {
           position: absolute;
-          top: 6px;
+          top: 8px;
           left: 50%;
           transform: translateX(-50%);
           width: max-content;
-          max-width: min(46vw, 280px);
+          max-width: min(42vw, 260px);
           text-align: center;
           font-size: 12px;
-          padding: 4px 10px;
+          padding: 5px 12px;
           border-radius: 8px;
           background: rgba(12, 8, 4, 0.72);
           border: 1px solid rgba(201, 168, 76, 0.35);
@@ -1813,8 +1835,8 @@
         }
         #scorecard-page.turn-mode #scorecard-quota-count {
           position: absolute;
-          left: 8px;
-          top: 12%;
+          left: var(--land-inset);
+          top: 10%;
           margin: 0;
           padding: 6px 8px;
           border-radius: 8px;
@@ -1825,12 +1847,12 @@
         }
         #scorecard-page.turn-mode #scorecard-qty-controls {
           position: absolute;
-          left: 8px;
+          left: var(--land-inset);
           top: 42%;
           transform: translateY(-50%);
           margin: 0;
           flex-direction: column-reverse;
-          gap: 8px;
+          gap: var(--land-gap);
           padding: 8px 6px;
           border-radius: 12px;
           background: rgba(12, 8, 4, 0.78);
@@ -1848,9 +1870,9 @@
         }
         #scorecard-page.turn-mode #scorecard-action-cancel {
           position: absolute;
-          left: 8px;
+          left: var(--land-inset);
           top: auto;
-          bottom: 10px;
+          bottom: var(--land-inset);
           pointer-events: auto;
           z-index: 1;
           min-width: 72px;
@@ -1859,7 +1881,7 @@
         }
         #scorecard-page.turn-mode #scorecard-action-confirm {
           position: absolute;
-          right: 8px;
+          right: var(--land-inset);
           top: 50%;
           transform: translateY(-50%);
           pointer-events: auto;
@@ -1878,18 +1900,18 @@
 
         /* Scelta negozi/oro/capre/mercato: una riga */
         #scorecard-choice {
-          padding: 8px 12px;
+          padding: 10px var(--land-inset);
         }
         #scorecard-choice .setup-card {
-          padding: 6px 4px;
-          max-width: min(96vw, 720px);
+          padding: 8px 6px;
+          max-width: min(calc(100vw - 2 * var(--land-inset)), 680px);
         }
         #scorecard-choice .setup-card h2 {
           margin-bottom: 4px;
           font-size: 18px;
         }
         #scorecard-choice .choice-district {
-          margin-bottom: 10px;
+          margin-bottom: 12px;
           font-size: 13px;
           min-height: 0;
         }
@@ -1897,16 +1919,16 @@
           display: flex;
           flex-direction: row;
           flex-wrap: nowrap;
-          gap: 10px;
-          max-width: min(96vw, 640px);
+          gap: 12px;
+          max-width: min(calc(100vw - 2 * var(--land-inset)), 600px);
           align-items: center;
           justify-content: center;
         }
         #scorecard-choice .choice-tile {
           flex: 1 1 0;
           width: auto;
-          max-width: 120px;
-          max-height: min(36vh, 120px);
+          max-width: 112px;
+          max-height: min(34vh, 112px);
           aspect-ratio: 1;
         }
       }
