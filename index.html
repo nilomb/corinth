@@ -273,6 +273,10 @@
         cursor: default;
         transform: none;
       }
+      /* Portrait: i figli restano absolute come prima (niente layout del wrapper) */
+      #board-pre-roll-stack {
+        display: contents;
+      }
       #yellow-buy-tray {
         position: absolute;
         top: auto;
@@ -1619,6 +1623,276 @@
         transform: none;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       }
+
+      /*
+       * Mobile landscape only — portrait / desktop restano invariati.
+       * Plancia: avviso + dadi gialli a sinistra, Lancia a destra (quadrato).
+       * Segnapunti: scheda a tutta altezza; Conferma/±/Annulla sui lati;
+       * scelta distretto in riga orizzontale.
+       */
+      @media (max-width: 900px) and (orientation: landscape) {
+        #header {
+          padding: 4px 10px;
+        }
+        #header h1 {
+          font-size: 16px;
+          letter-spacing: 2px;
+        }
+
+        /* ---- PLANCIA ---- */
+        #board-pre-roll-stack {
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+          position: absolute;
+          left: 8px;
+          top: 50%;
+          bottom: auto;
+          transform: translateY(-50%);
+          z-index: 12;
+          max-width: min(200px, 38vw);
+          pointer-events: none;
+        }
+        #board-pre-roll-stack #draft-commit-hint,
+        #board-pre-roll-stack #yellow-buy-tray {
+          position: relative;
+          left: auto;
+          top: auto;
+          bottom: auto;
+          transform: none;
+          max-width: none;
+          width: 100%;
+          pointer-events: auto;
+        }
+        #board-pre-roll-stack #draft-commit-hint {
+          text-align: left;
+          padding: 7px 10px 8px;
+        }
+        #board-pre-roll-stack #draft-commit-hint-copy {
+          font-size: 10px;
+          line-height: 1.35;
+        }
+        #board-pre-roll-stack #yellow-buy-tray {
+          align-items: center;
+          padding: 7px 10px 8px;
+        }
+        #board-pre-roll-stack #yellow-buy-copy {
+          white-space: normal;
+          text-align: center;
+          font-size: 10px;
+          line-height: 1.3;
+        }
+        #board-pre-roll-stack .yellow-slot {
+          width: 40px;
+          height: 40px;
+          background-size: 26px;
+        }
+
+        #bottom-controls {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          bottom: auto;
+          left: auto;
+          transform: translateY(-50%);
+          z-index: 14;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 8px;
+          min-height: 0;
+          padding: 0;
+          background: transparent;
+          border: none;
+          pointer-events: none;
+        }
+        #bottom-controls #player-rail {
+          pointer-events: auto;
+          flex-direction: column;
+          align-items: stretch;
+        }
+        #bottom-controls .player-chip {
+          width: 100%;
+          min-width: 52px;
+          justify-content: center;
+        }
+        #roll-btn {
+          pointer-events: auto;
+          flex: none;
+          width: 76px;
+          height: 76px;
+          min-width: 76px;
+          padding: 8px 6px;
+          border-radius: 14px;
+          white-space: normal;
+          font-size: 11px;
+          line-height: 1.2;
+          letter-spacing: 0.2px;
+          text-align: center;
+        }
+
+        /* ---- SEGNAPUNTI ---- */
+        #scorecard-page.turn-mode .scorecard-wrap {
+          padding: 0;
+          gap: 0;
+          position: relative;
+        }
+        #scorecard-page.turn-mode .scorecard-viewport-wrapper {
+          width: 100%;
+          height: 100%;
+          flex: 1;
+          min-height: 0;
+        }
+        #scorecard-page.turn-mode .scorecard-pan-viewport {
+          justify-content: center;
+          align-items: center;
+        }
+        #scorecard-page.turn-mode .scorecard-crop {
+          height: 100%;
+          width: auto;
+          max-height: 100%;
+          max-width: none;
+        }
+        #scorecard-page.turn-mode .scorecard-scrollbar {
+          display: none;
+        }
+        #scorecard-page.turn-mode .scorecard-pan-arrow {
+          width: 28px;
+          height: 64px;
+          font-size: 16px;
+        }
+
+        /* Controlli conferma: overlay sui lati liberi della scheda */
+        #scorecard-page.turn-mode .scorecard-action-bar.show {
+          position: absolute;
+          inset: 0;
+          width: auto;
+          max-width: none;
+          z-index: 28;
+          display: block;
+          padding: 0;
+          background: transparent;
+          border: none;
+          border-radius: 0;
+          pointer-events: none;
+        }
+        #scorecard-page.turn-mode .scorecard-action-bar .action-label {
+          position: absolute;
+          top: 6px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: max-content;
+          max-width: min(46vw, 280px);
+          text-align: center;
+          font-size: 12px;
+          padding: 4px 10px;
+          border-radius: 8px;
+          background: rgba(12, 8, 4, 0.72);
+          border: 1px solid rgba(201, 168, 76, 0.35);
+          pointer-events: none;
+        }
+        #scorecard-page.turn-mode .scorecard-action-bar .action-btns {
+          display: contents;
+        }
+        #scorecard-page.turn-mode #scorecard-quota-count {
+          position: absolute;
+          left: 8px;
+          top: 12%;
+          margin: 0;
+          padding: 6px 8px;
+          border-radius: 8px;
+          background: rgba(12, 8, 4, 0.72);
+          border: 1px solid rgba(201, 168, 76, 0.35);
+          pointer-events: none;
+          z-index: 1;
+        }
+        #scorecard-page.turn-mode #scorecard-qty-controls {
+          position: absolute;
+          left: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          margin: 0;
+          flex-direction: column;
+          gap: 8px;
+          padding: 8px 6px;
+          border-radius: 12px;
+          background: rgba(12, 8, 4, 0.78);
+          border: 1px solid rgba(201, 168, 76, 0.45);
+          pointer-events: auto;
+          z-index: 1;
+        }
+        #scorecard-page.turn-mode #scorecard-qty-controls button {
+          width: 40px;
+          height: 40px;
+          padding: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+        #scorecard-page.turn-mode #scorecard-action-cancel {
+          position: absolute;
+          left: 8px;
+          bottom: 12%;
+          pointer-events: auto;
+          z-index: 1;
+          min-width: 72px;
+          padding: 10px 12px;
+          background: rgba(12, 8, 4, 0.82);
+        }
+        #scorecard-page.turn-mode #scorecard-action-confirm {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          pointer-events: auto;
+          z-index: 1;
+          width: 76px;
+          height: 76px;
+          padding: 8px;
+          border-radius: 14px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          white-space: normal;
+          line-height: 1.15;
+        }
+
+        /* Scelta negozi/oro/capre/mercato: una riga */
+        #scorecard-choice {
+          padding: 8px 12px;
+        }
+        #scorecard-choice .setup-card {
+          padding: 6px 4px;
+          max-width: min(96vw, 720px);
+        }
+        #scorecard-choice .setup-card h2 {
+          margin-bottom: 4px;
+          font-size: 18px;
+        }
+        #scorecard-choice .choice-district {
+          margin-bottom: 10px;
+          font-size: 13px;
+          min-height: 0;
+        }
+        #scorecard-choice .choice-btns {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          gap: 10px;
+          max-width: min(96vw, 640px);
+          align-items: center;
+          justify-content: center;
+        }
+        #scorecard-choice .choice-tile {
+          flex: 1 1 0;
+          width: auto;
+          max-width: 120px;
+          max-height: min(36vh, 120px);
+          aspect-ratio: 1;
+        }
+      }
+
       .scorecard-hit[data-kind="building"] {
         border-radius: 4px;
       }
@@ -2216,39 +2490,42 @@
     <!-- 3D VIEW -->
     <div id="canvas-wrap">
       <canvas id="three-canvas"></canvas>
-      <div id="yellow-buy-tray" hidden>
-        <p id="yellow-buy-copy">Compra dadi gialli · 1 Oro l’uno</p>
-        <div id="yellow-buy-slots">
-          <button
-            type="button"
-            class="yellow-slot"
-            data-slot="0"
-            onclick="toggleYellowDieSlot(0)"
-            aria-label="Dado giallo 1"
-          ></button>
-          <button
-            type="button"
-            class="yellow-slot"
-            data-slot="1"
-            onclick="toggleYellowDieSlot(1)"
-            aria-label="Dado giallo 2"
-          ></button>
-          <button
-            type="button"
-            class="yellow-slot"
-            data-slot="2"
-            onclick="toggleYellowDieSlot(2)"
-            aria-label="Dado giallo 3"
-          ></button>
+      <!-- display:contents in portrait → layout invariato; in landscape diventa colonna a sx -->
+      <div id="board-pre-roll-stack">
+        <div id="draft-commit-hint" hidden>
+          <p id="draft-commit-hint-copy">
+            Dopo il lancio, una volta scelto un distretto non puoi rimettere i dadi
+            a posto.
+          </p>
         </div>
-        <span id="yellow-dice-cost" hidden></span>
-        <input type="hidden" id="yellow-dice" value="0" />
-      </div>
-      <div id="draft-commit-hint" hidden>
-        <p id="draft-commit-hint-copy">
-          Dopo il lancio, una volta scelto un distretto non puoi rimettere i dadi
-          a posto.
-        </p>
+        <div id="yellow-buy-tray" hidden>
+          <p id="yellow-buy-copy">Compra dadi gialli · 1 Oro l’uno</p>
+          <div id="yellow-buy-slots">
+            <button
+              type="button"
+              class="yellow-slot"
+              data-slot="0"
+              onclick="toggleYellowDieSlot(0)"
+              aria-label="Dado giallo 1"
+            ></button>
+            <button
+              type="button"
+              class="yellow-slot"
+              data-slot="1"
+              onclick="toggleYellowDieSlot(1)"
+              aria-label="Dado giallo 2"
+            ></button>
+            <button
+              type="button"
+              class="yellow-slot"
+              data-slot="2"
+              onclick="toggleYellowDieSlot(2)"
+              aria-label="Dado giallo 3"
+            ></button>
+          </div>
+          <span id="yellow-dice-cost" hidden></span>
+          <input type="hidden" id="yellow-dice" value="0" />
+        </div>
       </div>
 
       <div id="mode-setup" class="hidden" aria-hidden="true">
