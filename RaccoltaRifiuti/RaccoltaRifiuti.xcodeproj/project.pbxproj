@@ -1,0 +1,432 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* RaccoltaRifiutiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* RaccoltaRifiutiApp.swift */; };
+		A10000000000000000000002 /* GiornoSettimana.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* GiornoSettimana.swift */; };
+		A10000000000000000000003 /* Materiale.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000003 /* Materiale.swift */; };
+		A10000000000000000000004 /* SvegliaConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* SvegliaConfig.swift */; };
+		A10000000000000000000005 /* ConfigurazioneGiorno.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000005 /* ConfigurazioneGiorno.swift */; };
+		A10000000000000000000006 /* PersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000006 /* PersistenceService.swift */; };
+		A10000000000000000000007 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* AppStore.swift */; };
+		A10000000000000000000008 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* NotificationManager.swift */; };
+		A10000000000000000000009 /* NotificationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* NotificationDelegate.swift */; };
+		A1000000000000000000000A /* PattumieraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000A /* PattumieraView.swift */; };
+		A1000000000000000000000B /* GiornoRaccoltaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000B /* GiornoRaccoltaView.swift */; };
+		A1000000000000000000000C /* RiepilogoSettimanaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000C /* RiepilogoSettimanaleView.swift */; };
+		A1000000000000000000000D /* ModificaSvegliaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000D /* ModificaSvegliaView.swift */; };
+		A1000000000000000000000E /* ImpostazioniView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000E /* ImpostazioniView.swift */; };
+		A1000000000000000000000F /* ConfiguraGiornoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000F /* ConfiguraGiornoView.swift */; };
+		A10000000000000000000010 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* HomeView.swift */; };
+		A10000000000000000000011 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B10000000000000000000001 /* RaccoltaRifiutiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RaccoltaRifiutiApp.swift; sourceTree = "<group>"; };
+		B10000000000000000000002 /* GiornoSettimana.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiornoSettimana.swift; sourceTree = "<group>"; };
+		B10000000000000000000003 /* Materiale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Materiale.swift; sourceTree = "<group>"; };
+		B10000000000000000000004 /* SvegliaConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SvegliaConfig.swift; sourceTree = "<group>"; };
+		B10000000000000000000005 /* ConfigurazioneGiorno.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurazioneGiorno.swift; sourceTree = "<group>"; };
+		B10000000000000000000006 /* PersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceService.swift; sourceTree = "<group>"; };
+		B10000000000000000000007 /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
+		B10000000000000000000008 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		B10000000000000000000009 /* NotificationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDelegate.swift; sourceTree = "<group>"; };
+		B1000000000000000000000A /* PattumieraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PattumieraView.swift; sourceTree = "<group>"; };
+		B1000000000000000000000B /* GiornoRaccoltaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiornoRaccoltaView.swift; sourceTree = "<group>"; };
+		B1000000000000000000000C /* RiepilogoSettimanaleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiepilogoSettimanaleView.swift; sourceTree = "<group>"; };
+		B1000000000000000000000D /* ModificaSvegliaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModificaSvegliaView.swift; sourceTree = "<group>"; };
+		B1000000000000000000000E /* ImpostazioniView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpostazioniView.swift; sourceTree = "<group>"; };
+		B1000000000000000000000F /* ConfiguraGiornoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfiguraGiornoView.swift; sourceTree = "<group>"; };
+		B10000000000000000000010 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		B10000000000000000000011 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B10000000000000000000012 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C10000000000000000000001 /* RaccoltaRifiuti.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RaccoltaRifiuti.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D10000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E10000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				E10000000000000000000002 /* RaccoltaRifiuti */,
+				E10000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E10000000000000000000002 /* RaccoltaRifiuti */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000001 /* RaccoltaRifiutiApp.swift */,
+				E10000000000000000000004 /* Models */,
+				E10000000000000000000005 /* Persistence */,
+				E10000000000000000000006 /* Notifications */,
+				E10000000000000000000007 /* Views */,
+				B10000000000000000000011 /* Assets.xcassets */,
+				B10000000000000000000012 /* Info.plist */,
+			);
+			path = RaccoltaRifiuti;
+			sourceTree = "<group>";
+		};
+		E10000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C10000000000000000000001 /* RaccoltaRifiuti.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E10000000000000000000004 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000002 /* GiornoSettimana.swift */,
+				B10000000000000000000003 /* Materiale.swift */,
+				B10000000000000000000004 /* SvegliaConfig.swift */,
+				B10000000000000000000005 /* ConfigurazioneGiorno.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		E10000000000000000000005 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000006 /* PersistenceService.swift */,
+				B10000000000000000000007 /* AppStore.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		E10000000000000000000006 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000008 /* NotificationManager.swift */,
+				B10000000000000000000009 /* NotificationDelegate.swift */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
+		E10000000000000000000007 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000010 /* HomeView.swift */,
+				B1000000000000000000000B /* GiornoRaccoltaView.swift */,
+				B1000000000000000000000C /* RiepilogoSettimanaleView.swift */,
+				B1000000000000000000000D /* ModificaSvegliaView.swift */,
+				B1000000000000000000000E /* ImpostazioniView.swift */,
+				B1000000000000000000000F /* ConfiguraGiornoView.swift */,
+				B1000000000000000000000A /* PattumieraView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F10000000000000000000001 /* RaccoltaRifiuti */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F10000000000000000000004 /* Build configuration list for PBXNativeTarget "RaccoltaRifiuti" */;
+			buildPhases = (
+				F10000000000000000000002 /* Sources */,
+				D10000000000000000000001 /* Frameworks */,
+				F10000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RaccoltaRifiuti;
+			productName = RaccoltaRifiuti;
+			productReference = C10000000000000000000001 /* RaccoltaRifiuti.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F10000000000000000000005 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					F10000000000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = F10000000000000000000006 /* Build configuration list for PBXProject "RaccoltaRifiuti" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = it;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				it,
+			);
+			mainGroup = E10000000000000000000001;
+			productRefGroup = E10000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F10000000000000000000001 /* RaccoltaRifiuti */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F10000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000011 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F10000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000001 /* RaccoltaRifiutiApp.swift in Sources */,
+				A10000000000000000000002 /* GiornoSettimana.swift in Sources */,
+				A10000000000000000000003 /* Materiale.swift in Sources */,
+				A10000000000000000000004 /* SvegliaConfig.swift in Sources */,
+				A10000000000000000000005 /* ConfigurazioneGiorno.swift in Sources */,
+				A10000000000000000000006 /* PersistenceService.swift in Sources */,
+				A10000000000000000000007 /* AppStore.swift in Sources */,
+				A10000000000000000000008 /* NotificationManager.swift in Sources */,
+				A10000000000000000000009 /* NotificationDelegate.swift in Sources */,
+				A1000000000000000000000A /* PattumieraView.swift in Sources */,
+				A1000000000000000000000B /* GiornoRaccoltaView.swift in Sources */,
+				A1000000000000000000000C /* RiepilogoSettimanaleView.swift in Sources */,
+				A1000000000000000000000D /* ModificaSvegliaView.swift in Sources */,
+				A1000000000000000000000E /* ImpostazioniView.swift in Sources */,
+				A1000000000000000000000F /* ConfiguraGiornoView.swift in Sources */,
+				A10000000000000000000010 /* HomeView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F10000000000000000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		F10000000000000000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F10000000000000000000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RaccoltaRifiuti/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Raccolta Rifiuti";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = it.raccoltarifiuti.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		F1000000000000000000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RaccoltaRifiuti/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Raccolta Rifiuti";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = it.raccoltarifiuti.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F10000000000000000000004 /* Build configuration list for PBXNativeTarget "RaccoltaRifiuti" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F10000000000000000000009 /* Debug */,
+				F1000000000000000000000A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F10000000000000000000006 /* Build configuration list for PBXProject "RaccoltaRifiuti" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F10000000000000000000007 /* Debug */,
+				F10000000000000000000008 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F10000000000000000000005 /* Project object */;
+}

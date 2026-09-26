@@ -5,3 +5,5 @@ dist
 server/tmp/
 .env.local
 .env.*.local
+**/xcuserdata/
+*.xcuserstate
